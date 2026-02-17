@@ -3,13 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 use App\Models\Category;
-use Illuminate\Support\Facades\Log;
 
 class SubCategory extends Model
 {
-    protected $fillable = ['name', 'category_id'];
+    // use SoftDeletes;
 
+    protected $fillable = ["name", "category_id"];
+
+    // () -> belongs to main category
     public function category()
     {
         return $this->belongsTo(Category::class);

@@ -13,22 +13,49 @@ class SubcategoryController extends Controller
     /*
         All Sub categories
     */
-    public function index()
+    public function index(Request $request)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Admin\SubcategoryController@index] All sub categories requested!",
         );
 
-        $subcategories = SubCategory::with("category")->latest()->get();
+        // get main categories
+        $categories = Category::all();
 
-        // log the status
-        Log::info("sub categories fetched", [
-            "total" => count($subcategories),
-            "status" => (bool) $subcategories,
-        ]);
+        // check if filter category?
+        $categoryId = $request->query("category");
+        if ($categoryId) {
+            // get all sub categories of incoming category.
+            $subCategories = SubCategory::where("category_id", $categoryId)
+                ->with("category")
+                ->get();
 
-        return view("admin.subcategories.index", compact("subcategories"));
+            // log the status
+            Log::info("sub categories fetched of $categoryId Category.", [
+                "total" => count($subCategories),
+                "status" => (bool) $subCategories,
+            ]);
+        }
+
+        // All sub categories with main category
+        else {
+            $subCategories = SubCategory::with("category")->latest()->get();
+
+            // log the status
+            Log::info("sub categories fetched", [
+                "total" => count($subCategories),
+                "status" => (bool) $subCategories,
+            ]);
+        }
+
+        // log the end
+        Log::info("Subcategories fetch complete!");
+
+        return view(
+            "admin.subcategories.index",
+            compact("categories", "subCategories"),
+        );
     }
 
     /*

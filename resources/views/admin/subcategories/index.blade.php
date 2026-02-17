@@ -11,6 +11,30 @@
     </a>
 </div>
 
+<div class="bg-white rounded-2xl p-4 mb-6 border border-gray-100">
+
+    <form method="GET" action="{{ route('admin.subcategories.index') }}"
+          class="flex items-center gap-4">
+
+        <label class="text-sm text-gray-600">Filter by Category:</label>
+
+        <select
+            onchange="this.form.submit();"
+            name="category"
+                class="border rounded-md px-3 py-2 text-sm">
+            <option value="">All</option>
+
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}"
+                    @selected(request('category') == $category->id)>
+                    {{ $category->name }}
+                </option>
+            @endforeach
+        </select>
+    </form>
+</div>
+
+
 <div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
 
     @if (session('success'))
@@ -30,7 +54,7 @@
         </thead>
 
         <tbody class="divide-y">
-            @forelse ($subcategories as $subcategory)
+            @forelse ($subCategories as $subcategory)
             <tr>
                 <td class="px-4 py-3">{{ $loop->iteration }}</td>
 

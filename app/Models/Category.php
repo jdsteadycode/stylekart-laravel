@@ -11,10 +11,10 @@ class Category extends Model
 {
     // use SoftDeletes;
 
-    protected $fillable = ['name'];
+    protected $fillable = ["name"];
 
     public function subcategories()
     {
-        return $this->hasMany(Subcategory::class);
+        return $this->hasMany(SubCategory::class);
     }
 }
