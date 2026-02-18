@@ -12,6 +12,41 @@ use App\Http\Controllers\Vendor\ProductController;
 use App\Http\Controllers\Vendor\ProductVariantController;
 use App\Http\Controllers\Vendor\ProductImageController;
 use App\Http\Controllers\Vendor\DashboardController;
+use App\Http\Controllers\Vendor\ProductColorImageController;
+use App\Models\ProductColorImage;
+use Illuminate\Http\Request;
+
+/*
+ */
+
+Route::get("/test-upload", function () {
+    return view("test-upload");
+});
+
+Route::post("/test-upload", function (Request $request) {
+    $request->validate([
+        "product_id" => "required|exists:products,id",
+        "color" => "required|string",
+        "image" => "required|image",
+    ]);
+
+    // Create color record
+    $colorImage = ProductColorImage::create([
+        "product_id" => $request->product_id,
+        "color" => $request->color,
+    ]);
+
+    // Attach media
+    $colorImage
+        ->addMedia($request->file("image"))
+        ->toMediaCollection("color_images");
+
+    return back()->with("success", "Image uploaded successfully!");
+})->name("test-upload-image");
+
+/*
+
+*/
 
 // for vendor
 use App\Http\Controllers\Vendor\VendorProfileController;
@@ -243,15 +278,21 @@ Route::middleware(["auth", "role:vendor"])
 
         // 'dashboard/vendor/product/4/images'
         Route::post("products/{product}/images", [
-            ProductImageController::class,
+            ProductColorImageController::class,
             "store",
-        ])->name("vendor.products.images.store");
+        ])->name("vendor.products.color-images.store");
+
+        // 'dashboard/vendor/product/4/images/3'
+        Route::put("products/{product}/images/{media}", [
+            ProductColorImageController::class,
+            "update",
+        ])->name("vendor.products.color-images.update");
 
         // 'dashboard/vendor/product/4/images/img-file'
-        Route::delete("products/{product}/images/{image}", [
-            ProductImageController::class,
+        Route::delete("products/{product}/images/{media}", [
+            ProductColorImageController::class,
             "destroy",
-        ])->name("vendor.products.images.destroy");
+        ])->name("vendor.products.color-images.destroy");
     });
 
 // Customer dashboard
