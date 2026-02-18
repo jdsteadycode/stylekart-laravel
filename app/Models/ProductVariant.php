@@ -22,4 +22,14 @@ class ProductVariant extends Model
     {
         $this->belongsTo(Product::class);
     }
+
+    /*
+    Mutatots
+    */
+    // () -> standardize the color values..
+    public function setColorAttribute($colorValue)
+    {
+        // trim and standardize the color values
+        $this->attributes["color"] = trim(strtolower($colorValue));
+    }
 }
