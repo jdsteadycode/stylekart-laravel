@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\SubCategory;
 use App\Models\ProductVariant;
-use App\Models\ProductImage;
+use App\Models\ProductColorImage;
 
 class Product extends Model
 {
@@ -42,9 +42,9 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
-    // () -> related images..
-    public function images()
+    // () -> related color-images..
+    public function colorImages()
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->hasMany(ProductColorImage::class);
     }
 }
