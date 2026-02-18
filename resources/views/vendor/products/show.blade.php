@@ -120,67 +120,99 @@
 
     </div>
 
+    <!-- images section -->
+    <div class="bg-white border rounded-lg p-6 shadow-sm">
 
-    <!-- Images Section -->
-    <div class="bg-white border rounded-lg p-6">
+        <h2 class="text-lg font-semibold mb-4">Images by Color</h2>
 
-        <h2 class="text-lg font-semibold mb-4">Images</h2>
+        <!-- Validation Errors -->
+        @if ($errors->any())
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded text-sm">
+                 <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <!-- Upload Form -->
-        <form action="{{ route('vendor.products.images.store', $product) }}"
+        <form action="{{ route('vendor.products.color-images.store', $product) }}"
               method="POST"
               enctype="multipart/form-data"
-              class="space-y-4">
+              class="flex flex-col md:flex-row md:items-center gap-2 mb-6">
 
             @csrf
 
-            <input type="file"
-                   name="images[]"
-                   multiple
-                   class="border p-2 w-full rounded">
+            <input type="text" name="color" placeholder="Color e.g. red"
+                   class="border p-2 rounded flex-1 min-w-[120px]">
 
-            <button type="submit"
-                    class="bg-green-600 text-white px-4 py-2 rounded">
-                Upload Images
+            <input type="file" name="images[]" multiple
+                   class="border p-2 rounded flex-1 min-w-[200px]">
+
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">
+                Upload
             </button>
 
         </form>
 
-        <!-- Display Images -->
-        <div class="grid grid-cols-4 gap-4 mt-6">
-
-            @forelse($product->images as $image)
-
-            <div class="relative">
-
-                <img src="{{ asset('storage/' . $image->image_url) }}"
-                     class="w-full h-40 object-cover rounded">
-
-                <form action="{{ route('vendor.products.images.destroy', [$product, $image]) }}"
-                      method="POST"
-                      class="absolute top-2 right-2"
-                      onsubmit="return confirm('Delete this image?')">
-
-                    @csrf
-                    @method('DELETE')
-
-                    <button type="submit"
-                            class="bg-red-600 text-white px-2 py-1 text-xs rounded">
-                        X
-                    </button>
-
-                </form>
-
-            </div>
+        <!-- Display Color Images -->
+        <div class="space-y-6">
+            @foreach($product->colorImages as $colorImage)
+                <div class="border rounded-lg p-4">
+                    <!-- Color Header -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-medium capitalize bg-gray-200 px-2 py-1 rounded">
+                            {{ $colorImage->color }}
+                        </span>
+                        <!-- Optional: total images badge -->
+                        <span class="text-xs text-gray-500">{{ $colorImage->getMedia('color_images')->count() }} images</span>
+                    </div>
 
 
-            @empty
-                <p class="text-sm text-gray-500">No images uploaded yet.</p>
-            @endforelse
+                    <!-- Images Grid -->
+                    <div class="grid grid-cols-4 gap-3">
+                        @foreach($colorImage->getMedia('color_images') as $media)
+                            <div class="flex flex-col items-center">
+                                <img src="{{ $media->getUrl() }}"
+                                     class="w-full h-32 object-cover rounded mb-2 border border-gray-300">
 
+                                <!-- Buttons -->
+                                <div class="flex gap-1">
+                                    <!-- Update -->
+                                    <form action="{{ route('vendor.products.color-images.update', ['product' => $product, 'media' => $media]) }}"
+                                          method="POST" enctype="multipart/form-data"
+                                          onsubmit="return confirm('Replace this image?')">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="file" name="image" class="hidden" onchange="this.form.submit()">
+                                        <button type="button" onclick="this.previousElementSibling.click()"
+                                                class="bg-gray-400 text-white px-2 py-1 text-xs rounded hover:bg-gray-500">
+                                            ✏️
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete -->
+                                    <form action="{{ route('vendor.products.color-images.destroy', ['product' => $product, 'media' => $media]) }}"
+                                          method="POST" onsubmit="return confirm('Delete this image?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
         </div>
 
+
     </div>
+
 
 
 </div>
