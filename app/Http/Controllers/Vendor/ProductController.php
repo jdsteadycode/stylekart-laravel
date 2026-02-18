@@ -220,7 +220,6 @@ class ProductController extends Controller
         abort_if($product->vendor_id !== auth()->id(), 403);
 
         $product->load(["subCategory.category", "variants"]);
-
         // log the end
         Log::info("Single Product view ended.");
 
