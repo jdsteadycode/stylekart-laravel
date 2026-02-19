@@ -33,9 +33,19 @@
 
             <div>
                 <label class="block text-sm font-medium mb-1">Color</label>
-                <input type="text" name="color"
+                <!--<input type="text" name="color"
                        class="w-full border rounded-md p-2"
-                       value="{{ old('color', $variant->color) }}">
+                       value="{{ old('color', $variant->color) }}">-->
+
+                       <select name="color" required class="w-full rounded">
+                           <option value="">Select Color</option>
+                           @foreach($product->colors as $color)
+                               <option value="{{ $color->name }}"
+                                   {{ old('color', $variant->color) == $color->name ? 'selected' : '' }}>
+                                   {{ ucfirst($color->name) }}
+                               </option>
+                           @endforeach
+                       </select>
             </div>
 
             <div>
