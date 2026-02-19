@@ -4,6 +4,18 @@
 
 <div class="max-w-5xl mx-auto space-y-8">
 
+    @if (session('success'))
+        <div class="m-4 text-green-700 bg-green-100 px-4 py-2 rounded-md text-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="m-4 text-red-700 bg-red-100 px-4 py-2 rounded-md text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div>
         <a
             href="{{ url()->previous() }}"
@@ -14,12 +26,6 @@
 
     <!-- Product Details -->
     <div class="bg-white border rounded-lg p-6">
-
-        @if (session('success'))
-            <div class="m-4 text-green-700 bg-green-100 px-4 py-2 rounded-md text-sm">
-                {{ session('success') }}
-            </div>
-        @endif
 
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-xl font-semibold">
@@ -61,6 +67,71 @@
         </div>
 
     </div>
+
+    <!-- Colors Section -->
+    <div class="bg-white border rounded-lg p-6">
+
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Colors</h2>
+
+            <a href="{{ route('vendor.products.colors.create', $product) }}"
+               class="bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-500">
+                + Add Color
+            </a>
+        </div>
+
+        @if($product->colors->count())
+
+            <div class="space-y-3">
+                @foreach($product->colors as $color)
+                    <div class="flex justify-between items-center border rounded-md px-4 py-3"
+                        >
+
+                        <div class="flex items-center space-x-3">
+                            <!-- Optional small color indicator -->
+                            <div class="w-4 h-4 rounded-full border"
+                                 style="background-color: {{ $color->name }};">
+                            </div>
+
+                            <a
+                                href="{{ route('vendor.products.colors.show', [$product, $color]) }}"
+                            >
+                                <span class="text-sm font-medium capitalize hover:underline">
+                                    {{ $color->name }}
+                                </span>
+                            </a>
+
+                            <!-- Optional: Variant count -->
+                            <span class="text-xs text-gray-500">
+                                ({{ $product->variants->where('color', $color->name)->count() }} variants)
+                            </span>
+                        </div>
+
+                        <div class="space-x-3 text-sm" x-data="{open: false}">
+                            <a href="{{ route('vendor.products.colors.edit', [$product, $color]) }}"
+                               class="text-orange-600 hover:underline">
+                                Edit
+                            </a>
+
+                            <x-admin.delete-modal
+                                action="{{ route('vendor.products.colors.destroy', [$product, $color]) }}"
+                                message="Delete {{ $color->name }}!"
+                                title="Are you sure?"
+                            />
+                        </div>
+
+                    </div>
+                @endforeach
+            </div>
+
+        @else
+            <p class="text-gray-500 text-sm">
+                No colors added yet. Add a color to define how this product appears visually.
+            </p>
+        @endif
+
+    </div>
+
 
     <!-- Variants Section -->
     <div class="bg-white border rounded-lg p-6">
@@ -121,97 +192,6 @@
     </div>
 
     <!-- images section -->
-    <div class="bg-white border rounded-lg p-6 shadow-sm">
-
-        <h2 class="text-lg font-semibold mb-4">Images by Color</h2>
-
-        <!-- Validation Errors -->
-        @if ($errors->any())
-            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded text-sm">
-                 <ul class="list-disc list-inside">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <!-- Upload Form -->
-        <form action="{{ route('vendor.products.color-images.store', $product) }}"
-              method="POST"
-              enctype="multipart/form-data"
-              class="flex flex-col md:flex-row md:items-center gap-2 mb-6">
-
-            @csrf
-
-            <input type="text" name="color" placeholder="Color e.g. red"
-                   class="border p-2 rounded flex-1 min-w-[120px]">
-
-            <input type="file" name="images[]" multiple
-                   class="border p-2 rounded flex-1 min-w-[200px]">
-
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">
-                Upload
-            </button>
-
-        </form>
-
-        <!-- Display Color Images -->
-        <div class="space-y-6">
-            @foreach($product->colorImages as $colorImage)
-                <div class="border rounded-lg p-4">
-                    <!-- Color Header -->
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-sm font-medium capitalize bg-gray-200 px-2 py-1 rounded">
-                            {{ $colorImage->color }}
-                        </span>
-                        <!-- Optional: total images badge -->
-                        <span class="text-xs text-gray-500">{{ $colorImage->getMedia('color_images')->count() }} images</span>
-                    </div>
-
-
-                    <!-- Images Grid -->
-                    <div class="grid grid-cols-4 gap-3">
-                        @foreach($colorImage->getMedia('color_images') as $media)
-                            <div class="flex flex-col items-center">
-                                <img src="{{ $media->getUrl() }}"
-                                     class="w-full h-32 object-cover rounded mb-2 border border-gray-300">
-
-                                <!-- Buttons -->
-                                <div class="flex gap-1">
-                                    <!-- Update -->
-                                    <form action="{{ route('vendor.products.color-images.update', ['product' => $product, 'media' => $media]) }}"
-                                          method="POST" enctype="multipart/form-data"
-                                          onsubmit="return confirm('Replace this image?')">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="file" name="image" class="hidden" onchange="this.form.submit()">
-                                        <button type="button" onclick="this.previousElementSibling.click()"
-                                                class="bg-gray-400 text-white px-2 py-1 text-xs rounded hover:bg-gray-500">
-                                            ✏️
-                                        </button>
-                                    </form>
-
-                                    <!-- Delete -->
-                                    <form action="{{ route('vendor.products.color-images.destroy', ['product' => $product, 'media' => $media]) }}"
-                                          method="POST" onsubmit="return confirm('Delete this image?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700">
-                                            🗑️
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
-        </div>
-
-
-    </div>
 
 
 
