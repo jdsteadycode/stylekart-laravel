@@ -10,11 +10,14 @@ use App\Http\Controllers\Admin\VendorController;
 
 use App\Http\Controllers\Vendor\ProductController;
 use App\Http\Controllers\Vendor\ProductVariantController;
-use App\Http\Controllers\Vendor\ProductImageController;
+// use App\Http\Controllers\Vendor\ProductImageController;
 use App\Http\Controllers\Vendor\DashboardController;
-use App\Http\Controllers\Vendor\ProductColorImageController;
-use App\Models\ProductColorImage;
+use App\Http\Controllers\Vendor\ProductColorController;
+// use App\Http\Controllers\Vendor\ProductColorImageController;
+use App\Models\ProductColor;
 use Illuminate\Http\Request;
+
+use App\Http\Middleware\EnsureVendorIsApproved;
 
 /*
  */
@@ -26,18 +29,18 @@ Route::get("/test-upload", function () {
 Route::post("/test-upload", function (Request $request) {
     $request->validate([
         "product_id" => "required|exists:products,id",
-        "color" => "required|string",
+        "name" => "required|string",
         "image" => "required|image",
     ]);
 
     // Create color record
-    $colorImage = ProductColorImage::create([
+    $color = ProductColor::create([
         "product_id" => $request->product_id,
-        "color" => $request->color,
+        "name" => $request->color,
     ]);
 
     // Attach media
-    $colorImage
+    $color
         ->addMedia($request->file("image"))
         ->toMediaCollection("color_images");
 
@@ -199,100 +202,149 @@ Route::middleware(["auth", "role:vendor"])
         ])->name("vendor.profile.update");
 
         /*
-            products module
+            Protected Routes for access if ain't approved..
         */
-        // 'dashboard/vendor/products'
-        Route::get("/products", [ProductController::class, "index"])->name(
-            "vendor.products.index",
-        );
+        Route::middleware(EnsureVendorIsApproved::class)->group(function () {
+            /*
+               products module
+           */
+            Route::prefix("products")->group(function () {
+                // 'dashboard/vendor/products'
+                Route::get("/", [ProductController::class, "index"])->name(
+                    "vendor.products.index",
+                );
 
-        // 'dashboard/vendor/products/create' - for product creation form
-        Route::get("/products/create", [
-            ProductController::class,
-            "create",
-        ])->name("vendor.products.create");
+                // 'dashboard/vendor/products/create' - for product creation form
+                Route::get("/create", [
+                    ProductController::class,
+                    "create",
+                ])->name("vendor.products.create");
 
-        // 'dashboard/vendor/products' - store the created product
-        Route::post("/products", [ProductController::class, "store"])->name(
-            "vendor.products.store",
-        );
+                // 'dashboard/vendor/products' - store the created product
+                Route::post("/", [ProductController::class, "store"])->name(
+                    "vendor.products.store",
+                );
 
-        // 'dashboard/vendor/products/6/edit' - edit the created product
-        Route::get("/products/{product}/edit", [
-            ProductController::class,
-            "edit",
-        ])->name("vendor.products.edit");
+                // 'dashboard/vendor/products/6/edit' - edit the created product
+                Route::get("/{product}/edit", [
+                    ProductController::class,
+                    "edit",
+                ])->name("vendor.products.edit");
 
-        // 'dashboard/vendor/products/6/' - update the created product
-        Route::put("/products/{product}", [
-            ProductController::class,
-            "update",
-        ])->name("vendor.products.update");
+                // 'dashboard/vendor/products/6/' - update the created product
+                Route::put("/{product}", [
+                    ProductController::class,
+                    "update",
+                ])->name("vendor.products.update");
 
-        // 'dashboard/vendor/products/6' - delete the created product
-        Route::delete("/products/{product}", [
-            ProductController::class,
-            "destroy",
-        ])->name("vendor.products.destroy");
+                // 'dashboard/vendor/products/6' - delete the created product
+                Route::delete("/{product}", [
+                    ProductController::class,
+                    "destroy",
+                ])->name("vendor.products.destroy");
 
-        // 'dashboard/vendor/products/6' - show the product and related attribute details
-        Route::get("/products/{product}", [
-            ProductController::class,
-            "show",
-        ])->name("vendor.products.show");
+                // 'dashboard/vendor/products/6' - show the product and related attribute details
+                Route::get("/{product}", [
+                    ProductController::class,
+                    "show",
+                ])->name("vendor.products.show");
 
-        // 'dashboard/vendor/products/6/toggle-status' - toggle the product state (active / in-active)
-        Route::put("/products/{product}/toggle-status", [
-            ProductController::class,
-            "toggleStatus",
-        ])->name("vendor.products.toggle-status");
+                // 'dashboard/vendor/products/6/toggle-status' - toggle the product state (active / in-active)
+                Route::put("/{product}/toggle-status", [
+                    ProductController::class,
+                    "toggleStatus",
+                ])->name("vendor.products.toggle-status");
+            });
 
-        /*
-        Product variant routes
-        */
-        Route::prefix("products/{product}/variants")->group(function () {
-            Route::get("/create", [
-                ProductVariantController::class,
-                "create",
-            ])->name("vendor.products.variants.create");
+            /*
+           Product Color routes
+           */
+            Route::prefix("products/{product}/colors")->group(function () {
+                // 'dashboard/vendor/{4}/colors/create'
+                Route::get("/create", [
+                    ProductColorController::class,
+                    "create",
+                ])->name("vendor.products.colors.create");
 
-            Route::post("/", [ProductVariantController::class, "store"])->name(
-                "vendor.products.variants.store",
-            );
+                // 'dashboard/vendor/{4}/colors/'
+                Route::post("/", [
+                    ProductColorController::class,
+                    "store",
+                ])->name("vendor.products.colors.store");
 
-            Route::get("/{variant}/edit", [
-                ProductVariantController::class,
-                "edit",
-            ])->name("vendor.products.variants.edit");
+                // 'dashboard/vendor/{4}/colors/12'
+                Route::get("/{color}", [
+                    ProductColorController::class,
+                    "edit",
+                ])->name("vendor.products.colors.edit");
 
-            Route::put("/{variant}", [
-                ProductVariantController::class,
-                "update",
-            ])->name("vendor.products.variants.update");
+                // 'dashboard/vendor/{4}/colors/12'
+                Route::put("/{color}", [
+                    ProductColorController::class,
+                    "update",
+                ])->name("vendor.products.colors.update");
 
-            Route::delete("/{variant}", [
-                ProductVariantController::class,
-                "destroy",
-            ])->name("vendor.products.variants.destroy");
+                // 'dashboard/vendor/{4}/colors/12'
+                Route::delete("/{color}", [
+                    ProductColorController::class,
+                    "destroy",
+                ])->name("vendor.products.colors.destroy");
+
+                // 'dashboard/vendor/{4}/colors/12'
+                Route::get("/{color}/show", [
+                    ProductColorController::class,
+                    "show",
+                ])->name("vendor.products.colors.show");
+
+                // 'dashboard/vendor/{4}/colors/12/images'
+                Route::post("/{color}/images", [
+                    ProductColorController::class,
+                    "storeImages",
+                ])->name("vendor.colors.images.store");
+
+                // Replace image (PUT)
+                Route::put("/images/{media}", [
+                    ProductColorController::class,
+                    "updateImage",
+                ])->name("vendor.colors.images.update");
+
+                // Delete image (DELETE)
+                Route::delete("/images/{media}", [
+                    ProductColorController::class,
+                    "destroyImage",
+                ])->name("vendor.colors.images.destroy");
+            });
+
+            /*
+           Product variant routes
+           */
+            Route::prefix("products/{product}/variants")->group(function () {
+                Route::get("/create", [
+                    ProductVariantController::class,
+                    "create",
+                ])->name("vendor.products.variants.create");
+
+                Route::post("/", [
+                    ProductVariantController::class,
+                    "store",
+                ])->name("vendor.products.variants.store");
+
+                Route::get("/{variant}/edit", [
+                    ProductVariantController::class,
+                    "edit",
+                ])->name("vendor.products.variants.edit");
+
+                Route::put("/{variant}", [
+                    ProductVariantController::class,
+                    "update",
+                ])->name("vendor.products.variants.update");
+
+                Route::delete("/{variant}", [
+                    ProductVariantController::class,
+                    "destroy",
+                ])->name("vendor.products.variants.destroy");
+            });
         });
-
-        // 'dashboard/vendor/product/4/images'
-        Route::post("products/{product}/images", [
-            ProductColorImageController::class,
-            "store",
-        ])->name("vendor.products.color-images.store");
-
-        // 'dashboard/vendor/product/4/images/3'
-        Route::put("products/{product}/images/{media}", [
-            ProductColorImageController::class,
-            "update",
-        ])->name("vendor.products.color-images.update");
-
-        // 'dashboard/vendor/product/4/images/img-file'
-        Route::delete("products/{product}/images/{media}", [
-            ProductColorImageController::class,
-            "destroy",
-        ])->name("vendor.products.color-images.destroy");
     });
 
 // Customer dashboard
