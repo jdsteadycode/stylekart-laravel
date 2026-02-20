@@ -70,14 +70,24 @@ class VendorController extends Controller
 
         $request->validate([
             "status" => "required|in:pending,approved,rejected",
+            "rejection_reason" => "required_if:status,rejected",
         ]);
 
         // Update vendor profile
         $updated = $vendor->vendorProfile->update([
             "status" => $request->status,
+            "rejection_reason" =>
+                $request->status === "rejected"
+                    ? $request->rejection_reason
+                    : null,
         ]);
+
+        // log the action
         Log::info("$vendor->name status update!", [
-            "status" => (bool) $updated,
+            "vendor_id" => $vendor->id,
+            "new_status" => $request->status,
+            "rejected" => $request->status === "rejected",
+            "updated_by" => $request->user()->id,
         ]);
 
         return redirect()
