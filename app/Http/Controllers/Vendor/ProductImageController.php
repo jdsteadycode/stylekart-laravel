@@ -24,7 +24,8 @@ class ProductImageController extends Controller
         abort_if($product->vendor_id !== auth()->id(), 403);
 
         $request->validate([
-            "images.*" => "required|image|mimes:jpg,jpeg,png,webp|max:2048",
+            "images.*" =>
+                "required|image|mimes:jpg,jpeg,png,webp,avif|max:2048",
         ]);
 
         // count images
