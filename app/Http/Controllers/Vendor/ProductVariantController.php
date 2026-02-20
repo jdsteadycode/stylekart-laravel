@@ -39,21 +39,41 @@ class ProductVariantController extends Controller
         abort_if($product->vendor_id !== auth()->id(), 403);
 
         // Validate input
-        $validated = $request->validate([
-            "size" => "required|string|max:100",
-            "color" => "required|string|max:100",
-            "sku" => "nullable|string|max:100|unique:product_variants,sku",
-            "price" => "required|numeric|min:0",
-            "stock" => "required|integer|min:0",
-        ]);
+        $validated = $request->validate(
+            [
+                "size" => "required|string|max:100",
+                "color_id" => "required|exists:product_colors,id",
+                "sku" => "nullable|string|max:100|unique:product_variants,sku",
+                "price" => "required|numeric|min:0",
+                "stock" => "required|integer|min:0",
+            ],
+            [
+                "color_id.exists" => "Select valid color",
+            ],
+        );
 
         // log the status
         Log::info("Product Variant data validated?", [
             "status" => (bool) $validated,
         ]);
 
+        // check log
+        // Log::info($validated);
+
         // Create variant
-        $created = $product->variants()->create($validated);
+        $created = $product->variants()->updateOrCreate(
+            [
+                "color_id" => $request->color_id,
+                "size" => $request->size,
+            ],
+            [
+                "price" =>
+                    $request->price == 0
+                        ? $product->base_price
+                        : $request->price,
+                "stock" => $request->stock,
+            ],
+        );
 
         // log the status
         Log::info("Product Variant Created", [
@@ -106,19 +126,31 @@ class ProductVariantController extends Controller
         abort_if($product->vendor_id !== auth()->id(), 403);
         abort_if($variant->product_id !== $product->id, 404);
 
-        $validated = $request->validate([
-            "size" => "required|string|max:100",
-            "color" => "required|string|max:100",
-            "sku" =>
-                "nullable|string|max:100|unique:product_variants,sku," .
-                $variant->id, // sku should be unqiue except for this current record
-            "price" => "required|numeric|min:0",
-            "stock" => "required|integer|min:0",
-        ]);
+        $validated = $request->validate(
+            [
+                "size" => "required|string|max:100",
+                "color_id" => "required|exists:product_colors,id",
+                "sku" =>
+                    "nullable|string|max:100|unique:product_variants,sku," .
+                    $variant->id, // sku should be unqiue except for this current record
+                "price" => "required|numeric|min:0",
+                "stock" => "required|integer|min:0",
+            ],
+            [
+                "color_id.exists" => "Please select a valid color!",
+            ],
+        );
 
         // log the status
         Log::info("Variant Data validated?", ["status" => (bool) $validated]);
 
+        // fix the price if 0
+        $validated["price"] =
+            $validated["price"] == 0
+                ? $product->base_price
+                : $validated["price"];
+
+        // update the variant details.
         $updated = $variant->update($validated);
 
         // log the status
