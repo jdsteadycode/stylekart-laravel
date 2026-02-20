@@ -218,7 +218,8 @@ class ProductColorController extends Controller
 
         // Validate the uploaded files
         $request->validate([
-            "images.*" => "required|image|mimes:jpg,jpeg,png,gif,webp|max:5120",
+            "images.*" =>
+                "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:10000",
         ]);
 
         // check if images exist
@@ -263,7 +264,8 @@ class ProductColorController extends Controller
 
         // Validate the uploaded file
         $request->validate([
-            "image.*" => "required|image|mimes:jpg,jpeg,png,gif,webp|max:5120",
+            "image.*" =>
+                "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:5120",
         ]);
 
         // delete the existing image
