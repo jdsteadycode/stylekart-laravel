@@ -77,20 +77,41 @@
                         {{ ucfirst($vendor->vendorProfile->status ?? 'pending') }}
                     </span>
                 </td>
-                <td class="px-4 py-3 space-x-2" x-data="{ open: false }">
+                <td class="px-4 py-3 space-y-2"
+                    x-data="{ status: '{{ $vendor->vendorProfile->status }}' }">
 
-                    {{-- Approve/Reject --}}
                     @if($vendor->vendorProfile)
-                        <form method="POST" action="{{ route('admin.vendors.update', $vendor) }}" class="inline">
+                        <form method="POST"
+                              action="{{ route('admin.vendors.update', $vendor) }}"
+                              class="space-y-2">
+
                             @csrf
                             @method('PUT')
+
+                            {{-- Status Select --}}
                             <select name="status"
-                                class="border px-2 py-1 rounded text-sm"
-                                onchange="this.form.submit()">
-                                <option value="pending" @selected($vendor->vendorProfile->status=='pending')>Pending</option>
-                                <option value="approved" @selected($vendor->vendorProfile->status=='approved')>Approved</option>
-                                <option value="rejected" @selected($vendor->vendorProfile->status=='rejected')>Rejected</option>
+                                x-model="status"
+                                class="border px-2 py-1 rounded text-sm w-full">
+
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
                             </select>
+
+                            {{-- Rejection Reason (Only if rejected) --}}
+                            <div x-show="status === 'rejected'" x-cloak>
+                                <textarea name="rejection_reason"
+                                    class="border px-2 py-1 rounded text-sm w-full"
+                                    placeholder="Enter rejection reason..."
+                                >{{ $vendor->vendorProfile->rejection_reason }}</textarea>
+                            </div>
+
+                            {{-- Submit Button --}}
+                            <button type="submit"
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                Update
+                            </button>
+
                         </form>
                     @endif
                 </td>
