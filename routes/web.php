@@ -183,9 +183,9 @@ Route::middleware(["auth", "role:vendor"])
         */
 
         // 'dashboard/vendor/'
-        Route::get("/", [DashboardController::class, "index"])->name(
-            "dashboard.vendor",
-        );
+        Route::get("/", [DashboardController::class, "index"])
+            ->name("dashboard.vendor")
+            ->middleware(EnsureVendorIsApproved::class);
 
         /*
             profile module
