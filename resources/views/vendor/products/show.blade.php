@@ -103,7 +103,7 @@
 
                             <!-- Optional: Variant count -->
                             <span class="text-xs text-gray-500">
-                                ({{ $product->variants->where('color', $color->name)->count() }} variants)
+                                ({{ $product->variants->where('color_id', $color->id)->count() }} variants)
                             </span>
                         </div>
 
@@ -163,7 +163,7 @@
                     @foreach($product->variants as $variant)
                         <tr>
                             <td class="text-center p-2 border">{{ $variant->size }}</td>
-                            <td class="text-center p-2 border">{{ $variant->color }}</td>
+                            <td class="text-center p-2 border">{{ $variant->color->name }}</td>
                             <td class="text-center p-2 border">{{ $variant->sku }}</td>
                             <td class="text-center p-2 border">
                                 ₹ {{ number_format($variant->price, 2) }}
