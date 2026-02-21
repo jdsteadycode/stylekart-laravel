@@ -23,6 +23,12 @@ class ProductColor extends Model implements HasMedia
         return $this->belongsTo(Product::class);
     }
 
+    // () -> related variants i.e., one color can found in multiple variants..
+    public function variants()
+    {
+        return $this->hasMany(ProductColor::class);
+    }
+
     // () -> create collection
     public function registerMediaCollections(): void
     {
