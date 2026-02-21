@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\SubCategory;
 use App\Models\ProductVariant;
 use App\Models\ProductColor;
+use App\Models\CartItem;
+use App\Models\OrderItem;
 
 class Product extends Model
 {
@@ -46,5 +48,17 @@ class Product extends Model
     public function colors()
     {
         return $this->hasMany(ProductColor::class);
+    }
+
+    // () -> related cartItems
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    // () -> related ordered items
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
     }
 }
