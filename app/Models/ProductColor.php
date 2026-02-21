@@ -36,7 +36,7 @@ class ProductColor extends Model implements HasMedia
     }
 
     /*
-    Mutatots
+    Mutators
     */
     // () -> standardize the color values..
     public function setColorAttribute($colorValue)
