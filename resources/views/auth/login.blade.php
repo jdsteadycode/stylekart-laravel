@@ -1,47 +1,59 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="mb-10 text-center">
+        <h2 class="text-3xl font-black text-gray-900 tracking-tight mb-2">Welcome Back ✨</h2>
+        <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]">Sign in to your style account</p>
+    </div>
 
-    <form method="POST" action="{{ route('login') }}">
+    <x-auth-session-status class="mb-6 p-4 bg-green-50 text-green-600 rounded-2xl text-xs font-bold" :status="session('status')" />
+
+    <form method="POST" action="{{ route('login') }}" class="space-y-6">
         @csrf
 
-        <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <label for="email" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block">Email Address</label>
+            <x-text-input id="email"
+                class="block w-full bg-rose-50/30 border-rose-50 rounded-2xl px-5 py-4 text-sm focus:border-rose-300 focus:ring-rose-200 transition-all"
+                type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
+                placeholder="Enter your email" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-tight" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+        <div>
+            <div class="flex justify-between items-center ml-1 mb-2">
+                <label for="password" class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">Password</label>
+                @if (Route::has('password.request'))
+                    <a class="text-[9px] font-black text-rose-400 uppercase tracking-widest hover:text-rose-600" href="{{ route('password.request') }}">
+                        Forgot?
+                    </a>
+                @endif
+            </div>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <x-text-input id="password"
+                class="block w-full bg-rose-50/30 border-rose-50 rounded-2xl px-5 py-4 text-sm focus:border-rose-300 focus:ring-rose-200 transition-all"
+                type="password"
+                name="password"
+                required autocomplete="current-password"
+                placeholder="••••••••" />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-tight" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <div class="block">
+            <label for="remember_me" class="inline-flex items-center cursor-pointer group">
+                <input id="remember_me" type="checkbox" class="rounded-lg border-rose-100 text-rose-500 shadow-sm focus:ring-rose-300 transition-all" name="remember">
+                <span class="ms-2 text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-gray-600 transition-colors">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
+        <div class="pt-2">
+            <button class="w-full bg-rose-500 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-rose-100 hover:bg-rose-600 active:scale-95 transition-all">
                 {{ __('Log in') }}
-            </x-primary-button>
+            </button>
         </div>
+
+        <p class="text-center text-[10px] font-black text-gray-300 uppercase tracking-widest mt-8">
+            New to Stylekart?
+            <a href="{{ route('register') }}" class="text-rose-400 hover:text-rose-600 underline underline-offset-4 ml-1">Create Account</a>
+        </p>
     </form>
 </x-guest-layout>
