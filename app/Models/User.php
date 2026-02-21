@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use App\Models\Product;
+use App\Models\Address;
+use App\Models\CartItem;
+use App\Models\Order;
+use App\Models\OrderItem;
 
 class User extends Authenticatable
 {
@@ -56,5 +60,29 @@ class User extends Authenticatable
     public function products()
     {
         return $this->hasMany(Product::class, "vendor_id");
+    }
+
+    // () -> related addresses.
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    // () -> relate cart items
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    // () -> related orders
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    // () -> related sold items..
+    public function soldItems()
+    {
+        return $this->hasMany(OrderItem::class, "vendor_id");
     }
 }
