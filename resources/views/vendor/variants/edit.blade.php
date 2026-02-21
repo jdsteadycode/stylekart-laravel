@@ -37,11 +37,11 @@
                        class="w-full border rounded-md p-2"
                        value="{{ old('color', $variant->color) }}">-->
 
-                       <select name="color" required class="w-full rounded">
+                       <select name="color_id" required class="w-full rounded">
                            <option value="">Select Color</option>
                            @foreach($product->colors as $color)
-                               <option value="{{ $color->name }}"
-                                   {{ old('color', $variant->color) == $color->name ? 'selected' : '' }}>
+                               <option value="{{ $color->id }}"
+                                   {{ old('color', $variant->color_id) == $color->id ? 'selected' : '' }}>
                                    {{ ucfirst($color->name) }}
                                </option>
                            @endforeach
