@@ -14,6 +14,7 @@ class VendorProfile extends Model
         "shop_address",
         "phone",
         "status",
+        "rejection_reason",
     ];
 
     // () -> related user
