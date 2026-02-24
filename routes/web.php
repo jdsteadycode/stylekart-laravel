@@ -8,16 +8,25 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\VendorController;
 
+// for vendor
 use App\Http\Controllers\Vendor\ProductController;
 use App\Http\Controllers\Vendor\ProductVariantController;
 // use App\Http\Controllers\Vendor\ProductImageController;
 use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\Vendor\ProductColorController;
 // use App\Http\Controllers\Vendor\ProductColorImageController;
+
+// for customers (both)
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\ShopController;
+use App\Http\Controllers\Customer\ProductDetailController;
+use App\Http\Controllers\Customer\CartController;
+
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
 
 use App\Http\Middleware\EnsureVendorIsApproved;
+
 
 /*
  */
@@ -54,9 +63,10 @@ Route::post("/test-upload", function (Request $request) {
 // for vendor
 use App\Http\Controllers\Vendor\VendorProfileController;
 
-Route::get("/", function () {
-    return view("welcome");
+Route::get('/', function () {
+    return "Working fine!";
 });
+
 
 Route::get("/dashboard", function () {
     return view("dashboard");
@@ -347,12 +357,48 @@ Route::middleware(["auth", "role:vendor"])
         });
     });
 
-// Customer dashboard
-Route::get("/dashboard/customer", function () {
-    return view("dashboard.customer");
-})
-    ->middleware(["auth", "role:customer"])
-    ->name("dashboard.customer");
+// StyleKart public view / site..
+Route::prefix("/stylekart-store")->group(function () {
+
+    // '/' - home page..
+    Route::get("/", [HomeController::class, 'index'])->name("customer.home");
+
+    // '/shop' - shop page..
+    Route::get("/shop", [ShopController::class, 'index'])->name("customer.shop");
+
+    // '/product/2' - single product page..
+    Route::get("/product/{product}", [ProductDetailController::class, 'show'])->name("customer.product.show");
+
+    // bag (cart) routes
+    Route::prefix('cart')->name('customer.cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');       // show bag
+        Route::post('/', [CartController::class, 'store'])->name('store');      // add item
+        Route::patch('/{variant}', [CartController::class, 'update'])->name('update'); // update qty
+        Route::delete('/{variant}', [CartController::class, 'destroy'])->name('destroy'); // remove item
+    });
+
+
+    /*
+    Route::middleware(['auth', 'role:customer'])
+        ->prefix('stylekart-store')
+        ->group(function () {
+
+            Route::get('/cart', [CartController::class, 'index'])
+                ->name('customer.cart.index');
+
+            Route::post('/cart/add', [CartController::class, 'store'])
+                ->name('customer.cart.store');
+
+            Route::post('/checkout', [CheckoutController::class, 'store'])
+                ->name('customer.checkout');
+
+            Route::get('/orders', [OrderController::class, 'index'])
+                ->name('customer.orders.index');
+
+    });
+
+    */
+});
 
 Route::middleware("auth")->group(function () {
     Route::get("/profile", [ProfileController::class, "edit"])->name(
