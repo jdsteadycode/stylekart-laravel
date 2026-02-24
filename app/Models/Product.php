@@ -61,4 +61,13 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /*
+    Accessors
+    */
+    // () -> get total images of the product..
+    public function getTotalImagesAttribute()
+    {
+        return $this->colors->sum(fn($color) => $color->getMedia('color_images')->count());
+    }
 }
