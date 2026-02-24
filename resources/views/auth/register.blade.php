@@ -43,7 +43,7 @@
             <select id="role" name="role" class="block w-full bg-rose-50/30 border-rose-50 rounded-2xl px-5 py-4 text-sm focus:border-rose-300 focus:ring-rose-200 transition-all text-gray-500">
                 <option value="" default>Select role?</option>
                 <option value="customer" {{ old('role') == 'customer' ? 'selected' : '' }}>Customer (I want to shop)</option>
-                <option value="vendor" {{ old('role') == 'vendor' ? 'selected' : '' }}>Vendor (I want to sell)</option>
+                <option value="vendor" {{ old('role') == 'vendor' || request()->query('role') === 'vendor' ? 'selected' : '' }}>Vendor (I want to sell)</option>
             </select>
             <x-input-error :messages="$errors->get('role')" class="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-tight" />
         </div>
