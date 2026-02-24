@@ -53,7 +53,7 @@ class DashboardController extends Controller
         ]);
 
         // recent products
-        $recentProducts = $vendor->products()->latest()->limit(5)->get();
+        $recentProducts = $vendor->products()->with('colors.media')->latest()->limit(5)->get();
 
         // log the status
         Log::info("Recent Products", ["total" => $recentProducts->count()]);
