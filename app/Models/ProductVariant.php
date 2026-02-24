@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use App\Models\Product;
 use App\Models\CartItem;
 use App\Models\OrderItem;
