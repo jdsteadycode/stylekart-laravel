@@ -17,4 +17,13 @@ class Category extends Model
     {
         return $this->hasMany(SubCategory::class);
     }
+
+    /*
+    Accessors..
+    */
+    public function getNameAttribute($name)
+    {
+        // capitalize the category name whenever fetched
+        return ucfirst($name);
+    }
 }
