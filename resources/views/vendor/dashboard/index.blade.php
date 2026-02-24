@@ -116,7 +116,7 @@
                             </td>
 
                             <td class="py-3 text-gray-700">
-                                {{ $product->colorImages?->count() ?? 0 }}
+                                {{ $product->total_images ?? 0 }}
                             </td>
 
                             <td class="py-3">
