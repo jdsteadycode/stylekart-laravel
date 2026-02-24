@@ -72,6 +72,7 @@ class ProductVariantController extends Controller
                         ? $product->base_price
                         : $request->price,
                 "stock" => $request->stock,
+                "sku" => $request->sku
             ],
         );
 
