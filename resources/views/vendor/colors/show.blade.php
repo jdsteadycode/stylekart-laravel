@@ -30,7 +30,7 @@
                 <h1 class="text-xl font-semibold capitalize">Color: {{ $color->name }}</h1>
             </div>
             <span class="text-sm text-gray-500">
-                {{ $color->product->variants->where('color', $color->name)->count() }} variants
+                {{ $color->product->variants->where('color_id', $color->id)->count() }} variants
             </span>
         </div>
 
