@@ -16,9 +16,9 @@
     @include('customer.partials.header')
 
     {{-- main section --}}
-    <main class="flex-grow">
+    <section class="flex-grow">
         @yield('content')
-    </main>
+    </section>
 
     {{-- footer section --}}
     @include('customer.partials.footer')
