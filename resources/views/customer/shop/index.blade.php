@@ -3,6 +3,32 @@
 @section('title', 'Shop - Browse Collections')
 
 @section('content')
+{{-- Toast for add to bag --}}
+@if(session('success') || session('error'))
+    <div
+        id="toast"
+        class="fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-bold transition-all duration-500"
+        style="background-color: {{ session('success') ? '#16a34a' : '#dc2626' }};"
+    >
+        @if(session('success'))
+            🛍️ {{ session('success') }}
+        @else
+            ⚠️ {{ session('error') }}
+        @endif
+    </div>
+
+    <script>
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, 3000);
+    </script>
+@endif
+
 <div class="bg-rose-50/20 min-h-screen py-10 font-sans">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
