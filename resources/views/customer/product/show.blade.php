@@ -12,6 +12,32 @@
 @section('title', 'Product Details')
 
 @section('content')
+{{-- Toast for add to bag --}}
+@if(session('success') || session('error'))
+    <div
+        id="toast"
+        class="fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-bold transition-all duration-500"
+        style="background-color: {{ session('success') ? '#16a34a' : '#dc2626' }};"
+    >
+        @if(session('success'))
+            🛍️ {{ session('success') }}
+        @else
+            ⚠️ {{ session('error') }}
+        @endif
+    </div>
+
+    <script>
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, 3000);
+    </script>
+@endif
+
 <div class="bg-white min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -77,11 +103,24 @@
                         ₹ {{ $selectedVariant->price ?? $product->base_price ?? 0 }}
                     </span>
 
+                    {{-- off section --}}
                     {{--
                     <span class="text-lg text-gray-400 line-through">₹4,999</span>
                     <span class="text-sm font-bold text-green-500 uppercase">50% Off ✨</span>
                     --}}
 
+                    {{-- stock intel section --}}
+                    @if($selectedVariant->stock > 3)
+                        <div class="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg border border-rose-100">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                            </span>
+                            <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">
+                                Only {{ $selectedVariant->stock }} Left
+                            </span>
+                        </div>
+                    @elseif($selectedVariant->stock > 0 && $selectedVariant->stock < 3)
                     <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100">
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -91,6 +130,16 @@
                             Only {{ $selectedVariant->stock }} Left
                         </span>
                     </div>
+                    @else
+                        <div class="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-lg border border-gray-300">
+                            <span class="relative flex h-2 w-2">
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
+                            </span>
+                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                                Out of Stock
+                            </span>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="space-y-10 mb-10">
@@ -141,8 +190,8 @@
                                         'product' => $product,
                                         'variant' => $variant->id
                                     ]) }}"
-                                    class="w-12 h-12 flex items-center justify-center rounded-xl border-2
-                                    {{ $selectedVariant->id === $variant->id ? 'bg-rose-400 text-white' : '' }}">
+                                    class="w-12 h-12 flex items-center justify-center rounded-xl border-2 {{ $selectedVariant->id === $variant->id ? 'bg-rose-400 text-white' : '' }}"
+                                >
                                     {{ $variant->size }}
                                 </a>
                             @endforeach
@@ -151,32 +200,6 @@
                 </div>
 
                 <div class="flex gap-4 mt-auto pt-6 border-t border-rose-50">
-
-                    {{-- Toast for add to bag --}}
-                    @if(session('success') || session('error'))
-                        <div
-                            id="toast"
-                            class="fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-bold transition-all duration-500"
-                            style="background-color: {{ session('success') ? '#16a34a' : '#dc2626' }};"
-                        >
-                            @if(session('success'))
-                                🛍️ {{ session('success') }}
-                            @else
-                                ⚠️ {{ session('error') }}
-                            @endif
-                        </div>
-
-                        <script>
-                            // Hide toast after 3 seconds
-                            setTimeout(() => {
-                                const toast = document.getElementById('toast');
-                                if (toast) {
-                                    toast.classList.add('opacity-0', 'translate-y-[-20px]');
-                                    setTimeout(() => toast.remove(), 500);
-                                }
-                            }, 3000);
-                        </script>
-                    @endif
 
 
                     {{-- add to bag --}}
@@ -197,9 +220,25 @@
                             name="qty"
                             value="1"
                         />
-                        <button class="w-full  bg-rose-500 text-white py-5 rounded-[24px] font-black text-sm uppercase tracking-widest shadow-xl shadow-rose-100 hover:bg-rose-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-bag-shopping"></i> Add to Bag
+                        <button
+                            class="
+                                w-full bg-rose-500
+                                text-white py-5
+                                rounded-[24px]
+                                font-black text-sm
+                                uppercase tracking-widest
+                                shadow-xl shadow-rose-100
+                                hover:bg-rose-600 hover:-translate-y-1
+                                transition-all active:scale-95
+                                flex items-center justify-center
+                                gap-3 disabled:bg-gray-300
+                                disabled:text-gray-500 disabled:cursor-not-allowed"
+                            {{ $selectedVariant->stock < 1 ? 'disabled' : '' }}
+                        >
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            {{ $selectedVariant->stock < 1 ? 'Out of Stock' : 'Add to Bag'}}
                         </button>
+
                     </form>
 
                     <button class="flex-1 bg-white border-2 border-rose-50 text-rose-500 py-5 rounded-[24px] font-black text-sm uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center">
