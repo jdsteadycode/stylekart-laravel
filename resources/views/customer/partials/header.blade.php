@@ -58,15 +58,44 @@
                     </span>
                 </a>
 
-                {{-- <a href="{{ route('customer.profile') }}" class="p-2 text-gray-400 hover:text-rose-500 transition-colors">
-                    <i class="fa-regular fa-user text-xl"></i>
-                </a> --}}
 
-                {{-- <div class="h-8 w-[1px] bg-gray-200 mx-2"></div> --}}
+                {{-- auth section & profile --}}
+                @if(auth()->user())
+                    {{-- show profile icon --}}
+                    <a href="{{ route('customer.profile') }}" class="p-2 text-gray-400 hover:text-rose-500 transition-colors">
+                        <i class="fa-regular fa-user text-xl"></i>
+                    </a>
 
-                {{-- <a href="#" class="bg-rose-50 text-rose-500 px-5 py-2.5 rounded-2xl font-bold text-sm hover:bg-rose-500 hover:text-white transition-all">
-                    Login
-                </a> --}}
+                    <div class="h-8 w-[1px] bg-gray-200 mx-2"></div>
+
+                    {{-- allow logout --}}
+                    <form
+                        method="POST"
+                        action="{{ route('logout') }}"
+                    >
+                        @csrf
+                        <button
+                            class="bg-rose-500
+                            text-white
+                            px-5 py-2.5
+                            rounded-2xl font-bold
+                            text-sm
+                            hover:bg-rose-400 transition-all">
+                            Logout
+                        </button>
+                    </form>
+                @else
+                    <a
+                        href="{{ route('login') }}"
+                        class="bg-rose-50
+                        text-rose-500
+                        px-5 py-2.5
+                        rounded-2xl font-bold
+                        text-sm
+                        hover:bg-rose-500 hover:text-white transition-all">
+                        Login
+                    </a>
+                @endif
             </div>
         </div>
     </div>
