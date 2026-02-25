@@ -109,7 +109,7 @@
 
                     {{-- checkout button --}}
                     @if(count($bag) > 0)
-                    <a href="{{-- route('customer.checkout') --}}"
+                    <a href="{{ route('customer.checkout') }}"
                            class="block w-full text-center bg-rose-500 text-white py-4 rounded-2xl font-bold mt-8 shadow-lg shadow-rose-100 hover:bg-rose-600 active:scale-95 transition-all">
                             Checkout Now
                         </a>
