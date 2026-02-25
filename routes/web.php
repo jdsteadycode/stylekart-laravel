@@ -21,6 +21,7 @@ use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\ShopController;
 use App\Http\Controllers\Customer\ProductDetailController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\CheckoutController;
 
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
@@ -34,6 +35,10 @@ use App\Http\Middleware\EnsureVendorIsApproved;
 Route::get("/test-upload", function () {
     return view("test-upload");
 });
+
+// Route::get('/order-success', function () {
+//     return view('customer.pages.order-success');
+// });
 
 Route::post("/test-upload", function (Request $request) {
     $request->validate([
@@ -62,6 +67,7 @@ Route::post("/test-upload", function (Request $request) {
 
 // for vendor
 use App\Http\Controllers\Vendor\VendorProfileController;
+use App\Http\Middleware\CheckRole;
 
 Route::get('/', function () {
     return "Working fine!";
@@ -377,6 +383,27 @@ Route::prefix("/stylekart-store")->group(function () {
         Route::delete('/{variant}', [CartController::class, 'destroy'])->name('destroy'); // remove item
     });
 
+    // protected routes..
+    // authenticated as well as it should be customer.
+    Route::middleware(['auth', 'role:customer'])->group(function () {
+
+        // 'stylekart-store/profile' -> profile
+        Route::get('/profile', function () {
+            return view('customer.profile.index');
+        })->name('customer.profile');
+
+        // 'stylekart-store/checkout' - initial data for checkout
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
+
+        // 'stylekart-store/checkout' - handle checkout
+        Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('customer.checkout.placeOrder');
+
+        // 'stylekart-store/order/XXXXX' -> for order success
+        Route::get('/order/{orderNumber}', [CheckoutController::class, 'success'])->name('customer.checkout.success');
+
+        // 'stylekart-store/order/fail' -> when order placement fails
+        Route::get('/order/fail', [CheckoutController::class, 'fail'])->name('customer.checkout.fail');
+    });
 
     /*
     Route::middleware(['auth', 'role:customer'])
