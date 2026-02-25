@@ -18,7 +18,7 @@ if (! function_exists('getDashboardRoute')) {
                 return 'dashboard.vendor';
 
             case 'customer':
-                return 'dashboard.customer';
+                return 'customer.profile';
 
             default:
                 return 'welcome';
