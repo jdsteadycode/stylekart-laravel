@@ -10,10 +10,10 @@
             <div class="w-24 h-24 bg-green-500 rounded-3xl flex items-center justify-center text-white text-4xl shadow-xl shadow-green-100 animate-bounce">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <div class="absolute -top-2 -right-2 text-2xl">✨</div>
+            {{-- <div class="absolute -top-2 -right-2 text-2xl"></div> --}}
         </div>
 
-        <h1 class="text-3xl font-black text-gray-900 mb-4">Yay! Order Placed</h1>
+        <h1 class="text-3xl font-black text-gray-900 mb-4">Yay! Order Placed ✨</h1>
         <p class="text-gray-500 font-medium mb-10 leading-relaxed">
             Your style journey has begun! We've sent the order details to your email. Get ready to look fabulous.
         </p>
