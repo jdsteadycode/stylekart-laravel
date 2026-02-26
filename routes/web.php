@@ -22,6 +22,7 @@ use App\Http\Controllers\Customer\ShopController;
 use App\Http\Controllers\Customer\ProductDetailController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
+use App\Http\Controllers\Customer\PaymentController;
 
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
@@ -398,11 +399,17 @@ Route::prefix("/stylekart-store")->group(function () {
         // 'stylekart-store/checkout' - handle checkout
         Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('customer.checkout.placeOrder');
 
+        // 'stylekart-store/payment/mock/XXX/' - mock online payment
+        Route::get('/payment/mock/{orderNumber}',  [PaymentController::class, 'index'])->name('customer.payment.mock');
+
+        // 'stylekart-store/payment/mock/XXX/' - mock online payment
+        Route::post('/payment/mock/{orderNumber}/process',  [PaymentController::class, 'process'])->name('customer.payment.mock.process');
+
         // 'stylekart-store/order/XXXXX' -> for order success
         Route::get('/order/{orderNumber}', [CheckoutController::class, 'success'])->name('customer.checkout.success');
 
         // 'stylekart-store/order/fail' -> when order placement fails
-        Route::get('/order/fail', [CheckoutController::class, 'fail'])->name('customer.checkout.fail');
+        // Route::get('/order/fail', fn() =>  view('customer.checkout.failed'))->name('customer.checkout.fail');
     });
 
     /*
