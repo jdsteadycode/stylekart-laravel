@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-use App\Models\ProductVariant;
+// use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Exception;
+
+// get the OrderService Class path
+use App\Services\OrderService;
+
 
 class CheckoutController extends Controller
 {
@@ -115,154 +119,39 @@ class CheckoutController extends Controller
         // log the validated and clean data
         logger()->info("Data validated!", ['data' => $validated]);
 
-        // get default address if exists
-        $address = $customer->addresses()->where('is_default', 1)->first();
-
-        // if default address
-        if ($address) {
-            // update existing default address
-            $address->update([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'address_line' => $validated['address_line'],
-                'city' => $validated['city'],
-                'pincode' => $validated['pincode'],
-                'state' => $address->state ?? 'Gujarat',
-                'landmark' => $address->landmark ?? 'Near Reliance Trendz',
-                'address_type' => $address->address_type ?? 'home',
-            ]);
-
-            // log the status
-            logger()->info("Default address updated!", ['address_id' => $address->id]);
-        } else {
-            // create new default address
-            $address = $customer->addresses()->create([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'address_line' => $validated['address_line'],
-                'city' => $validated['city'],
-                'pincode' => $validated['pincode'],
-                'state' => 'Gujarat',
-                'landmark' => 'Near Reliance Trendz',
-                'address_type' => 'home',
-                'is_default' => 1,
-            ]);
-
-            // log the status
-            logger()->info("New default address created!", ['address_id' => $address->id]);
-        }
-
-
-        // order number (unique / random)
-        $orderNumber =
-            "STK-" . now()->format("Ymd") . "-" . strtoupper(Str::random(6));
-
-        // total amount
-        $totalAmount = 0;
-
-
-        // start a new transaction
-        DB::beginTransaction();
-
         // ensure safe execution.
         try {
 
-            // for each item in bag
-            foreach ($bag as $item) {
-                // get the variant from db..
-                $variant = ProductVariant::find($item['variant_id']);
+            // instantiate the Service Class
+            $orderService = new OrderService();
+            $order = $orderService->createOrder($customer, $validated, $bag);   // try to make an order..
 
-                // log the status
-                logger()->info('variant fetched ', ['variant' => $variant]);
+            // if cod!
+            if ($validated['pay'] === 'cod') {
 
-                // save it's total price..
-                $totalAmount += $variant->price * $item['qty'];
+                // clear the cart! (bag)
+                Session::forget('bag');
+
+                // log the status..
+                logger()->info('Bag emptied!');
+
+                // send to order success page..
+                return redirect()->route('customer.checkout.success', ['orderNumber' => $order->order_number]);
             }
-
-            // 2. Make an order
-            // create a new order..
-            $order = $customer->orders()->create([
-                'address_id' => $address->id,
-                'order_number' => $orderNumber,
-                'total_amount' => $totalAmount,
-            ]);
-
-            // log the status..
-            logger()->info('Order Created for customer ' . $customer->name, ['status' => (bool) $order]);
-
-            // 3. Save ordered items..
-            foreach ($bag as $item) {
-
-                // get the variant
-                $variant = ProductVariant::find($item['variant_id']);
-
-                // stock before ordered..
-                logger()->info('Stock before Order!', ['stock' => $variant->stock]);
-
-                // check if stock is available
-                if ($variant->stock < $item['qty']) {
-                    // log the status
-                    logger()->alert('Insufficient stock', [
-                        'variant_id' => $variant->id,
-                        'stock' => $variant->stock,
-                        'quantity' => $item['qty'],
-                    ]);
-
-                    // redirect back with error
-                    // go to catch part
-                    throw new Exception('Insufficient stock for' . $variant->product->name);
-                }
-
-                // create order item
-                $orderItem = $order->items()->create([
-                    'product_id' => $variant->product->id,
-                    'variant_id' => $variant->id,
-                    'vendor_id' => $variant->product->vendor->id,
-                    'quantity' => $item['qty'],
-                    'price' => $variant->price ?? $variant->product->base_price,
-                    'order_status' => 'pending',
-                    'payment_mode' => $request->pay,
-                    'payment_status' => 'pending' // cod
-                ]);
-
-                // reduce the stock according to qty
-                // for that variant
-                $variant->decrement('stock', $item['qty']);
-
-                // log the status
-                logger()->info(
-                    'Order Item saved',
-                    [
-                        'status' => (bool) $orderItem,
-                        'payment-method' => $orderItem->payment_mode,
-                        'payment-status' => $orderItem->payment_status
-                    ]
-                );
+            // otherwise, send to external gateway link
+            else {
+                return redirect()->route('customer.payment.mock', ['orderNumber' => $order->order_number]);
             }
-
-            // 4. clear the cart!
-            Session::forget('bag');
-
-            // log the status..
-            logger()->info('Bag emptied!');
-
-            // commit the DB transaction
-            DB::commit();
-
-            // send to order success page..
-            return redirect()->route('customer.checkout.success', ['orderNumber' => $order->order_number]);
         }
 
         // handle SQL errors
         catch (Exception $e) {
-            // rollback to previous state
-            DB::rollBack();
 
             // log the error
             logger()->error('Order Placement Failed', ['error' => $e->getMessage()]);
 
             // redirect to checkout fail page..
-            return redirect()->route('customer.checkout.fail')->with('error', $e->getMessage());
+            return view('customer.checkout.failed');
         }
     }
 
@@ -272,6 +161,9 @@ class CheckoutController extends Controller
      */
     public function success($orderNumber)
     {
+
+        // log the action
+        logger()->info('[app\Http\Controllers\CheckoutController@success] order success view initiated!');
 
         // get the customer..
         $customer = auth()->user();
@@ -284,20 +176,20 @@ class CheckoutController extends Controller
         // get the order placed via orderNumber
         $order = $customer->orders()->where('order_number', $orderNumber)->first();
 
+        // if no order
+        if (!$order) {
+            // log the status
+            logger()->alert('No current order found! Terminating Order Success view');
+
+            // redirect back
+            return redirect()->route('customer.checkout')->with('error', "Can't checkout before order placement");
+        }
+
         // send the view..
         return view('customer.checkout.success', compact('order'));
     }
 
-    /*
-    *
-    * for order fail page..
-    *
-    */
-    public function fail()
-    {
-        // get the view..
-        return view('customer.checkout.order-fail');
-    }
+
 
     /*
     public function placeOrder(Request $request)
