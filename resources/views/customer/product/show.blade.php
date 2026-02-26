@@ -110,17 +110,7 @@
                     --}}
 
                     {{-- stock intel section --}}
-                    @if($selectedVariant->stock > 3)
-                        <div class="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg border border-rose-100">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                            </span>
-                            <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">
-                                Only {{ $selectedVariant->stock }} Left
-                            </span>
-                        </div>
-                    @elseif($selectedVariant->stock > 0 && $selectedVariant->stock < 3)
+                    @if($selectedVariant->stock > 0)
                     <div class="flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-lg border border-amber-100">
                         <span class="relative flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
@@ -155,7 +145,7 @@
 
                             @foreach($availableColors as $color)
                                 @php
-                                    $firstVariantForColor = $product->variants->where('color_id', $color->id)->first();
+                                    $firstVariantForColor = $product->variants()->where('color_id', $color->id)->first();
                                 @endphp
 
                                 <a
@@ -165,7 +155,7 @@
                                     {{ $selectedVariant->color_id == $color->id ? 'ring-2 ring-rose-500' : ''}}
                                     transition-all"
                                     style="background-color: {{ $color->name }}"
-                                ></a>
+                                > </a>
                             @endforeach
                         </div>
                     </div>
@@ -190,7 +180,7 @@
                                         'product' => $product,
                                         'variant' => $variant->id
                                     ]) }}"
-                                    class="w-12 h-12 flex items-center justify-center rounded-xl border-2 {{ $selectedVariant->id === $variant->id ? 'bg-rose-400 text-white' : '' }}"
+                                    class="w-12 h-12 flex items-center justify-center rounded-xl border-2 {{ $selectedVariant->id === $variant->id ? 'bg-rose-400 text-white' : '' }} {{ $variant->stock < 1 ? 'cursor-not-allowed pointer-events-none opacity-40' : '' }}"
                                 >
                                     {{ $variant->size }}
                                 </a>
