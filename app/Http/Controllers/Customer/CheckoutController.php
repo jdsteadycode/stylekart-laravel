@@ -151,7 +151,7 @@ class CheckoutController extends Controller
             logger()->error('Order Placement Failed', ['error' => $e->getMessage()]);
 
             // redirect to checkout fail page..
-            return view('customer.checkout.failed');
+            return view('customer.checkout.failed')->with('error', $e->getMessage());
         }
     }
 
