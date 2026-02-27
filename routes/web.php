@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+// use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // for admin
@@ -23,6 +23,8 @@ use App\Http\Controllers\Customer\ProductDetailController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\PaymentController;
+use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\AddressController;
 
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
@@ -388,10 +390,37 @@ Route::prefix("/stylekart-store")->group(function () {
     // authenticated as well as it should be customer.
     Route::middleware(['auth', 'role:customer'])->group(function () {
 
-        // 'stylekart-store/profile' -> profile
-        Route::get('/profile', function () {
-            return view('customer.profile.index');
-        })->name('customer.profile');
+        // 'stylekart-store/profile' -> view profile and rest of details..
+        Route::get('/profile', [ProfileController::class, 'index'])->name('customer.profile');
+
+        // 'stylekart-store/profile' -> update the existing profile
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('customer.profile.update');
+
+        // for address..
+        // inside Route::middleware(['auth', 'role:customer'])->group(...)
+        Route::prefix('address')->name('customer.address.')->group(function () {
+
+            // Show create form
+            Route::get('/create', [AddressController::class, 'create'])
+                ->name('create');
+
+            // Store new address
+            Route::post('/', [AddressController::class, 'store'])
+                ->name('store');
+
+            // Show edit form
+            Route::get('/{address}/edit', [AddressController::class, 'edit'])
+                ->name('edit');
+
+            // Update existing address
+            Route::patch('/{address}', [AddressController::class, 'update'])
+                ->name('update');
+
+            // Delete address
+            Route::delete('/{address}', [AddressController::class, 'destroy'])
+                ->name('destroy');
+        });
+
 
         // 'stylekart-store/checkout' - initial data for checkout
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
@@ -434,6 +463,7 @@ Route::prefix("/stylekart-store")->group(function () {
     */
 });
 
+/*
 Route::middleware("auth")->group(function () {
     Route::get("/profile", [ProfileController::class, "edit"])->name(
         "profile.edit",
@@ -445,5 +475,6 @@ Route::middleware("auth")->group(function () {
         "profile.destroy",
     );
 });
+*/
 
 require __DIR__ . "/auth.php";
