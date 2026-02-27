@@ -124,7 +124,7 @@ class OrderService
             foreach ($bag as $item) {
 
                 // get the variant
-                $variant = ProductVariant::find($item['variant_id']);
+                $variant = ProductVariant::where('id', $item['variant_id'])->lockForUpdate()->first();
 
                 // stock before ordered..
                 logger()->info('Stock before Order!', ['stock' => $variant->stock]);
