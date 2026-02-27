@@ -8,8 +8,52 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Session;
 
+// path to MockPaymentService Class..
+use App\Services\MockPaymentService;
+
 class PaymentController extends Controller
 {
+    /**
+     *  handle payment confirmation..
+     */
+    public function confirmOrderPayment($order)
+    {
+
+        // iterate each order item
+        foreach ($order->items as $item) {
+
+            // get the variant
+            $variant = $item->variant()->lockForUpdate()->first();
+
+            // 1.
+            // check stock
+            if ($variant->stock < $item->quantity) {
+
+                // log the status
+                logger()->info($item->product->name . " 's Stock is in-sufficient | Payment Failed");
+
+                // throw error and go to catch block
+                throw new Exception('Insufficent Stock for variant: ' . $variant->id);
+            }
+
+            // log the status [before stock reduction]
+            logger()->info('Checking variant: ' . $variant->id . ' stock: ' . $variant->stock);
+
+
+            // 2.
+            // decrease the stock
+            $variant->decrement('stock', $item->quantity);
+
+            // log the status [after stock reduction | success]
+            logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
+
+            // update the payment status accordingly
+            $item->update([
+                'payment_status' => 'paid'
+            ]);
+        }
+    }
+
     // () -> mock gateway view
     public function index($orderNumber)
     {
@@ -53,7 +97,22 @@ class PaymentController extends Controller
 
         // get the current order by customer..
         $order = $customer->orders()->where('order_number', $orderNumber)->first();
+
+        // check no order yet!
         if (!$order) return redirect()->route('customer.checkout');
+
+        // check if order was already paid!
+        if ($order->items()->where('payment_status', '!=', 'paid')->count() === 0) {
+
+            // log the status
+            logger()->alert('It looks like Order: ' . $orderNumber . ' was already paid!');
+
+            // redirect back to success page..
+            return redirect()->route('customer.checkout.success', [
+                'orderNumber' => $orderNumber
+            ]);
+        }
+
 
         // log the action
         logger()->info('[app\Http\Controllers\Customer\PaymentController@process] Processing the payment');
@@ -70,48 +129,29 @@ class PaymentController extends Controller
         logger()->info('Payment details verified', ['status' => (bool) $validated]);
 
         // state of payment
-        $paymentStatus = true;
+        // $paymentStatus = true;
+
+        // MockPaymentService instantiation..
+        $mockPaymentService = new MockPaymentService();
 
         // start a DB transaction..
         DB::beginTransaction();
         try {
 
-            // iterate each order item
-            foreach ($order->items as $item) {
+            // call the MockPaymentGatewayService..
+            $success = $mockPaymentService->charge($order, $validated);
 
-                // update the payment status accordingly
-                $item->update([
-                    'payment_status' => $paymentStatus ? 'paid' : 'failed'
-                ]);
-
-                // check if stock is valid
-                if ($paymentStatus) {
-                    // get the variant
-                    $variant = $item->variant;
-
-                    // check stock
-                    if ($variant->stock < $item->quantity) {
-
-                        // log the status
-                        logger()->info($item->product->name . " 's Stock is in-sufficient | Payment Failed");
-
-                        // throw error and go to catch block
-                        throw new Exception('Insufficent Stock');
-                    }
-
-                    // decrease the stock
-                    $variant->decrement('stock', $item->quantity);
-
-                    // log the status
-                    logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
-                }
+            // if gateway payment response is not valid!
+            if (!$success) {
+                // throw the excecption..
+                throw new Exception("MockPaymentService Payment Failed!");
             }
+
+            // handle order updates..
+            $this->confirmOrderPayment($order);
 
             // save the changes for DB
             DB::commit();
-
-            // update the payment status
-            $paymentStatus = true;
         }
 
         // handle SQL errors
@@ -121,32 +161,24 @@ class PaymentController extends Controller
             DB::rollBack();
 
             // update the payment status
-            $paymentStatus = false;
+            // $paymentStatus = false;
 
             // log the status
             logger()->error('Payment failed | ' . $e->getMessage());
 
             // redirect back to order-failed view
-            return redirect()->route('customer.checkout.failed')->with('error', $e->getMessage());
+            return view('customer.checkout.failed')->with('error', $e->getMessage());
         }
 
+        // get the bag / cart
+        // $bag = Session::get('bag', []);
 
+        // clear the bag
+        Session::forget('bag');
 
-        // send the customer to order success / fail according to payment state
-        if ($paymentStatus) {
+        // log the action
+        logger()->info('bag cleared');
 
-            // get the bag / cart
-            $bag = Session::get('bag', []);
-
-            // clear the bag
-            Session::forget('bag');
-
-            // log the action
-            logger()->info('bag cleared');
-
-            return redirect()->route('customer.checkout.success', ['orderNumber' => $orderNumber]);
-        } else {
-            return redirect()->route('customer.checkout.failed')->with('error', 'Payment failed!');
-        }
+        return redirect()->route('customer.checkout.success', ['orderNumber' => $orderNumber]);
     }
 }
