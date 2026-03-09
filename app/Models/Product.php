@@ -62,6 +62,12 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    // () -> related wishlisted items
+    public function wishlistItems()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
     /*
     Accessors
     */
