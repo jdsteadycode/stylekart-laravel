@@ -19,6 +19,7 @@ class PaymentController extends Controller
     public function confirmOrderPayment($order)
     {
 
+        // 1. handle stock
         // iterate each order item
         foreach ($order->items as $item) {
 
@@ -47,11 +48,17 @@ class PaymentController extends Controller
             // log the status [after stock reduction | success]
             logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
 
-            // update the payment status accordingly
-            $item->update([
-                'payment_status' => 'paid'
-            ]);
+            // update the order status accordingly
+            // $item->update([
+            //     'order_status' => 'processing'  // if it was pending!
+            // ]);
         }
+
+        // 2. update order level payment details
+        $order->update([
+            // 'order_status' => 'processing',
+            'payment_status' => 'paid'
+        ]);
     }
 
     // () -> mock gateway view
@@ -102,7 +109,7 @@ class PaymentController extends Controller
         if (!$order) return redirect()->route('customer.checkout');
 
         // check if order was already paid!
-        if ($order->items()->where('payment_status', '!=', 'paid')->count() === 0) {
+        if ($order->payment_status === 'paid') {
 
             // log the status
             logger()->alert('It looks like Order: ' . $orderNumber . ' was already paid!');
@@ -162,6 +169,9 @@ class PaymentController extends Controller
 
             // update the payment status
             // $paymentStatus = false;
+            $order->update([
+                'payment_status' => 'failed',
+            ]);
 
             // log the status
             logger()->error('Payment failed | ' . $e->getMessage());
