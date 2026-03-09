@@ -39,7 +39,7 @@ class ProductColorImageController extends Controller
             [
                 "color.required" => "Enter a color name",
                 "color.string" =>
-                    "Color name must be valid text! For ex: indigo",
+                "Color name must be valid text! For ex: indigo",
                 "color.max" => "Color length must be within 50 characters",
 
                 "images.required" => "Select an image",
@@ -48,7 +48,7 @@ class ProductColorImageController extends Controller
         );
 
         // save the color and product details or override the existing
-        $saved = $product->colorImages()->updateOrCreate(
+        $saved = $product->colors()->updateOrCreate(
             [
                 "color" => $request->color,
             ],
