@@ -15,6 +15,9 @@ class Order extends Model
         "order_number",
         "address_id",
         "total_amount",
+        "order_status",
+        "payment_mode",
+        "payment_status"
     ];
 
     // () -> to user
@@ -35,7 +38,47 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    /*
-    Mutators
-    */
+
+    /***
+     * update the status
+     */
+    public function updateStatus()
+    {
+        //.
+        $items = $this->items;
+
+        // when all items are cancelled
+        if ($items->every(fn($item) => $item->order_status === 'cancelled')) {
+            $this->order_status = 'cancelled';
+        }
+
+        // when all items are delivered
+        else if ($items->every(fn($item) => $item->order_status === 'delivered')) {
+            $this->order_status = 'delivered';
+        }
+
+        // when all items are shipped or delivered
+        else if ($items->every(fn($item) => in_array($item->order_status, ['shipped', 'delivered']))) {
+            $this->order_status = 'shipped';
+        }
+
+        // when some are processing, shipped, delivered..
+        else if ($items->every(fn($item) => in_array($item->order_status, ['processing', 'shipped', 'delivered']))) {
+            $this->order_status = 'processing';
+        } else {
+            $this->order_status = 'pending';
+        }
+
+        // update the status
+        return $this->save();
+    }
+
+    /***
+     * check if stock was reduced before?
+     */
+    public function wasStockReduced()
+    {
+        // i.e., if order was successful -> stock was reduced!
+        return $this->payment_mode === 'cod' || $this->payment_status === 'paid';
+    }
 }
