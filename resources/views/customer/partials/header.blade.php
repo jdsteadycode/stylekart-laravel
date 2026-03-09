@@ -44,13 +44,15 @@
 
             <div class="flex items-center space-x-3">
 
-                {{-- <a href="{{ route('customer.wishlist') }}" class="relative p-2 text-gray-400 hover:text-rose-500 transition-colors">
+                {{-- wishlist --}}
+                <a href="{{ route('customer.wishlist.index') }}" class="relative p-2 text-gray-400 hover:text-rose-500 transition-colors">
                     <i class="fa-regular fa-heart text-xl"></i>
-                    <span class="absolute top-1 right-0 bg-gray-900 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white">
-                        0
+                    <span class="absolute top-1 right-0 bg-rose-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white">
+                        {{ $wishlistItemsCount ?? '0' }}
                     </span>
-                </a> --}}
+                </a>
 
+                {{-- bag --}}
                 <a href="{{ route('customer.cart.index') }}" class="relative p-2 text-gray-600 hover:text-rose-500 transition-colors group">
                     <i class="fa-solid fa-bag-shopping text-xl"></i>
                     <span class="absolute top-1 right-0 bg-rose-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center border-2 border-white">
