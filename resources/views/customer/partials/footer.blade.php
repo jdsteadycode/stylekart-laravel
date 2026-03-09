@@ -28,14 +28,14 @@
                 </ul>
             </div>
 
-            <div>
+            {{-- <div>
                 <h4 class="font-black text-gray-900 mb-6 uppercase text-xs tracking-[0.2em]">Our Creators</h4>
                 <ul class="space-y-4 text-gray-500 text-sm font-medium">
                     <li><a href="#" class="hover:text-rose-500 transition-colors">Become a Vendor 🏠</a></li>
                     <li><a href="#" class="hover:text-rose-500 transition-colors">Vendor Story 🎨</a></li>
                     <li><a href="#" class="hover:text-rose-500 transition-colors">Sell Globally 🌍</a></li>
                 </ul>
-            </div>
+            </div> --}}
         </div>
 
         <div class="pt-8 border-t border-rose-50 flex flex-col md:flex-row justify-between items-center gap-4">
