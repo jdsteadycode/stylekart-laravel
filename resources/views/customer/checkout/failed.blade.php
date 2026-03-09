@@ -29,7 +29,7 @@
 
         <div class="flex flex-col gap-4">
             <a href="{{ route('customer.checkout') }}" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">
-                Try Payment Again
+                Checkout again
             </a>
             <a href="{{ route('customer.cart.index') }}" class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors">
                 Return to Cart
