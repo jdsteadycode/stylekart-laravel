@@ -32,7 +32,10 @@ class ProductDetailController extends Controller
 
         // get the product data i.e., colors & variants
         $product =
-            $product->load(['variants', 'colors.media']);
+            $product->load(['variants', 'colors.media', 'vendor.vendorProfile']);
+
+        // check if variant is already in wishlist
+        $inWishlist = auth()->user()?->wishlist()?->where('variant_id', $variantId)->exists() ?? false;
 
         // log the status
         logger()->info('details fetched for ' . $product->name);
@@ -43,7 +46,8 @@ class ProductDetailController extends Controller
         // send the view.
         return view('customer.product.show', [
             'product' => $product,
-            'selectedVariant' => $selectedVariant
+            'selectedVariant' => $selectedVariant,
+            'inWishlist' => $inWishlist
         ]);
     }
 }
