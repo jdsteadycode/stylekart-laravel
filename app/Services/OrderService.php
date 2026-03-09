@@ -77,14 +77,13 @@ class OrderService
         // for online payment
         // check if existing order is there
         $existingOrder = $customer->orders()
-            ->whereHas('items', function ($subQuery) {
-                $subQuery->where('payment_mode', 'online')
-                    ->where('payment_status', 'pending');
-            })->first();
+            ->where('payment_mode', 'online')
+            ->where('payment_status', 'pending')
+            ->first();
         if ($existingOrder) {
 
             // log the status
-            logger()->info("Existing Upaid Order [Online] | Redirected to gateway");
+            logger()->info("Existing Unpaid Order [Online] | Redirected to gateway");
 
             // get the existing order..
             return $existingOrder;
@@ -115,6 +114,9 @@ class OrderService
                 'address_id' => $address->id,
                 'order_number' => $orderNumber,
                 'total_amount' => $totalAmount,
+                'order_status' => 'pending',
+                'payment_mode' => $validated['pay'],
+                'payment_status' => 'pending', // for both cod or online (temp for online..),
             ]);
 
             // log the status..
@@ -150,9 +152,7 @@ class OrderService
                     'vendor_id' => $variant->product->vendor->id,
                     'quantity' => $item['qty'],
                     'price' => $variant->price ?? $variant->product->base_price,
-                    'order_status' => 'pending',
-                    'payment_mode' => $validated['pay'] ?? 'cod',
-                    'payment_status' => 'pending' // for both cod or online (temp for online..)
+                    'order_status' => 'pending' // intially
                 ]);
 
 
@@ -168,11 +168,27 @@ class OrderService
                     'Order Item saved',
                     [
                         'status' => (bool) $orderItem,
-                        'payment-method' => $orderItem->payment_mode,
-                        'payment-status' => $orderItem->payment_status
+                        'payment-method' => $order->payment_mode,
+                        'payment-status' => $order->payment_status
                     ]
                 );
             }
+
+            // // update the order statuses
+            // // if payment method is cod only then,
+            // if ($validated['pay'] === 'cod') {
+
+            //     // update the order..
+            //     // $orderStatus = $order->update([
+            //     //     'order_status' => 'processing'
+            //     // ]);
+
+            //     // update the order items order statuses
+            //     $orderItemsStatus = $order->items()->update(['order_status' => 'processing']);
+
+            //     // log the status
+            //     logger()->info('Updated Order status and Order Item Status', ['order-status' => (bool) $orderStatus, 'order-item-status' => (bool) $orderItemsStatus]);
+            // }
 
             // commit changes..
             DB::commit();
