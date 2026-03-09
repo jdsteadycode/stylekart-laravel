@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             // load the main categories for header section
             $view->with('menuCategories', Category::limit(3)->get());
+            $view->with('wishlistItemsCount', auth()->user()?->wishlist()?->count() ?? null);
         });
     }
 }
