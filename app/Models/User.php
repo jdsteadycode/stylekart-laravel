@@ -12,6 +12,7 @@ use App\Models\Address;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Wishlist;
 
 class User extends Authenticatable
 {
@@ -49,6 +50,13 @@ class User extends Authenticatable
             "password" => "hashed",
         ];
     }
+
+    // () -> wishlisted items..
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
 
     // () -> vendor profile
     public function vendorProfile()
