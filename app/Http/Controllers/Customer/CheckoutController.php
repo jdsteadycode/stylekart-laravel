@@ -188,8 +188,7 @@ class CheckoutController extends Controller
         // send the view..
         return view('customer.checkout.success', compact('order'));
     }
-
-
+}
 
     /*
     public function placeOrder(Request $request)
@@ -357,4 +356,3 @@ class CheckoutController extends Controller
     }
 
     */
-}
