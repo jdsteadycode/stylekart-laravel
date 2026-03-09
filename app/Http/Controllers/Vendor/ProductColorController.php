@@ -92,6 +92,7 @@ class ProductColorController extends Controller
             abort(404);
         }
 
+        // validate the data..
         $validated = $request->validate(
             [
                 "name" => ["required", "string", "max:50"],
@@ -103,8 +104,7 @@ class ProductColorController extends Controller
             ],
         );
 
-        // old and new color names
-        $oldName = $color->name;
+        // get new color name
         $newName = strtolower(trim($validated["name"]));
 
         // update the color name
@@ -114,22 +114,6 @@ class ProductColorController extends Controller
 
         // log status
         Log::info("Color updated!", ["status" => (bool) $updated]);
-
-        // check if old name is updated to new one!
-        if ($oldName !== $newName) {
-            // check if variants contain same old color name
-            // update the color name of that variant(s)
-            $product
-                ->variants()
-                ->where("color", $oldName)
-                ->update(["color" => $newName]);
-
-            // log the action
-            Log::warning("Variant color name updated!", [
-                "old" => $oldName,
-                "new" => $newName,
-            ]);
-        }
 
         return redirect()
             ->route("vendor.products.show", $product)
@@ -219,7 +203,7 @@ class ProductColorController extends Controller
         // Validate the uploaded files
         $request->validate([
             "images.*" =>
-                "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:10000",
+            "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:10000",
         ]);
 
         // check if images exist
@@ -265,7 +249,7 @@ class ProductColorController extends Controller
         // Validate the uploaded file
         $request->validate([
             "image.*" =>
-                "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:5120",
+            "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:5120",
         ]);
 
         // delete the existing image
