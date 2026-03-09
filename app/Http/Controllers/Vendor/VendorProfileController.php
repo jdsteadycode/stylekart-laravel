@@ -44,7 +44,7 @@ class VendorProfileController extends Controller
             "[app\Http\Controllers\Vendor\VendorProfileController@update] Vendor Profile details update initiated",
         );
 
-        $request->validate(
+        $validated = $request->validate(
             [
                 "name" => "required|string|max:255",
                 "shop_name" => "required|string|max:255",
@@ -61,9 +61,11 @@ class VendorProfileController extends Controller
             ],
         );
 
+        // authenticated vendor..
         $vendor = auth()->user();
 
-        $updatedPersonalDetails = $vendor->update(["name" => $request->name]);
+        // update the details..
+        $updatedPersonalDetails = $vendor->update($validated);
 
         // log the status
         Log::info("Vendor details updated", [
@@ -84,6 +86,7 @@ class VendorProfileController extends Controller
             "status" => (bool) $updatedShopDetails,
         ]);
 
+        // back with success
         return redirect()
             ->back()
             ->with("success", "Profile submitted for approval.");
