@@ -20,7 +20,8 @@ StyleKart is a robust, production-ready multivendor e-commerce platform built wi
 2. Install dependencies: `composer install` & `npm install`
 3. Configure `.env` (Database & SMTP settings).
 4. Run Migrations: `php artisan migrate --seed`
-5. Start Server: `php artisan serve`
+5. Start Server (stylekart app): `php artisan serve`
+6. Start Server (for auto refresh during styles update): `npm run dev`
 
 ---
 
