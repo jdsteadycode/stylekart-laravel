@@ -139,6 +139,8 @@
                     <div class="space-y-4">
                         @if($recentOrdersCount)
                             @foreach($recentOrders as $order)
+                            {{-- ignore order having failed payment_status --}}
+                            @if($order->payment_status !== 'failed')
                             <div class="border border-rose-50 rounded-2xl p-6 hover:border-rose-200 transition-all">
                                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 
@@ -158,8 +160,7 @@
                                             <!--<span class="text-[9px] font-black uppercase tracking-widest text-green-500">Delivered ✨</span>-->
                                         </div>
                                         <a
-                                            role=       "button"
-                                            href="{{-- route('customer.order-detail') --}}"
+                                            href="{{ route('customer.orders.show', ['order' => $order]) }}"
                                             class="bg-rose-50 text-rose-500 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all">
                                             Order Details
                                         </a>
@@ -167,6 +168,7 @@
 
                                 </div>
                             </div>
+                            @endif
                             @endforeach
                         @else
                             <span>{{ "Seems like " . $customer->name . "Hasn't placed any order yet!" }}</span>
@@ -205,20 +207,22 @@
                 <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mt-1">Refine your identity</p>
             </div>
 
-            <form action="{{ route('customer.profile.update') }}" method="POST" class="p-10 pt-4 space-y-5">
+            <form id="editProfileForm" action="{{ route('customer.profile.update') }}" method="POST" class="p-10 pt-4 space-y-5">
                 @csrf
                 @method('PATCH')
 
                 <div>
                     <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">Display Name</label>
-                    <input type="text" name="name" value="{{ $customer->name ?? 'N/A' }}"
+                    <input type="text" name="name" id="profileName" value="{{ $customer->name ?? 'N/A' }}"
                         class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
+                    <p id="nameError" class="text-red-500 text-xs mt-1 hidden"></p>
                 </div>
 
                 <div>
                     <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">Email Contact</label>
-                    <input type="email" name="email" value="{{ $customer->email }}"
+                    <input type="email" name="email" id="profileEmail" value="{{ $customer->email }}"
                         class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
+                    <p id="emailError" class="text-red-500 text-xs mt-1 hidden"></p>
                 </div>
 
                 <div class="pt-6 flex flex-col gap-3">
@@ -240,6 +244,47 @@
         const modal = document.getElementById(modalId);
         modal.classList.toggle('hidden');
     }
+
+    // when form is submitted!
+    document.getElementById('editProfileForm').addEventListener('submit', function(event) {
+
+        // inital state..
+        let valid = true;
+
+        // hide the error..
+        document.getElementById('nameError').classList.add('hidden');
+        document.getElementById('emailError').classList.add('hidden');
+
+        // get the name and email elements
+        const name = document.getElementById('profileName').value.trim();
+        const email = document.getElementById('profileEmail').value.trim();
+
+        //  validate name
+        if (name.length < 2) {
+            document.getElementById('nameError').textContent = "Name must be at least 2 characters";
+            document.getElementById('nameError').classList.remove('hidden');
+
+            // update the state..
+            valid = false;
+        }
+
+        // validate email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            document.getElementById('emailError').textContent = "Enter a valid email address";
+            document.getElementById('emailError').classList.remove('hidden');
+
+            // update the state..
+            valid = false;
+        }
+
+        // if not valid!
+        if (!valid) {
+
+            // restrict form submission
+            event.preventDefault();
+        }
+    });
 </script>
 
 @endsection

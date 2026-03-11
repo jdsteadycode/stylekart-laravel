@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Payment\ProcessRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
@@ -25,6 +26,12 @@ class PaymentController extends Controller
 
             // get the variant
             $variant = $item->variant()->lockForUpdate()->first();
+
+            // check
+            if (!$variant) {
+                // throw exception when SQL error..
+                throw new Exception("Variant Not found for item {$item->id}");
+            }
 
             // 1.
             // check stock
@@ -76,7 +83,9 @@ class PaymentController extends Controller
         }
 
         // get the current order
-        $order = $customer->orders()->where('order_number', $orderNumber)->first();
+        $order = $customer->orders()
+            ->where('order_number', $orderNumber)
+            ->where('payment_status', 'pending')->first();
 
         // when no current order found
         if (!$order) {
@@ -95,7 +104,7 @@ class PaymentController extends Controller
     }
 
     // () -> process payment
-    public function process($orderNumber, Request $request)
+    public function process($orderNumber, ProcessRequest $request)
     {
 
         // get the customer authenticated..
@@ -103,40 +112,20 @@ class PaymentController extends Controller
         if (!$customer) return redirect()->route('login');
 
         // get the current order by customer..
-        $order = $customer->orders()->where('order_number', $orderNumber)->first();
+        $order = $customer->orders()->where('order_number', $orderNumber)->where('payment_status', 'pending')->first();
 
         // check no order yet!
         if (!$order) return redirect()->route('customer.checkout');
-
-        // check if order was already paid!
-        if ($order->payment_status === 'paid') {
-
-            // log the status
-            logger()->alert('It looks like Order: ' . $orderNumber . ' was already paid!');
-
-            // redirect back to success page..
-            return redirect()->route('customer.checkout.success', [
-                'orderNumber' => $orderNumber
-            ]);
-        }
 
 
         // log the action
         logger()->info('[app\Http\Controllers\Customer\PaymentController@process] Processing the payment');
 
         // validate the request input..
-        $validated = $request->validate([
-            'card_number' => 'required|string',
-            'expiry' => 'required|string',
-            'cvv' => 'required|string',
-            'card_name' => 'required|string'
-        ]);
+        $validated = $request->validated();
 
         // log the status
-        logger()->info('Payment details verified', ['status' => (bool) $validated]);
-
-        // state of payment
-        // $paymentStatus = true;
+        logger()->info('Payment details validated', ['status' => (bool) $validated]);
 
         // MockPaymentService instantiation..
         $mockPaymentService = new MockPaymentService();

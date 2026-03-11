@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Admin\DeliveryController;
 
 // for vendor
 use App\Http\Controllers\Vendor\ProductController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Vendor\ProductVariantController;
 // use App\Http\Controllers\Vendor\ProductImageController;
 use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\Vendor\ProductColorController;
+use App\Http\Controllers\Vendor\VendorOrderController;
 // use App\Http\Controllers\Vendor\ProductColorImageController;
 
 // for customers (both)
@@ -25,6 +27,8 @@ use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\PaymentController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\AddressController;
+use App\Http\Controllers\Customer\OrderController;
+use App\Http\Controllers\Customer\WishlistController;
 
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
@@ -93,10 +97,22 @@ Route::middleware(["auth", "role:admin"])
             "index",
         ])->name("dashboard.admin");
 
+        /**
+         * deliveries module
+         */
+        Route::prefix('deliveries')->group(function () {
+
+            // 'dashboard/admin/deliveries/' -> all pending orders to be delivered!
+            Route::get('/', [DeliveryController::class, 'index'])->name('admin.deliveries.index');
+
+            // 'dashboard/admin/deliveries/assign' -> assign to delivery person
+            Route::post('/assign', [DeliveryController::class, 'assign'])->name('admin.deliveries.assign');
+        });
+
         /*
         categories
         module
-    */
+        */
         // 'dashboard/admin/categories'
         Route::get("/categories", [CategoryController::class, "index"])->name(
             "admin.categories.index",
@@ -363,6 +379,30 @@ Route::middleware(["auth", "role:vendor"])
                     "destroy",
                 ])->name("vendor.products.variants.destroy");
             });
+
+            /*
+            Orders Module
+            */
+            Route::prefix("orders")->group(function () {
+
+                // List vendor's incoming orders
+                Route::get("/", [VendorOrderController::class, "index"])
+                    ->name("vendor.orders.index");
+
+                // Show specific order (only vendor’s items)
+                Route::get("/{order}", [VendorOrderController::class, "show"])
+                    ->name("vendor.orders.show");
+
+                // Update item status
+                Route::put("/items/{item}/status", [VendorOrderController::class, "updateStatus"])
+                    ->name("vendor.orders.items.update-status");
+
+                // cancel an ordered item..
+                Route::patch(
+                    '/items/{item}/cancel',
+                    [VendorOrderController::class, 'cancel']
+                )->name('vendor.orders.cancel');
+            });
         });
     });
 
@@ -389,6 +429,14 @@ Route::prefix("/stylekart-store")->group(function () {
     // protected routes..
     // authenticated as well as it should be customer.
     Route::middleware(['auth', 'role:customer'])->group(function () {
+
+        // Wishlist
+        Route::prefix('wishlist')->name('customer.wishlist.')->group(function () {
+            Route::get('/', [WishlistController::class, 'index'])->name('index');       // show wishlist
+            Route::post('/', [WishlistController::class, 'store'])->name('store');       // add item
+            Route::delete('/{item}', [WishlistController::class, 'destroy'])->name('destroy'); // remove item
+        });
+
 
         // 'stylekart-store/profile' -> view profile and rest of details..
         Route::get('/profile', [ProfileController::class, 'index'])->name('customer.profile');
@@ -421,6 +469,12 @@ Route::prefix("/stylekart-store")->group(function () {
                 ->name('destroy');
         });
 
+        // 'orders/{order}' - view single order by customer.
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('customer.orders.show');
+        Route::get('/orders/{order}/invoice', [OrderController::class, 'showInvoice'])
+            ->name('customer.orders.invoice');
+
+
 
         // 'stylekart-store/checkout' - initial data for checkout
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
@@ -437,31 +491,31 @@ Route::prefix("/stylekart-store")->group(function () {
         // 'stylekart-store/order/XXXXX' -> for order success
         Route::get('/order/{orderNumber}', [CheckoutController::class, 'success'])->name('customer.checkout.success');
 
+        // 'stylekart-store/order/XXXX/item/2/cancel' -> for order item cancellation
+        Route::post('/order/{orderNumber}/{item}/cancel', [OrderController::class, 'cancelItem'])
+            ->name('customer.order-item.cancel');
+
+        // 'stylekart-store/order/XXXX/cancel' -> for order item cancellation
+        Route::post('/order/{orderNumber}/cancel', [OrderController::class, 'cancelFullOrder'])
+            ->name('customer.orders.cancel');
+
         // 'stylekart-store/order/fail' -> when order placement fails
         // Route::get('/order/fail', fn() =>  view('customer.checkout.failed'))->name('customer.checkout.fail');
     });
-
-    /*
-    Route::middleware(['auth', 'role:customer'])
-        ->prefix('stylekart-store')
-        ->group(function () {
-
-            Route::get('/cart', [CartController::class, 'index'])
-                ->name('customer.cart.index');
-
-            Route::post('/cart/add', [CartController::class, 'store'])
-                ->name('customer.cart.store');
-
-            Route::post('/checkout', [CheckoutController::class, 'store'])
-                ->name('customer.checkout');
-
-            Route::get('/orders', [OrderController::class, 'index'])
-                ->name('customer.orders.index');
-
-    });
-
-    */
 });
+
+// Delivery Person Dashboard
+Route::middleware(['auth', 'role:delivery_person'])
+    ->prefix('dashboard/delivery')
+    ->group(function () {
+        // 'dashboard/delivery/'
+        Route::get('/', [App\Http\Controllers\Delivery\DashboardController::class, 'index'])
+            ->name('dashboard.delivery');
+
+        // 'dashboard/delivery/order/{order}/complete'
+        Route::post('/order/{order}/complete', [App\Http\Controllers\Delivery\DashboardController::class, 'complete'])
+            ->name('delivery.order.complete');
+    });
 
 /*
 Route::middleware("auth")->group(function () {

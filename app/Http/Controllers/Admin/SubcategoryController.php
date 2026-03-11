@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use App\Models\SubCategory;
+use App\Http\Requests\SubcategoryRequest;
 
 class SubcategoryController extends Controller
 {
@@ -83,22 +84,11 @@ class SubcategoryController extends Controller
         when saving / storing sub category
     */
 
-    public function store(Request $request)
+    public function store(SubcategoryRequest $request)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Admin\SubcategoryController@store] Sub categories storage initiated",
-        );
-
-        $request->validate(
-            [
-                "category_id" => "required|exists:categories,id",
-                "name" => "required|string|max:255",
-            ],
-            [
-                "category_id.required" => "Select a sub category.",
-                "name.required" => "Enter a sub category name",
-            ],
         );
 
         $created = SubCategory::create([
@@ -130,19 +120,10 @@ class SubcategoryController extends Controller
     /*
         when updating / saving sub category
     */
-    public function update(Request $request, SubCategory $subcategory)
+    public function update(SubcategoryRequest $request, SubCategory $subcategory)
     {
         Log::info(
             "[app\Http\Controllers\Admin\SubcategoryController@update] Sub Category update initiated",
-        );
-
-        $request->validate(
-            [
-                "name" => "required|string|max:255",
-            ],
-            [
-                "name.required" => "Enter a sub category name.",
-            ],
         );
 
         $updated = $subcategory->update([

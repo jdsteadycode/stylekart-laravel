@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Vendor\ProductVariantRequest;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Log;
@@ -28,30 +29,14 @@ class ProductVariantController extends Controller
     /*
     Save the new variant
     */
-    public function store(Request $request, Product $product)
+    public function store(ProductVariantRequest $request, Product $product)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Vendor\ProductVariantController@store] Product Variant addon begins",
         );
 
-        // Ensure product belongs to logged-in vendor
-        abort_if($product->vendor_id !== auth()->id(), 403);
-
-        // Validate input
-        $validated = $request->validate(
-            [
-                "size" => "required|string|max:100",
-                "color_id" => "required|exists:product_colors,id",
-                "sku" => "nullable|string|max:100|unique:product_variants,sku",
-                "price" => "required|numeric|min:0",
-                "stock" => "required|integer|min:0",
-            ],
-            [
-                "color_id.exists" => "Select valid color",
-            ],
-        );
-
+        $validated = $request->validated();
         // log the status
         Log::info("Product Variant data validated?", [
             "status" => (bool) $validated,
@@ -68,9 +53,9 @@ class ProductVariantController extends Controller
             ],
             [
                 "price" =>
-                    $request->price == 0
-                        ? $product->base_price
-                        : $request->price,
+                $request->price == 0
+                    ? $product->base_price
+                    : $request->price,
                 "stock" => $request->stock,
                 "sku" => $request->sku
             ],
@@ -115,7 +100,7 @@ class ProductVariantController extends Controller
     Update the existing variant
     */
     public function update(
-        Request $request,
+        ProductVariantRequest $request,
         Product $product,
         ProductVariant $variant,
     ) {
@@ -124,23 +109,7 @@ class ProductVariantController extends Controller
             "[app\Http\Controllers\Vendor\ProductVariantController@update] Product Variant Update begins",
         );
 
-        abort_if($product->vendor_id !== auth()->id(), 403);
-        abort_if($variant->product_id !== $product->id, 404);
-
-        $validated = $request->validate(
-            [
-                "size" => "required|string|max:100",
-                "color_id" => "required|exists:product_colors,id",
-                "sku" =>
-                    "nullable|string|max:100|unique:product_variants,sku," .
-                    $variant->id, // sku should be unqiue except for this current record
-                "price" => "required|numeric|min:0",
-                "stock" => "required|integer|min:0",
-            ],
-            [
-                "color_id.exists" => "Please select a valid color!",
-            ],
-        );
+        $validated = $request->validated();
 
         // log the status
         Log::info("Variant Data validated?", ["status" => (bool) $validated]);
@@ -148,8 +117,8 @@ class ProductVariantController extends Controller
         // fix the price if 0
         $validated["price"] =
             $validated["price"] == 0
-                ? $product->base_price
-                : $validated["price"];
+            ? $product->base_price
+            : $validated["price"];
 
         // update the variant details.
         $updated = $variant->update($validated);

@@ -189,6 +189,46 @@
                     </div>
                 </div>
 
+                {{-- Product Description & Vendor Info --}}
+                <div class="mt-12 space-y-8">
+
+                    {{-- Product Description --}}
+                    @if($product->description)
+                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100">
+                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">Product Description</h2>
+                            <p class="text-gray-700 leading-relaxed">
+                                {!! nl2br(e($product->description)) !!}
+                            </p>
+                        </div>
+                    @endif
+
+                    {{-- Vendor Details --}}
+                    @if($product->vendor)
+                        <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100">
+                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">Seller Information</h2>
+                            <div class="flex flex-col gap-2 text-gray-700 text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-shop text-rose-400"></i>
+                                    <span class="font-semibold">{{ $product->vendor->vendorProfile->shop_name ?? 'N/A' }}</span>
+                                </div>
+                                @if($product->vendor)
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-location-dot text-rose-400"></i>
+                                        <span>{{ $product->vendor->vendorProfile->shop_address }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-envelope text-rose-400"></i>
+                                        <span>{{ $product->vendor->email }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+
+
+                {{-- Add to bag & Wishlist section --}}
                 <div class="flex gap-4 mt-auto pt-6 border-t border-rose-50">
 
 
@@ -231,9 +271,30 @@
 
                     </form>
 
-                    <button class="flex-1 bg-white border-2 border-rose-50 text-rose-500 py-5 rounded-[24px] font-black text-sm uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center">
-                        <i class="fa-regular fa-heart text-lg"></i>
-                    </button>
+                    {{-- wishlist section --}}
+                    <form class="flex-1"
+                        method="post"
+                        action="{{ route('customer.wishlist.store') }}"
+                    >
+                        @csrf
+                        <input
+                            type="hidden"
+                            name="product_id"
+                            value="{{ $product->id }}"
+                        />
+                        <input
+                            type="hidden"
+                            name="variant_id"
+                            value="{{ $selectedVariant->id }}"
+                        />
+                        <button class="w-full bg-white border-2 border-rose-50 text-rose-500 py-5 rounded-[24px] font-black text-sm uppercase tracking-widest hover:bg-rose-50 transition-all flex items-center justify-center">
+                            @if($inWishlist)
+                                <i class="fa-solid fa-heart text-lg"></i>
+                            @else
+                                <i class="fa-regular fa-heart text-lg"></i>
+                            @endif
+                        </button>
+                    </form>
                 </div>
 
                 <div class="mt-8 grid grid-cols-2 gap-4">

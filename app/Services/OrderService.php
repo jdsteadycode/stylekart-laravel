@@ -75,19 +75,13 @@ class OrderService
         $totalAmount = 0;
 
         // for online payment
-        // check if existing order is there
-        $existingOrder = $customer->orders()
+        // check if existing order is there and remove them
+        $deletedRows = $customer->orders()
             ->where('payment_mode', 'online')
             ->where('payment_status', 'pending')
-            ->first();
-        if ($existingOrder) {
-
-            // log the status
-            logger()->info("Existing Unpaid Order [Online] | Redirected to gateway");
-
-            // get the existing order..
-            return $existingOrder;
-        }
+            ->delete();
+        // log the status
+        logger()->alert('Removed unpaid online orders', ['total' => $deletedRows]);
 
 
         // start a new transaction
@@ -100,6 +94,12 @@ class OrderService
             foreach ($bag as $item) {
                 // get the variant from db..
                 $variant = ProductVariant::find($item['variant_id']);
+
+                // when variant not found
+                if (!$variant) {
+                    // log the error
+                    throw new Exception("Product Variant not found for variant_id: {$item['variant_id']}");
+                }
 
                 // log the status
                 logger()->info('variant fetched ', ['variant' => $variant]);
@@ -127,6 +127,12 @@ class OrderService
 
                 // get the variant
                 $variant = ProductVariant::where('id', $item['variant_id'])->lockForUpdate()->first();
+
+                // when variant not found
+                if (!$variant) {
+                    // log the error
+                    throw new Exception("Product Variant not found for variant_id: {$item['variant_id']}");
+                }
 
                 // stock before ordered..
                 logger()->info('Stock before Order!', ['stock' => $variant->stock]);
@@ -173,22 +179,6 @@ class OrderService
                     ]
                 );
             }
-
-            // // update the order statuses
-            // // if payment method is cod only then,
-            // if ($validated['pay'] === 'cod') {
-
-            //     // update the order..
-            //     // $orderStatus = $order->update([
-            //     //     'order_status' => 'processing'
-            //     // ]);
-
-            //     // update the order items order statuses
-            //     $orderItemsStatus = $order->items()->update(['order_status' => 'processing']);
-
-            //     // log the status
-            //     logger()->info('Updated Order status and Order Item Status', ['order-status' => (bool) $orderStatus, 'order-item-status' => (bool) $orderItemsStatus]);
-            // }
 
             // commit changes..
             DB::commit();

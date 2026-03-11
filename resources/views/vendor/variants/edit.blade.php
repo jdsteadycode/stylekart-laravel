@@ -29,23 +29,27 @@
                 <input type="text" name="size"
                        class="w-full border rounded-md p-2"
                        value="{{ old('size', $variant->size) }}">
+                @error('size')
+                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
                 <label class="block text-sm font-medium mb-1">Color</label>
-                <!--<input type="text" name="color"
-                       class="w-full border rounded-md p-2"
-                       value="{{ old('color', $variant->color) }}">-->
 
-                       <select name="color_id" required class="w-full rounded">
-                           <option value="">Select Color</option>
-                           @foreach($product->colors as $color)
-                               <option value="{{ $color->id }}"
-                                   {{ old('color', $variant->color_id) == $color->id ? 'selected' : '' }}>
-                                   {{ ucfirst($color->name) }}
-                               </option>
-                           @endforeach
-                       </select>
+                    <select name="color_id" required class="w-full rounded">
+                        <option value="">Select Color</option>
+                        @foreach($product->colors as $color)
+                            <option value="{{ $color->id }}"
+                                {{ old('color', $variant->color_id) == $color->id ? 'selected' : '' }}>
+                                {{ ucfirst($color->name) }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('color_id')
+                        <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                    @enderror
             </div>
 
             <div>
@@ -53,6 +57,9 @@
                 <input type="text" name="sku"
                        class="w-full border rounded-md p-2"
                        value="{{ old('sku', $variant->sku) }}">
+                           @error('sku')
+                               <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                           @enderror
             </div>
 
             <div>
@@ -60,6 +67,9 @@
                 <input type="number" step="0.01" name="price"
                        class="w-full border rounded-md p-2"
                        value="{{ old('price', $variant->price) }}">
+                           @error('price')
+                               <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                           @enderror
             </div>
 
             <div>
@@ -67,6 +77,9 @@
                 <input type="number" name="stock"
                        class="w-full border rounded-md p-2"
                        value="{{ old('stock', $variant->stock) }}">
+                           @error('stock')
+                               <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                           @enderror
             </div>
 
             <div>

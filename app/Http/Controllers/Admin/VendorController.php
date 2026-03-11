@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\VendorProfile;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\UpdateVendorStatusRequest;
 
 class VendorController extends Controller
 {
@@ -61,25 +62,20 @@ class VendorController extends Controller
     /**
      * Update vendor profile status (approve/reject/pending).
      */
-    public function update(Request $request, User $vendor)
+    public function update(UpdateVendorStatusRequest $request, User $vendor)
     {
         // Log the action
         Log::info(
             "[app\Http\Controllers\Admin\VendorController@update] Vendor status update initiated",
         );
 
-        $request->validate([
-            "status" => "required|in:pending,approved,rejected",
-            "rejection_reason" => "required_if:status,rejected",
-        ]);
-
         // Update vendor profile
         $updated = $vendor->vendorProfile->update([
             "status" => $request->status,
             "rejection_reason" =>
-                $request->status === "rejected"
-                    ? $request->rejection_reason
-                    : null,
+            $request->status === "rejected"
+                ? $request->rejection_reason
+                : null,
         ]);
 
         // log the action
@@ -113,12 +109,13 @@ class VendorController extends Controller
 
         // when no profile exist!
         if (!$vendor->vendorProfile) {
+            // log the error
+            Log::warning("No vendor Profile found");
+
+            // back with error
             return redirect()
                 ->back()
                 ->with("error", "No vendor Profile found!");
-
-            // log the error
-            Log::warning("No vendor Profile found");
         }
 
         // Log the loaded data counts for debugging

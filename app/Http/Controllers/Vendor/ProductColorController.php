@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductColor;
 use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Http\Requests\Vendor\ProductColorRequest;
 
 class ProductColorController extends Controller
 {
@@ -22,24 +23,14 @@ class ProductColorController extends Controller
     /*
     A new color
     */
-    public function store(Request $request, Product $product)
+    public function store(ProductColorRequest $request, Product $product)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Vendor\ProductColorController@store] Color creation initiated",
         );
 
-        // sanitize the color data
-        $validated = $request->validate(
-            [
-                "name" => "required|string|max:50",
-            ],
-            [
-                "name.required" => "Color name is required.",
-                "name.string" => "Color name must be text",
-                "name.max" => "Color name must be within 50 chars",
-            ],
-        );
+        $validated = $request->validated();
 
         // log the status
         Log::info("Color data validated!", ["status" => (bool) $validated]);
@@ -65,7 +56,7 @@ class ProductColorController extends Controller
     public function edit(Product $product, ProductColor $color)
     {
         if ($color->product_id !== $product->id) {
-            // Log
+            // Log the error
             Log::alert("Invalid edit product color action");
             abort(404);
         }
@@ -77,7 +68,7 @@ class ProductColorController extends Controller
     Product Color update
     */
     public function update(
-        Request $request,
+        ProductColorRequest $request,
         Product $product,
         ProductColor $color,
     ) {
@@ -86,23 +77,7 @@ class ProductColorController extends Controller
             "[app\Http\Controllers\Vendor\ProductColorController@update] Color updation initiated",
         );
 
-        if ($color->product_id !== $product->id) {
-            // Log
-            Log::alert("Invalid edit product color action");
-            abort(404);
-        }
-
-        // validate the data..
-        $validated = $request->validate(
-            [
-                "name" => ["required", "string", "max:50"],
-            ],
-            [
-                "name.required" => "Color name is required.",
-                "name.string" => "Color name must be text",
-                "name.max" => "Color name must be within 50 chars",
-            ],
-        );
+        $validated = $request->validated();
 
         // get new color name
         $newName = strtolower(trim($validated["name"]));
@@ -139,7 +114,7 @@ class ProductColorController extends Controller
         // get number of variants having same color
         $variantsOfColor = $product
             ->variants()
-            ->where("color", $color->name)
+            ->where("color_id", $color->id)
             ->count();
 
         // check if color name is related to some variants..
@@ -184,7 +159,7 @@ class ProductColorController extends Controller
     When images to color is to be stored
     */
     public function storeImages(
-        Request $request,
+        ProductColorRequest $request,
         Product $product,
         ProductColor $color,
     ) {
@@ -192,19 +167,6 @@ class ProductColorController extends Controller
         Log::info(
             "[app\Http\Controllers\Vendor\ProductColorController@storeImages] Images storage by Color initiated",
         );
-
-        // check
-        if ($product->id !== $color->product_id) {
-            // Log the status
-            Log::info("Invalid Request");
-            abort(403);
-        }
-
-        // Validate the uploaded files
-        $request->validate([
-            "images.*" =>
-            "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:10000",
-        ]);
 
         // check if images exist
         if ($request->hasFile("images")) {
@@ -230,7 +192,7 @@ class ProductColorController extends Controller
     When image is updated / replaced
     */
     public function updateImage(
-        Request $request,
+        ProductColorRequest $request,
         Product $product,
         ProductColor $color,
         Media $media,
@@ -245,12 +207,6 @@ class ProductColorController extends Controller
             Log::info("File doesn't belong to the {$color->name}");
             abort(403);
         }
-
-        // Validate the uploaded file
-        $request->validate([
-            "image.*" =>
-            "required|image|mimes:jpg,jpeg,png,gif,webp,avif|max:5120",
-        ]);
 
         // delete the existing image
         $deleted = $media->delete();

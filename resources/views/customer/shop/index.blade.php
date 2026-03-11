@@ -4,7 +4,7 @@
 
 @section('content')
 {{-- Toast for add to bag --}}
-@if(session('success') || session('error'))
+@if(session('success') || session('error') || $errors->any())
     <div
         id="toast"
         class="fixed top-6 right-6 z-50 px-6 py-4 rounded-lg shadow-lg text-white font-bold transition-all duration-500"
@@ -12,8 +12,10 @@
     >
         @if(session('success'))
             🛍️ {{ session('success') }}
-        @else
+        @elseif(session('error'))
             ⚠️ {{ session('error') }}
+        @else
+            ⚠️ {{ $errors->first() }}
         @endif
     </div>
 
@@ -39,39 +41,158 @@
             </div>
 
             {{-- search section --}}
-            {{-- <div class="relative w-full md:w-80">
-                <input type="text" placeholder="Search product name..."
-                    class="w-full bg-white border border-rose-100 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all shadow-sm">
-                <i class="fa-solid fa-magnifying-glass absolute right-5 top-1/2 -translate-y-1/2 text-rose-300"></i>
-            </div> --}}
+            <div class="relative w-full md:w-80 mb-6 md:mb-0">
+                <form method="GET" action="{{ route('customer.shop') }}">
+
+                    {{-- if category filter --}}
+                    @if(request('category'))
+                        <input
+                            name="category"
+                            value="{{ request('category') }}"
+                            type="hidden"
+                        />
+                    @endif
+
+                    {{-- if prices to be filtered! --}}
+                    @if(request('min_price'))
+                        <input
+                            name="min_price"
+                            value="{{ request('min_price') }}"
+                            type="hidden"
+                        />
+                    @endif
+                    @if(request('max_price'))
+                        <input
+                            name="max_price"
+                            value="{{ request('max_price') }}"
+                            type="hidden"
+                        />
+                    @endif
+
+                    {{-- if vendor filter --}}
+                    @if(request('vendor'))
+                        @foreach((array) request('vendor') as $vendorId)
+                            <input
+                                name="vendor[]"
+                                value="{{ $vendorId }}"
+                                type="hidden"
+                            />
+                        @endforeach
+                    @endif
+
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search product name..."
+                        class="w-full bg-white border border-rose-100 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all shadow-sm"
+                    >
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-500">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
         </div>
 
         {{-- main section --}}
         <div class="flex flex-col lg:flex-row gap-8">
 
             {{-- left section / Filter or preference section --}}
-            {{-- <aside class="w-full lg:w-64 flex-shrink-0">
+            <aside class="w-full lg:w-64 flex-shrink-0">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-50 sticky top-28">
-                    <h3 class="font-bold text-gray-800 mb-6 flex items-center gap-2 text-sm uppercase tracking-wider">
-                        Filter By Vendor 🏠
-                    </h3>
 
-                    <div class="space-y-3">
-                        @foreach(['Zara Official', 'Urban Chic', 'Little Ones', 'Vintage Co.'] as $vendor)
-                        <label class="flex items-center group cursor-pointer">
-                            <input type="checkbox" class="w-4 h-4 rounded border-rose-200 text-rose-500 focus:ring-rose-500">
-                            <span class="ml-3 text-sm text-gray-600 group-hover:text-rose-500 transition-colors">{{ $vendor }}</span>
-                        </label>
+                    <form method="GET" action="{{ route('customer.shop') }}" class="space-y-6">
+
+                        {{-- if search is also there --}}
+                        @if(request('search'))
+                            <input
+                                name="search"
+                                value="{{ request('search') }}"
+                                type="hidden"
+                            />
+                        @endif
+
+                        {{-- By Category --}}
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            Filter By Category 📂
+                        </h3>
+
+                        @foreach($allCategories as $category)
+                            <label class="flex items-center group cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="category"
+                                    value="{{ $category->id }}"
+                                    class="w-4 h-4 rounded border-rose-200 text-rose-500 focus:ring-rose-500"
+                                    {{ request('category') == $category->id ? 'checked' : '' }}
+                                >
+                                <span class="ml-3 text-sm text-gray-600 group-hover:text-rose-500 transition-colors">{{ $category->name }}</span>
+                            </label>
                         @endforeach
-                    </div>
+
+                        {{-- By Vendor --}}
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            Filter By Vendor 🏠
+                        </h3>
+
+                        @foreach($allVendors as $vendor)
+                            <label class="flex items-center group cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="vendor[]"
+                                    value="{{ $vendor->id }}"
+                                    class="w-4 h-4 rounded border-rose-200 text-rose-500 focus:ring-rose-500"
+                                    {{ in_array($vendor->id, (array) request('vendor')) ? 'checked' : '' }}
+                                >
+                                <span class="ml-3 text-sm text-gray-600 group-hover:text-rose-500 transition-colors">{{ $vendor->name }}</span>
+                            </label>
+                        @endforeach
+
+                        {{-- By Price --}}
+                        <h3 class="font-bold text-gray-800 mb-4 mt-6 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            Filter By Price 💰
+                        </h3>
+
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
+                                <input
+                                    type="number"
+                                    name="min_price"
+                                    value="{{ request('min_price') }}"
+                                    placeholder="Min"
+                                    class="w-full pl-7 pr-3 py-2 text-sm border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-300 outline-none transition-all shadow-sm"
+                                    min="0"
+                                >
+                                </div>
+                                <span class="text-gray-400 font-bold">-</span>
+                                <div class="relative flex-1">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">₹</span>
+                                    <input
+                                        type="number"
+                                        name="max_price"
+                                        value="{{ request('max_price') }}"
+                                        placeholder="Max"
+                                        class="w-full pl-7 pr-3 py-2 text-sm border border-rose-100 rounded-xl focus:ring-2 focus:ring-rose-300 outline-none transition-all shadow-sm"
+                                        min="0"
+                                    >
+                            </div>
+                        </div>
+
+                        <button type="submit" class="mt-4 w-full bg-rose-500 text-white py-2 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-rose-600 transition-all active:scale-95">
+                            Apply
+                        </button>
+
+                    </form>
 
                     <div class="h-[1px] bg-rose-50 my-8"></div>
-
-                    <a href="#" class="text-[10px] font-black text-gray-400 hover:text-rose-500 transition-colors uppercase tracking-[0.2em]">
+                    <a href="{{ route('customer.shop') }}" class="text-[10px] font-black text-gray-400 hover:text-rose-500 transition-colors uppercase tracking-[0.2em]">
                         Reset Filters
                     </a>
+
                 </div>
-            </aside> --}}
+            </aside>
+
 
             {{-- right section / Product Listing section --}}
             <div class="flex-grow">
@@ -106,7 +227,7 @@
 
                                 {{-- set image --}}
                                 @php
-                                    $imageUrl = $product->colors[0]?->getFirstMediaUrl('color_images');
+                                    $imageUrl = $product->colors?->first()?->getFirstMediaUrl('color_images');
                                 @endphp
 
                                 {{-- for image --}}
@@ -123,18 +244,30 @@
                                     </div>
                                 @endif
 
-                                {{-- wishlist button --}}
-                                {{-- <button class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-400 hover:text-rose-500 transition-all">
-                                    <i class="fa-regular fa-heart"></i>
-                                </button> --}}
+                                <!--
+                                <div class="absolute inset-0 bg-rose-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end items-center p-4 gap-2">
+                                        {{-- Add to Bag --}}
+                                        {{-- <form action="{{ route('customer.cart.store') }}" method="POST" class="w-full">
+                                            @csrf
+                                            <input type="hidden" name="variant_id" value="{{ $product->variants[0]->id ?? '' }}">
+                                            <input type="hidden" name="qty" value="1">
+                                            <button class="w-full bg-rose-500 text-white py-2 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-rose-600 transition-all">
+                                                <i class="fa-solid fa-cart-plus"></i> Add to Bag
+                                            </button>
+                                        </form> --}}
 
-                                {{-- hover secton for cart btn --}}
-                                {{-- <div class="absolute inset-0 bg-rose-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-6">
-                                    <button class="w-full bg-rose-500 text-white py-3.5 rounded-2xl font-bold shadow-xl translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95">
-                                        <i class="fa-solid fa-cart-plus"></i>
-                                        Add to Cart
-                                    </button>
-                                </div> --}}
+                                        {{-- Add to Wishlist --}}
+                                        {{-- <form action="{{ route('customer.wishlist.store') }}" method="POST" class="w-full">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <input type="hidden" name="variant_id" value="{{ $product->variants->first()->id ?? '' }}">
+                                            <button class="w-full bg-white border-2 border-rose-50 text-rose-500 py-2 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-rose-50 transition-all">
+                                                <i class="{{ in_array($product->variants->first()->id ?? 0, $wishlistVariants) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
+ Wishlist
+                                            </button>
+                                        </form> --}}
+                                </div>
+                                -->
                             </div>
 
                             <div class="p-6 text-center">
@@ -150,11 +283,11 @@
                 @endif
 
                 {{-- pagination --}}
-                {{-- <div class="mt-16 flex justify-center items-center gap-4">
-                    <button class="px-4 py-2 rounded-xl text-gray-400 font-bold hover:text-rose-500 transition-colors italic">Prev</button>
-                    <span class="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold shadow-lg shadow-rose-200">1</span>
-                    <button class="px-4 py-2 rounded-xl text-gray-400 font-bold hover:text-rose-500 transition-colors italic">Next</button>
-                </div> --}}
+                <div
+                    class="mt-16 flex justify-center items-center"
+                >
+                    {{ $products->withQueryString()->links() }}
+                </div>
             </div>
 
         </div>

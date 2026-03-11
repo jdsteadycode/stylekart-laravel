@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Session;
+use App\Http\Requests\AddToBagRequest;
 
 class CartController extends Controller
 {
@@ -27,36 +28,21 @@ class CartController extends Controller
     /*
     Add to bag,
     */
-    public function store(Request $request)
+    public function store(AddtoBagRequest $request)
     {
 
         // log the action
         logger()->info('[app\Http\Controllers\Customer\CartController@add] Variant add to cart initiated');
 
-        // validate the data
-        $request->validate([
-            'variant_id' => ['required', 'integer', 'exists:product_variants,id'],
-            'qty' => ['required', 'integer', 'min:1', 'max:5']
-        ]);
+        // log the status
+        logger()->info('Data validated successfully');
 
         // get variant with product it belongs to..
         $variant = ProductVariant::with(['product', 'color'])->find($request->variant_id);
 
-        // check variant details?
-        if (!$variant) {
-            // log the status
-            logger()->alert("Variant not found: {$request->variant_id}");
-            abort(404);
-        }
 
         // check if stock is available enough
         if ($variant->stock < 1) {
-
-            // log the status
-            logger()->alert($variant->id  . 'variant is Out Of Stock!');
-
-            // redirect client back
-            return redirect()->back()->with('error', 'This item is out of stock');
         }
 
         // set qty to ensure incoming qty doesn't exceed the stock of variant.

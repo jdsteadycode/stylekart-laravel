@@ -8,6 +8,14 @@
     </div>
 @endif
 
+@if ($errors->any())
+    @foreach($errors->all() as $error)
+        <div class="m-4 text-red-700 bg-red-100 px-4 py-2 rounded-md text-sm">
+            {{ $error }}
+        </div>
+    @endforeach
+@endif
+
 <div class="max-w-5xl mx-auto space-y-6">
 
     <!-- Back to Product -->
