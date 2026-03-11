@@ -30,10 +30,10 @@ $active = 'bg-slate-800';
             🏪 Vendors
         </a>
 
-        {{-- <a href="#"
-            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800">
-            🚚 Delivery Persons
-        </a> --}}
+        <a href="{{ route('admin.deliveries.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('admin.deliveries.index') ? $active : ''}}">
+            🚚 Deliveries
+        </a>
 
     </nav>
 </aside>

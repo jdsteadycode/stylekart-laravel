@@ -89,7 +89,8 @@
                             @method('PUT')
 
                             {{-- Status Select --}}
-                            <select name="status"
+                            <select
+                                name="status"
                                 x-model="status"
                                 class="border px-2 py-1 rounded text-sm w-full">
 
@@ -104,6 +105,10 @@
                                     class="border px-2 py-1 rounded text-sm w-full"
                                     placeholder="Enter rejection reason..."
                                 >{{ $vendor->vendorProfile->rejection_reason }}</textarea>
+
+                                @error('rejection_reason')
+                                <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             {{-- Submit Button --}}
