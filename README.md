@@ -25,6 +25,7 @@ StyleKart is a robust, production-ready multivendor e-commerce platform built wi
 ---
 
 ## 🤝 Acknowledgments & Collaboration
-Special thanks to **Jinal Rathod** for providing immense clarity and mentorship on each module of StyleKart. Her guidance was instrumental in shaping the logic for the delivery system and overall feature architecture.
+Special thanks to **Jinal Rathod** for providing immense clarity and feedback on each module of StyleKart. 
+Her guidance was instrumental in shaping the Stylekart and overall feature architecture.
 
-- **GitHub:** [Jinal Rathod](https://github.com/rathodjinal844)  - **Email:** [rathodjinal844@gmail.com](mailto:rathodjinal844@gmail.com) ---
+- **GitHub:** [Jinal Rathod](https://github.com/rathodjinal844)  - **Email:** [rathodjinal844@gmail.com](mailto:rathodjinal844@gmail.com)
