@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\VendorProfile;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Vendor\VendorProfileRequest;
 
 class VendorProfileController extends Controller
 {
@@ -37,29 +38,14 @@ class VendorProfileController extends Controller
     /*
         vendor profile update..
     */
-    public function update(Request $request)
+    public function update(VendorProfileRequest $request)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Vendor\VendorProfileController@update] Vendor Profile details update initiated",
         );
 
-        $validated = $request->validate(
-            [
-                "name" => "required|string|max:255",
-                "shop_name" => "required|string|max:255",
-                "shop_address" => "required|string",
-            ],
-            [
-                "name.required" => "Name is required.",
-
-                "shop_name.required" => "Shop Name is required.",
-                "shop_name.string" => "Shop name must be valid text.",
-
-                "shop_address.required" => "Shop address is required.",
-                "shop_address.string" => "Shop address must be valid text.",
-            ],
-        );
+        $validated = $request->validated();
 
         // authenticated vendor..
         $vendor = auth()->user();

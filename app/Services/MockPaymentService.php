@@ -1,7 +1,7 @@
 <?php
 
 // folder path
-namespace app\Services;
+namespace App\Services;
 
 // path to class..
 
@@ -21,7 +21,7 @@ class MockPaymentService
         $success = 1;
 
         // for intentional failure
-        if ($validated['card_number'] === '0000 0000 0000 0000') {
+        if ($validated['card_number'] !== '4242 4242 4242 4242') {
 
             // update the state..
             $success = 0;

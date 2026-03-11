@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -42,18 +43,8 @@ class CategoryController extends Controller
     /*
         when saving / creating category
     */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $request->validate(
-            [
-                "name" => "required|string|max:255|unique:categories,name",
-            ],
-            [
-                "name.required" => "Category name is needed!",
-                "name.string" => "Category must be strictly text",
-                "name.max" => "Category must be within 255 characters",
-            ],
-        );
 
         $status = Category::create([
             "name" => $request->name,
@@ -85,24 +76,11 @@ class CategoryController extends Controller
         return view("admin.categories.edit", compact("category"));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category)
     {
         // log the action
         Log::info(
             "[app\Http\Controllers\Admin\CategoryController@destroy] Category updation initiated!",
-        );
-
-        $request->validate(
-            [
-                "name" =>
-                    "required|string|max:255|unique:categories,name," .
-                    $category->id,
-            ],
-            [
-                "name.required" => "Category name is needed!",
-                "name.string" => "Category must be strictly text",
-                "name.max" => "Category must be within 255 characters",
-            ],
         );
 
         $status = $category->update([

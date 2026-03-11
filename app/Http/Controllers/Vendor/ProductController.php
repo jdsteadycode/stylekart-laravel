@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Vendor\ProductRequest;
 
 class ProductController extends Controller
 {
@@ -86,7 +87,7 @@ class ProductController extends Controller
     }
 
     /* for saving the new product */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
         // Log the action
         Log::info(
@@ -96,14 +97,7 @@ class ProductController extends Controller
         // get the logged-in vendor's id
         $vendorId = $request->user()->id;
 
-        // ensure data is clean
-        $validated = $request->validate([
-            "name" => "required|string|max:255",
-            "description" => "nullable|string",
-            "category_id" => "required",
-            "sub_category_id" => "required|exists:sub_categories,id",
-            "base_price" => "required|numeric|min:0",
-        ]);
+        $validated = $request->validated();
 
         // check data
         Log::info("Product data", ["product" => $validated]);
@@ -149,23 +143,15 @@ class ProductController extends Controller
     /*
         update existing product
     */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
-        abort_if($product->vendor_id !== auth()->id(), 403);
 
         // log the action
         Log::info(
             "[app\Http\Controllers\Vendor\ProductController@update] Product updation begins",
         );
 
-        // ensure data is clean
-        $validated = $request->validate([
-            "name" => "required|string|max:255",
-            "description" => "nullable|string",
-            "category_id" => "required",
-            "sub_category_id" => "required|exists:sub_categories,id",
-            "base_price" => "required|numeric|min:0",
-        ]);
+        $validated = $request->validated();
 
         // update the product
         $updated = $product->update($validated);
