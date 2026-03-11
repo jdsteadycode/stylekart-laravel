@@ -13,6 +13,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Wishlist;
+use App\Models\DeliveryProfile;
 
 class User extends Authenticatable
 {
@@ -92,5 +93,17 @@ class User extends Authenticatable
     public function soldItems()
     {
         return $this->hasMany(OrderItem::class, "vendor_id");
+    }
+
+    // () -> related delivery_profile
+    public function deliveryProfile()
+    {
+        return $this->hasOne(DeliveryProfile::class);
+    }
+
+    // () -> related assigned orders (as delivery personnel)
+    public function assignedOrders()
+    {
+        return $this->hasMany(Order::class, "delivery_person_id");
     }
 }
