@@ -17,6 +17,9 @@ if (! function_exists('getDashboardRoute')) {
             case 'vendor':
                 return 'dashboard.vendor';
 
+            case 'delivery_person':
+                return 'dashboard.delivery';
+
             case 'customer':
                 return 'customer.profile';
 
