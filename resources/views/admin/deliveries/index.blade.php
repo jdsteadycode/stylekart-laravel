@@ -2,7 +2,7 @@
 
 @section('content')
 
-{{-- when success message --}}
+{{-- Success/Error Messages --}}
 @if(session('success'))
     <div class="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
         {{ session('success') }}
@@ -16,7 +16,8 @@
 @endif
 
 <div class="bg-white rounded-lg shadow-sm p-6">
-    <h1 class="text-2xl font-bold mb-6 text-slate-700">Assign Deliveries</h1>
+    {{-- Changed Title to reflect monitoring --}}
+    <h1 class="text-2xl font-bold mb-6 text-slate-700">Delivery Monitoring</h1>
 
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -26,7 +27,8 @@
                     <th class="p-4">Customer</th>
                     <th class="p-4">Amount</th>
                     <th class="p-4">Consolidated Status</th>
-                    <th class="p-4">Assign Delivery Person</th>
+                    {{-- Changed Column Header --}}
+                    <th class="p-4">Assignment Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
@@ -39,28 +41,22 @@
                         <span class="px-2 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full">Ready</span>
                     </td>
                     <td class="p-4">
-                        {{-- Small Form to Assign --}}
-                        <form action="{{ route('admin.deliveries.assign') }}" method="POST" class="flex gap-2">
-                            @csrf
-                            <input type="hidden" name="order_id" value="{{ $order->id }}">
-
-                            <select name="delivery_person_id" class="border border-slate-300 rounded px-3 py-1 text-sm focus:outline-blue-500" required>
-                                <option value="">Select Person</option>
-                                @foreach($deliveryPersons as $person)
-                                    <option value="{{ $person->id }}">{{ $person->name }} ({{ $person->deliveryProfile->vehicle_number ?? 'No Vehicle' }})</option>
-                                @endforeach
-                            </select>
-
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded text-sm font-medium transition">
-                                Assign
-                            </button>
-                        </form>
+                        {{-- Logic: Form is gone. Show monitoring status instead --}}
+                        <div class="flex items-center gap-2">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                            </span>
+                            <span class="text-sm font-medium text-amber-700">
+                                Waiting for Delivery Partner
+                            </span>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
                     <td colspan="5" class="p-10 text-center text-slate-500 italic">
-                        No orders are currently consolidated and ready for delivery.
+                        No orders are currently waiting for delivery pickup.
                     </td>
                 </tr>
                 @endforelse

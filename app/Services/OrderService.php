@@ -22,50 +22,12 @@ class OrderService
     /**
      * handle the order creation..
      */
-    public function createOrder($customer, array $validated, array $bag)
+    public function createOrder($customer, $address, array $validated, array $bag)
     {
 
 
         // log the action
         logger()->info('[app\Services\OrderService@createOrder] Order and Order Item creation initiated');
-
-        // get default address if exists
-        $address = $customer->addresses()->where('is_default', 1)->first();
-
-        // if default address
-        if ($address) {
-            // update existing default address
-            $address->update([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'address_line' => $validated['address_line'],
-                'city' => $validated['city'],
-                'pincode' => $validated['pincode'],
-                'state' => $address->state ?? 'Gujarat',
-                'landmark' => $address->landmark ?? 'Near Reliance Trendz',
-                'address_type' => $address->address_type ?? 'home',
-            ]);
-
-            // log the status
-            logger()->info("Default address updated!", ['address_id' => $address->id]);
-        } else {
-            // create new default address
-            $address = $customer->addresses()->create([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'],
-                'address_line' => $validated['address_line'],
-                'city' => $validated['city'],
-                'pincode' => $validated['pincode'],
-                'state' => 'Gujarat',
-                'landmark' => 'Near Reliance Trendz',
-                'address_type' => 'home',
-                'is_default' => 1,
-            ]);
-
-            // log the status
-            logger()->info("New default address created!", ['address_id' => $address->id]);
-        }
-
 
         // order number (unique / random)
         $orderNumber =

@@ -512,6 +512,10 @@ Route::middleware(['auth', 'role:delivery_person'])
         Route::get('/', [App\Http\Controllers\Delivery\DashboardController::class, 'index'])
             ->name('dashboard.delivery');
 
+        // 'dashboard/delivery/order/{order}/accept'
+        Route::post('/order/{order}/accept', [App\Http\Controllers\Delivery\DashboardController::class, 'accept'])
+            ->name('delivery.order.accept');
+
         // 'dashboard/delivery/order/{order}/complete'
         Route::post('/order/{order}/complete', [App\Http\Controllers\Delivery\DashboardController::class, 'complete'])
             ->name('delivery.order.complete');
