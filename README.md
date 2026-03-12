@@ -3,10 +3,12 @@
 StyleKart is a robust, production-ready multivendor e-commerce platform built with **Laravel 11**. It features a secure, end-to-end delivery management system with OTP verification.
 
 ## 🚀 Key Modules Completed
-- **Admin Dashboard:** Vendor management, Category/Subcategory control, and Delivery Person assignment.
+- **Admin Dashboard:** Vendor management, Category/Subcategory control, and Deliveries view.
 - **Vendor Portal:** Product management (Variants, Colors, Inventory).
 - **Customer Experience:** Product browsing, Cart system, Wishlist, and Secure Checkout.
-- **Delivery System (Latest):** - Real-time order tracking.
+- **Delivery System (Latest):**
+    - On demand Delivery acceptance
+    - Real-time order tracking.
     - **Secure OTP Verification:** Delivery persons must verify a 6-digit OTP sent to the customer via Gmail SMTP to complete the delivery.
 
 ## 🛠️ Technical R&D & Features
