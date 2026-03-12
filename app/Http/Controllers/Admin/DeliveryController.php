@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+// use Illuminate\Http\Request;
 use App\Http\Requests\Admin\DeliveryRequest;
-use App\Models\User;
+// use App\Models\User;
 use App\Models\Order;
 
 class DeliveryController extends Controller
@@ -24,10 +24,10 @@ class DeliveryController extends Controller
             });
 
         // Get all users who are delivery personnel for the dropdown
-        $deliveryPersons = User::where('role', 'delivery_person')->get();
+        // $deliveryPersons = User::where('role', 'delivery_person')->get();
 
         // get the view..
-        return view('admin.deliveries.index', compact('orders', 'deliveryPersons'));
+        return view('admin.deliveries.index', compact('orders'));
     }
 
     /**
