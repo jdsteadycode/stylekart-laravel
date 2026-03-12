@@ -26,63 +26,94 @@
                 <div class="lg:col-span-2 space-y-6">
 
                     {{-- addresses section --}}
-                    <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm">
+                    <div
+                        x-data="{
+                                mode: '{{ old('use_new_address') == '1' || old('name') ? 'new' : ($addresses->isNotEmpty() ? 'saved' : 'new') }}',
+                                selectedAddress: '{{ old('address_id', $addresses->where('is_default', 1)->first()?->id ?? $addresses->first()?->id) }}'
+                            }"
+                        class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm">
+
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white text-xs">1</div>
+                                <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">1</div>
                                 <h3 class="text-xl font-black text-gray-900">Shipping Details</h3>
                             </div>
 
-
-                            {{-- tab switcher for addresses section --}}
-                            {{-- <div class="flex items-center gap-2 bg-rose-50 p-1.5 rounded-xl border border-rose-100">
-                                <button class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest bg-white text-rose-500 shadow-sm">New Address</button>
-                                <button class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-rose-500 transition-all">Use Saved</button>
-                            </div> --}}
-                        </div>
-
-                        {{-- address form --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {{-- name --}}
-                            <input type="text" placeholder="Full Name" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all"
-                                value="{{ old('name', $address?->name ?? '') }}"
-                                name="name"
-                            >
-                            @error('name')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-
-
-                            {{-- phone --}}
-                            <input type="text" placeholder="Phone Number" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all"
-                                value="{{ old('phone', $address?->phone ?? '') }}"
-                                name="phone"
-                            >
-
-                            @error('phone')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-
-                            {{-- Address detail --}}
-                            <div class="md:col-span-2">
-                                <textarea rows="3" placeholder="Full Address (House No, Building, Area)" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all" name="address_line">{{ old('address_line', $address?->address_line ?? '')}}</textarea>
-                                @error('address_line')
-                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
+                            {{-- Address Choice Tab --}}
+                            @if($addresses->isNotEmpty())
+                            <div class="flex items-center gap-2 bg-rose-50 p-1 rounded-xl border border-rose-100">
+                                <button type="button" @click="mode = 'saved'" :class="mode === 'saved' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Saved</button>
+                                <button type="button" @click="mode = 'new'" :class="mode === 'new' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">New</button>
                             </div>
-                            {{-- City --}}
-                            <input type="text" placeholder="City" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all" value="{{ old('city', $address?->city ?? '') }}" name="city">
-                            @error('city')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-
-
-                            {{-- Pincode --}}
-                            <input type="text" placeholder="Pincode" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all" value="{{ old('pincode', $address?->pincode ?? '') }}" name="pincode">
-                            @error('pincode')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            @endif
                         </div>
+
+                        {{-- Saved Address Section --}}
+                        <div x-show="mode === 'saved'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach($addresses as $addr)
+                                <label class="relative flex flex-col p-4 cursor-pointer rounded-2xl border-2 transition-all hover:bg-rose-50/30"
+                                    :class="selectedAddress == '{{ $addr->id }}' ? 'border-rose-500 bg-white ring-1 ring-rose-500' : 'border-rose-50 bg-rose-50/10'">
+
+                                    <input type="radio" name="address_id" value="{{ $addr->id }}" class="hidden" x-model="selectedAddress" :disabled="mode === 'new'"
+                                    >
+
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-sm font-black text-gray-900">{{ $addr->name }}</span>
+                                        <span x-show="selectedAddress == '{{ $addr->id }}'" class="text-[9px] font-black text-rose-500 uppercase">Selected</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                                        {{ $addr->address_line }}, {{ $addr->city }} - {{ $addr->pincode }}
+                                    </p>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-2">📞 {{ $addr->phone }}</p>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        {{-- New Address Section --}}
+                        <div x-show="mode === 'new'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                                <div>
+                                    <input type="text" name="name" :disabled="mode === 'saved'" placeholder="Full Name" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('name') }}">
+                                    @error('name') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <input type="text" name="phone" :disabled="mode === 'saved'" placeholder="Phone Number" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('phone') }}">
+                                    @error('phone') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <textarea name="address_line" :disabled="mode === 'saved'" rows="3" placeholder="Full Address" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none">{{ old('address_line') }}</textarea>
+                                    @error('address_line') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <input type="text" name="city" :disabled="mode === 'saved'" placeholder="City" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('city') }}">
+                                    @error('city') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <input type="text" name="pincode" :disabled="mode === 'saved'" placeholder="Pincode" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('pincode') }}">
+                                    @error('pincode') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <input type="text" name="state" :disabled="mode === 'saved'" placeholder="State" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('state') }}">
+                                    @error('state') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block italic">Address Type</label>
+                                    <select name="address_type" :disabled="mode === 'saved'" class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
+                                        <option value="Where to?" hidden>Where to?</option>
+                                        <option value="home" {{ old('address_type') === 'home' ? 'selected' : ''}}>🏠 Home (Delivery anytime)</option>
+                                        <option value="office" {{ old('address_type') === 'office' ? 'selected' : ''}}>🏢 Office (10 AM - 6 PM)</option>
+                                        <option value="other" {{ old('address_type') === 'other' ? 'selected' : ''}}>📍 Other</option>
+                                    </select>
+                                    @error('address_type') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
+                                </div>
+
+                            </div>
                     </div>
 
                     {{-- payment mode section --}}
@@ -98,7 +129,9 @@
                                     <i class="fa-solid fa-credit-card text-rose-400"></i>
                                     <span class="text-sm font-bold text-gray-700">Online Payment</span>
                                 </div>
-                                <input type="radio" name="pay" class="w-4 h-4 accent-rose-500" value="online"
+                                <input type="radio" name="pay"
+                                    class="w-4 h-4 accent-rose-500 text-rose-500 focus:outline-none focus:ring-0"
+                                    value="online"
                                     {{ old('pay', ' ') === 'online' ? 'checked' : ''}}
                                 >
                             </label>
@@ -108,7 +141,9 @@
                                     <i class="fa-solid fa-hand-holding-dollar text-rose-400"></i>
                                     <span class="text-sm font-bold text-gray-700">Cash on Delivery</span>
                                 </div>
-                                <input type="radio" name="pay" class="w-4 h-4 accent-rose-500" value="cod"
+                                <input type="radio" name="pay"
+                                    class="w-4 h-4 accent-rose-500 text-rose-500 focus:outline-none focus:ring-0"
+                                    value="cod"
                                     {{ old('pay', ' ') === 'cod' ? 'checked' : ''}}
                                 >
                             </label>

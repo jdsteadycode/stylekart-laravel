@@ -33,11 +33,19 @@ class CheckoutRequest extends FormRequest
 
         // validate according to rules.
         return [
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
-            'address_line' => 'required|string|max:500',
-            'city' => 'required|string|max:255',
-            'pincode' => 'required|string|max:10',
+            // if default address opted check?
+            'address_id' => 'nullable|exists:addresses,id',
+
+            // If new address is opted?
+            'name'         => 'required_without:address_id|nullable|string|max:255',
+            'phone'        => 'required_without:address_id|nullable|string|max:15',
+            'address_line' => 'required_without:address_id|nullable|string|max:500',
+            'city'         => 'required_without:address_id|nullable|string|max:255',
+            'pincode'      => 'required_without:address_id|nullable|string|max:10',
+            'state'        => 'required_without:address_id|nullable|string|max:255',
+            'address_type' => 'required_without:address_id|nullable|in:home,office,other',
+
+            // payment method / mode.
             'pay' => 'required|in:cod,online'
         ];
     }

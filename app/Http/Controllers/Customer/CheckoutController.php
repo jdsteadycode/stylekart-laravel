@@ -47,26 +47,17 @@ class CheckoutController extends Controller
             abort(403);
         }
 
-        // get default address of customer (1 only for now)
-        $address = $customer->addresses()->where('is_default', 1)->first();
+        // get all adresses saved by customer including default
+        $addresses = $customer->addresses()->latest()->get();
 
-        // if no default address found?
-        if (!$address) {
-            // no default address found
-            logger()->warning("No default Address found! So fetching any!");
-
-            // get first from any.
-            $address = $customer->addresses()->first();
-
-            // if no address found (from any)?
-            if (!$address) {
-                // no address found from customer
-                logger()->alert("OOPS! customer doesn't seem to have any address");
-            }
-        } else {
+        // if not found!
+        if (!$addresses || $addresses->count() == 0) {
             // log the status
-            logger()->info("Address fetched for customer");
+            logger()->alert("No saved addresses found");
         }
+
+        // get default address or make one
+        $defaultAddress = $addresses->where('is_default', 1)->first() ?? $addresses->first();
 
         // calculate sub-total
         $subTotal = 0;
@@ -77,7 +68,7 @@ class CheckoutController extends Controller
         }
 
         // get the view..
-        return view('customer.checkout.index', compact('address', 'bag', 'subTotal'));
+        return view('customer.checkout.index', compact('addresses', 'defaultAddress', 'bag', 'subTotal'));
     }
 
     /***
@@ -111,9 +102,46 @@ class CheckoutController extends Controller
             // get customer
             $customer = $request->user();
 
+
+            // if default address opted?
+            if ($request->filled('address_id')) {
+                $address = $customer->addresses()->findOrFail($validated['address_id']);
+                // log the status
+                logger()->info("Opted for existing address", [
+                    "status" => (bool) $address,
+                    "data" => [
+                        'id' => $address->id,
+                        'name' => $address->name,
+                    ]
+                ]);
+            }
+
+            // asked to create a new address
+            else {
+                $address = $customer->addresses()->create([
+                    'name'         => $validated['name'],
+                    'phone'        => $validated['phone'],
+                    'address_line' => $validated['address_line'],
+                    'city'         => $validated['city'],
+                    'pincode'      => $validated['pincode'],
+                    'state'        => $validated['state'],
+                    'address_type' => $validated['address_type']
+                ]);
+
+                // log the status
+                logger()->info("New Address Added and Opted!", [
+                    "status" => (bool) $address,
+                    "address" => $address
+                ]);
+            }
+
+
+            // test and check (temporary)
+            // return;
+
             // instantiate the Service Class
             $orderService = new OrderService();
-            $order = $orderService->createOrder($customer, $validated, $bag);   // try to make an order..
+            $order = $orderService->createOrder($customer, $address, $validated, $bag);   // try to make an order..
 
             // if cod!
             if ($validated['pay'] === 'cod') {
