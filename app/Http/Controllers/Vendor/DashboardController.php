@@ -249,18 +249,18 @@ class DashboardController extends Controller
 
 
         /*
-        * orders to be shipped (i.e., processing)
+        * orders to be readyed (i.e., processing)
         */
-        $ordersToShip = DB::table('orders')
+        $ordersToReady = DB::table('orders')
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('order_items.vendor_id', '=', $vendor->id)
             ->where('orders.payment_status', '!=', 'failed')
-            ->where('orders.order_status', '=', 'processing')
+            ->where('orders.order_status', '=', 'pending')      // fix: show pending orders for vendors
             ->distinct()
             ->count('orders.id');
 
         // log the status
-        logger()->info("Orders to be shipped: {$ordersToShip}");
+        logger()->info("Orders to Ready: {$ordersToReady}");
 
 
         /**
@@ -281,7 +281,7 @@ class DashboardController extends Controller
         return view('vendor.dashboard.index', compact(
             'todayRevenue',
             'thisMonthRevenue',
-            'ordersToShip',
+            'ordersToReady',
             'lowStockVariants'
         ));
     }
