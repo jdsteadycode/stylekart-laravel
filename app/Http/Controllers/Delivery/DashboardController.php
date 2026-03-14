@@ -23,6 +23,9 @@ class DashboardController extends Controller
         $user = auth()->user();
         $deliveryProfile = $user->deliveryProfile;
 
+        // get city of delivery person
+        $city = DB::table("addresses")->where("user_id", $user->id)->value("city");
+
         // already accepted orders.
         $acceptedOrders = Order::where('delivery_person_id', $user->id)
             ->whereIn('order_status', ['shipped', 'out_for_delivery'])
@@ -33,14 +36,32 @@ class DashboardController extends Controller
         $availableOrders = collect();
 
         // show available orders if no order is taken by me etc.
-        if ($deliveryProfile && $deliveryProfile->is_available && $acceptedOrders->isEmpty()) {
+        if ($deliveryProfile && $deliveryProfile->is_available && $acceptedOrders->isEmpty() && $city) {
             $availableOrders = Order::whereNull('delivery_person_id')
                 ->where('order_status', 'ready_for_pickup')
+                ->whereHas('items', function ($query) use ($city) {
+                    // Match the item's vendor_id to users in the addresses table with the same city
+                    $query->whereIn('vendor_id', function ($subQuery) use ($city) {
+                        $subQuery->select('user_id')
+                            ->from('addresses')
+                            ->where('city', $city);
+                    });
+                })
                 ->with(['user', 'address'])
                 ->get();
         }
 
-        return view('delivery-person.dashboard.index', compact('availableOrders', 'acceptedOrders'));
+        // new: added delivered orders
+        $deliveredOrders = Order::where('delivery_person_id', $user->id)
+            ->where('order_status', 'delivered')
+            ->latest() // new first
+            ->limit(20) // but only 20 not all
+            ->get();
+
+        return view(
+            'delivery-person.dashboard.index',
+            compact('availableOrders', 'acceptedOrders', 'deliveredOrders')
+        );
     }
 
     /**
