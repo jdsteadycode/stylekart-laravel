@@ -13,7 +13,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
 
     {{-- Orders to Ship (Action Item #1) --}}
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-orange-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
+    {{-- <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-orange-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
         <div class="flex items-center justify-between mb-3">
             <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Orders to Ship</p>
             <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-xl">
@@ -26,7 +26,23 @@
         <a href="{{ route('vendor.orders.index', ['status' => 'processing']) }}" class="text-xs text-orange-600 font-medium hover:underline mt-4 inline-block">
             View processing orders &rarr;
         </a>
-    </div>
+    </div> --}}
+
+    {{-- Orders to Ready (Action Item #1) --}}
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-orange-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Orders to Ready</p>
+                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-xl">
+                    📦
+                </div>
+            </div>
+            <h3 class="text-4xl font-black mt-2 tracking-tight text-gray-800">
+                {{ $ordersToReady ?? 0 }}
+            </h3>
+            <a href="{{ route('vendor.orders.index', ['status' => 'pending']) }}" class="text-xs text-orange-600 font-medium hover:underline mt-4 inline-block">
+                View pending orders &rarr;
+            </a>
+        </div>
 
     {{-- Today Revenue --}}
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition duration-300">
