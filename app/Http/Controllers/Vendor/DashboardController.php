@@ -220,6 +220,7 @@ class DashboardController extends Controller
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('order_items.vendor_id', '=', $vendor->id)
             ->where('orders.payment_status', '=', 'paid')
+            ->where('orders.order_status', '=', 'delivered')    // fix: counts earning only when order was delivered to customer && was paid
             ->whereDate('orders.created_at', today())
             ->sum(
                 DB::raw('order_items.quantity * order_items.price')
