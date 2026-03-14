@@ -62,10 +62,15 @@
             class="px-8 py-3 rounded-xl text-sm font-black transition-all duration-200 uppercase tracking-wider">
             Accepted ({{ $acceptedOrders->count() }})
         </button>
+        <button @click="tab = 'history'"
+            :class="tab === 'history' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-600'"
+            class="px-8 py-3 rounded-xl text-sm font-black transition-all duration-200 uppercase tracking-wider whitespace-nowrap">
+            History ({{ $deliveredOrders->count() }})
+        </button>
     </div>
 
     {{-- available orders --}}
-    <section x-show="tab === 'available'" x-transition>
+    {{-- <section x-show="tab === 'available'" x-transition>
         @if($availableOrders->isNotEmpty())
             <div class="mb-12">
                 <div class="flex items-center gap-2 mb-4">
@@ -76,6 +81,14 @@
                     @foreach($availableOrders as $order)
                         <div class="bg-indigo-50/30 border-2 border-dashed border-indigo-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 transition hover:border-indigo-400">
                             <div class="text-center md:text-left">
+                                @php
+                                    // Get the vendor from the first item
+                                    $vendorUser = $order->items->first()->vendor;
+                                    // Get the vendor's profile for the shop name
+                                    $shopName = $vendorUser->vendorProfile->shop_name ?? 'Vendor Shop';
+                                    // Get the vendor's actual address from the addresses table we mapped earlier
+                                    $vendorAddress = \App\Models\Address::where('user_id', $vendorUser->id)->first();
+                                @endphp
                                 <span class="text-xs font-bold text-indigo-600 uppercase">#{{ $order->order_number }}</span>
                                 <p class="text-lg font-bold text-slate-800">{{ $order->address->city ?? 'N/A' }} ({{ $order->address->pincode }})</p>
                                 <p class="text-sm text-slate-500 line-clamp-1">{{ $order->address->address_line }}</p>
@@ -98,12 +111,142 @@
                 <p class="text-slate-400 font-bold italic text-lg">Waiting for new orders from vendors...</p>
             </div>
         @endif
+    </section> --}}
+
+    {{-- available orders --}}
+    <section x-show="tab === 'available'" x-transition>
+        @if ($availableOrders->isNotEmpty())
+            <div class="mb-12">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="h-2 w-2 rounded-full bg-blue-600 animate-ping"></span>
+                    <h2 class="text-xl font-bold text-slate-800">Available Orders</h2>
+                </div>
+                <div class="grid gap-4">
+                    @foreach ($availableOrders as $order)
+                        <div x-data="{ showModal: false }">
+
+                            {{-- THE CLEAN SUMMARY CARD --}}
+                            <div
+                                class="bg-indigo-50/30 border-2 border-dashed border-indigo-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 transition hover:border-indigo-400">
+                                <div class="text-center md:text-left">
+                                    <span
+                                        class="text-xs font-bold text-indigo-600 uppercase">#{{ $order->order_number }}</span>
+                                    <p class="text-lg font-bold text-slate-800">Drop-off:
+                                        {{ $order->address->city ?? 'N/A' }}</p>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span
+                                        class="font-bold text-slate-700">₹{{ number_format($order->total_amount, 2) }}</span>
+                                    <button @click="showModal = true"
+                                        class="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 px-6 py-2 rounded-xl font-bold transition shadow-sm">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- THE MODAL POPUP --}}
+                            <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto"
+                                aria-labelledby="modal-title" role="dialog" aria-modal="true">
+
+                                {{-- Modal Backdrop --}}
+                                <div x-show="showModal" x-transition.opacity
+                                    class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+
+                                {{-- Modal Content --}}
+                                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                                    <div x-show="showModal" x-transition.scale.origin.bottom @click.away="showModal = false"
+                                        class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-100">
+
+                                        {{-- Header --}}
+                                        <div
+                                            class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                                            <h3 class="text-lg font-bold text-slate-800" id="modal-title">Delivery Details
+                                            </h3>
+                                            <button @click="showModal = false"
+                                                class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+                                        </div>
+
+                                        {{-- Body: Addresses --}}
+                                        <div class="px-6 py-6 space-y-6">
+                                            @php
+                                                $vendorUser = $order->items->first()->vendor;
+                                                $shopName = $vendorUser->vendorProfile->shop_name ?? 'Vendor Shop';
+                                                $vendorAddress = \App\Models\Address::where(
+                                                    'user_id',
+                                                    $vendorUser->id,
+                                                )->first();
+                                            @endphp
+
+                                            {{-- Pickup Info --}}
+                                            <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                                                <p class="text-xs font-black text-orange-600 uppercase tracking-wider mb-1">
+                                                    📍 1. Pick up from Vendor</p>
+                                                <p class="text-md font-bold text-slate-800">{{ $shopName }}</p>
+                                                @if ($vendorAddress)
+                                                    <p class="text-sm text-slate-600 mt-1">
+                                                        {{ $vendorAddress->address_line }}, {{ $vendorAddress->city }}</p>
+                                                    <a href="http://googleusercontent.com/maps.google.com/maps?q={{ urlencode($vendorAddress->address_line . ', ' . $vendorAddress->city) }}"
+                                                        target="_blank"
+                                                        class="text-xs text-orange-600 hover:underline font-bold mt-2 inline-block">🗺️
+                                                        Open in Maps</a>
+                                                @endif
+                                            </div>
+
+                                            {{-- Drop-off Info --}}
+                                            <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                                                <p class="text-xs font-black text-indigo-600 uppercase tracking-wider mb-1">
+                                                    🏠 2. Deliver to Customer</p>
+                                                <p class="text-md font-bold text-slate-800">{{ $order->address->city }}
+                                                    ({{ $order->address->pincode }})</p>
+                                                <p class="text-sm text-slate-600 mt-1">{{ $order->address->address_line }}
+                                                </p>
+                                                <a href="http://googleusercontent.com/maps.google.com/maps?q={{ urlencode($order->address->address_line . ', ' . $order->address->city) }}"
+                                                    target="_blank"
+                                                    class="text-xs text-indigo-600 hover:underline font-bold mt-2 inline-block">🗺️
+                                                    Open in Maps</a>
+                                            </div>
+                                        </div>
+
+                                        {{-- 🚀 FOOTER: ACCEPT BUTTON & ORDER VALUE --}}
+                                        <div
+                                            class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+                                            <div class="flex flex-col text-left">
+                                                <span
+                                                    class="text-xs font-bold text-slate-500 uppercase tracking-wider">Order
+                                                    Value</span>
+                                                <span
+                                                    class="font-black text-slate-800 text-xl">₹{{ number_format($order->total_amount, 2) }}</span>
+                                            </div>
+                                            <form action="{{ route('delivery.order.accept', $order->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition shadow-md">
+                                                    Accept Delivery
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- END MODAL --}}
+
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @else
+            <div class="bg-white p-12 rounded-3xl text-center border-2 border-dashed border-slate-200">
+                <p class="text-slate-400 font-bold italic text-lg">Waiting for new orders from vendors...</p>
+            </div>
+        @endif
     </section>
+
 
     {{-- accepted order--}}
     <section x-show="tab === 'active'" x-transition>
         <div>
-            <h2 class="text-xl font-bold text-slate-800 mb-4">My Current Deliveries</h2>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Current Delivery</h2>
             <div class="grid gap-6">
                 @forelse($acceptedOrders as $order)
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
@@ -115,7 +258,7 @@
                                 <h2 class="text-xl font-bold text-slate-800 mt-1">{{ $order->user->name }}</h2>
                             </div>
                             <span class="px-3 py-1 rounded-full text-xs font-bold border bg-blue-100 text-blue-700 border-blue-200">
-                                {{ strtoupper($order->order_status) }}
+                                {{ ucwords(str_replace('_', ' ', $order->order_status)) }}
                             </span>
                         </div>
 
@@ -132,6 +275,12 @@
                                             {{ $order->address->address_line }},<br>
                                             {{ $order->address->city }} - {{ $order->address->pincode }}
                                         </p>
+                                        <a href="https://maps.google.com/?q={{ $order->address->address_line . ', ' . $order->address->city . ' ' . $order->address->pincode }}"
+                                                   target="_blank"
+                                                   class="text-xs text-indigo-600 hover:text-indigo-800 font-bold hover:underline mt-1 inline-flex items-center gap-1">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                                    Open in Google Maps
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -173,5 +322,35 @@
             </div>
         </div>
     </section>
+
+
+    {{-- NEW: delivery history --}}
+    <section x-show="tab === 'history'" style="display: none;" x-transition>
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Recent Deliveries</h2>
+            <div class="grid gap-4">
+                @forelse($deliveredOrders as $order)
+                    <div
+                        class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex justify-between items-center opacity-75 hover:opacity-100 transition">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Delivered</span>
+                            <h3 class="text-lg font-bold text-slate-800 mt-1">Order #{{ $order->order_number }}</h3>
+                            <p class="text-sm text-slate-500">{{ $order->updated_at->format('d M Y, h:i A') }}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-xs font-bold text-slate-400 uppercase">Order Value</span>
+                            <span
+                                class="font-black text-slate-700 text-lg">₹{{ number_format($order->total_amount, 2) }}</span>
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white p-12 rounded-3xl text-center border-2 border-dashed border-slate-200">
+                        <p class="text-slate-500 italic">No deliveries completed yet. Time to hit the road!</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
 </div>
 @endsection
