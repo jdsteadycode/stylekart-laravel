@@ -57,6 +57,9 @@ class CartController extends Controller
             // update it's qty
             $bag[$variant->id]['qty'] = min($bag[$variant->id]['qty'] + $qty, $variant->stock);
 
+            // update price
+            $bag[$variant->id]['price'] = $variant->selling_price;
+
             // log status
             logger()->info('existing variant qty updated', ['qty' => $bag[$variant->id]['qty']]);
         } else {
@@ -66,7 +69,7 @@ class CartController extends Controller
                 'variant_id' => $variant->id,
                 'product_name' => $variant->product?->name,
                 'qty' => $qty,
-                'price' => $variant->price ?? $variant->product?->base_price,
+                'price' => $variant->selling_price,     // new: show discounted price if exists
                 'color' => $variant->color->name,
                 'stock' => $variant->stock,
                 'size' => $variant->size
