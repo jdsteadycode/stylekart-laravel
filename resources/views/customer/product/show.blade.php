@@ -99,15 +99,37 @@
                 </h1>
 
                 <div class="flex items-center gap-6 mb-8">
+
+                    @php
+                        $discount = $product->getActiveDiscount();
+                        $originalPrice = $selectedVariant->price ?? $product->base_price ?? 0;
+                        $finalPrice = $originalPrice;
+
+                        if($discount) {
+                            if($discount->discount_type === 'percentage') {
+                                $finalPrice = $originalPrice - ($originalPrice * ($discount->discount_value / 100));
+                            } else {
+                                $finalPrice = max(0, $originalPrice - $discount->discount_value);
+                            }
+                        }
+                    @endphp
+
+                    {{-- The Price the user pays --}}
                     <span class="text-4xl font-black text-gray-900 tracking-tight">
-                        ₹ {{ $selectedVariant->price ?? $product->base_price ?? 0 }}
+                        ₹ {{ number_format($finalPrice, 0) }}
                     </span>
 
-                    {{-- off section --}}
-                    {{--
-                    <span class="text-lg text-gray-400 line-through">₹4,999</span>
-                    <span class="text-sm font-bold text-green-500 uppercase">50% Off ✨</span>
-                    --}}
+                    {{-- The Strikethrough & Badge (Only shows if there is a discount) --}}
+                    @if($discount)
+                        <div class="flex flex-col">
+                            <span class="text-lg text-gray-400 line-through decoration-rose-300">
+                                ₹{{ number_format($originalPrice, 0) }}
+                            </span>
+                            <span class="text-xs font-black text-rose-500 uppercase tracking-widest">
+                                {{ $discount->discount_type === 'percentage' ? round($discount->discount_value).'%' : '₹'.round($discount->discount_value) }} OFF ✨
+                            </span>
+                        </div>
+                    @endif
 
                     {{-- stock intel section --}}
                     @if($selectedVariant->stock > 0)
@@ -127,6 +149,15 @@
                             </span>
                             <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
                                 Out of Stock
+                            </span>
+                        </div>
+                    @endif
+                    {{-- Deal Timer Badge --}}
+                    @if($discount && $discount->ends_at->isToday())
+                        <div class="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg border border-rose-100 mt-2 w-fit">
+                            <i class="fa-solid fa-clock-rotate-left text-rose-400 text-[10px]"></i>
+                            <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">
+                                Deal ends at {{ $discount->ends_at->format('h:i A') }}
                             </span>
                         </div>
                     @endif

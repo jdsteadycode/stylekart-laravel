@@ -23,7 +23,10 @@
                 @foreach($bag as $item)
 
                         @php
-                            $subTotal += ($item['qty'] * $item['price']);
+                            // Fetch the fresh variant from the DB to get the live discounted price
+                            $variant = \App\Models\ProductVariant::find($item['variant_id']);
+                            $livePrice = $variant ? $variant->selling_price : $item['price'];
+                            $subTotal += ($item['qty'] * $livePrice);
                         @endphp
 
                         <div class="bg-white p-5 rounded-3xl border border-rose-50 shadow-sm flex items-center gap-6 group">
@@ -68,7 +71,7 @@
                                         <button name="action" value="increase" class="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-rose-500 font-bold">+</button>
                                     </form>
 
-                                    <span class="text-lg font-black text-gray-900">₹{{ $item['price'] * $item['qty'] }}</span>
+                                    <span class="text-lg font-black text-gray-900">₹{{ number_format($livePrice * $item['qty'], 0) }}</span>
                                 </div>
                             </div>
                         </div>
