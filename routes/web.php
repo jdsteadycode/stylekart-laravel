@@ -15,6 +15,7 @@ use App\Http\Controllers\Vendor\ProductVariantController;
 // use App\Http\Controllers\Vendor\ProductImageController;
 use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\Vendor\ProductColorController;
+use App\Http\Controllers\Vendor\DiscountController;
 use App\Http\Controllers\Vendor\VendorOrderController;
 // use App\Http\Controllers\Vendor\ProductColorImageController;
 
@@ -378,6 +379,39 @@ Route::middleware(["auth", "role:vendor"])
                     ProductVariantController::class,
                     "destroy",
                 ])->name("vendor.products.variants.destroy");
+            });
+
+
+            /**
+             * Product discount routes
+             */
+            Route::prefix("discounts")->group(function () {
+                // 'dashboard/vendor/discounts' - list all discounts
+                Route::get("/", [DiscountController::class, "index"])->name(
+                    "vendor.discounts.index"
+                );
+
+                // 'dashboard/vendor/discounts/create' - show the create form
+                Route::get("/create", [DiscountController::class, "create"])->name(
+                    "vendor.discounts.create"
+                );
+
+                // 'dashboard/vendor/discounts' - store the new discount
+                Route::post("/", [DiscountController::class, "store"])->name(
+                    "vendor.discounts.store"
+                );
+
+                // 'dashboard/vendor/discounts/32/toggle' - updates current discount status
+                Route::patch('/{discount}/toggle', [DiscountController::class, 'toggle'])->name('vendor.discounts.toggle');
+
+                // 'dashboard/vendor/discounts/32/edit'
+                Route::get("/{discount}/edit", [DiscountController::class, "edit"])->name("vendor.discounts.edit");
+
+                // 'dashboard/vendor/discounts/32' (PUT/PATCH for update)
+                Route::put("/{discount}", [DiscountController::class, "update"])->name("vendor.discounts.update");
+
+                // 'dashboard/vendor/discounts/32' - deletes the discount
+                Route::delete("/{discount}", [DiscountController::class, "destroy"])->name("vendor.discounts.destroy");
             });
 
             /*
