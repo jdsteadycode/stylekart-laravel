@@ -68,6 +68,12 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    // () -> discount
+    public function discount()
+    {
+        return $this->hasOne(Discount::class);
+    }
+
     /*
     Accessors
     */
@@ -75,5 +81,63 @@ class Product extends Model
     public function getTotalImagesAttribute()
     {
         return $this->colors->sum(fn($color) => $color->getMedia('color_images')->count());
+    }
+
+    // New
+    /**
+     * gets if live discount applied to product!
+     */
+    public function getActiveDiscount()
+    {
+        return \App\Models\Discount::where('is_active', true)
+            ->where('product_id', $this->id)
+            ->where('starts_at', '<=', now())
+            ->where('ends_at', '>=', now())
+            ->first();
+    }
+
+    /**
+     *  To get SP according to above discount on product
+     */
+    public function getSellingPriceAttribute()
+    {
+
+        // log the action
+        logger()->info("[app\Models\Product@getSellingPriceAttribute] Getting Selling Price with or without discount initiated");
+
+        // get the discount if exists?
+        $discount = $this->getActiveDiscount();
+
+        // If no discount exists, the selling price is just the original price
+        if (!$discount) {
+
+            // log the status
+            logger()->info("No discount found on this product. Keeping rates intact");
+
+            return $this->base_price;
+        }
+
+        // Calculate based on type
+        if ($discount->discount_type === 'percentage') {
+            // log the action
+            logger()->info("Discount exists. Discount type: Percentage");
+
+            // discounted price
+            $reduction = ($this->base_price * $discount->discount_value) / 100;
+
+            // log the status
+            logger()->info("Discount applied! | Discount value: {$reduction} on base price: {$this->base_price} | final price: {($this->base_price - $reduction)}");
+            return round($this->base_price - $reduction);
+        }
+
+        // otherwise,
+        // log the action
+        logger()->info("Discount exists. Discount type: Value | Added discount value..");
+
+        // log the end
+        logger()->info("Getting Discounted Selling Price calcuation complete.");
+
+        // Fixed amount logic (max(0, ...) ensures price never goes below zero)
+        return round(max(0, $this->base_price - $discount->discount_value));
     }
 }
