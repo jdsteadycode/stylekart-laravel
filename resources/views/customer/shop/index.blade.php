@@ -225,6 +225,15 @@
 
                             <div class="aspect-[4/5] bg-rose-50 relative overflow-hidden flex items-center justify-center">
 
+                                {{-- if product has live discount going on --}}
+                                @if($product->getActiveDiscount())
+                                    <div class="absolute top-3 left-3 z-10">
+                                        <span class="bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-widest animate-pulse">
+                                                Sale Live
+                                        </span>
+                                    </div>
+                                @endif
+
                                 {{-- set image --}}
                                 @php
                                     $imageUrl = $product->colors?->first()?->getFirstMediaUrl('color_images');
@@ -243,39 +252,20 @@
                                         <i class="fa-solid fa-shirt text-6xl"></i>
                                     </div>
                                 @endif
-
-                                <!--
-                                <div class="absolute inset-0 bg-rose-900/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end items-center p-4 gap-2">
-                                        {{-- Add to Bag --}}
-                                        {{-- <form action="{{ route('customer.cart.store') }}" method="POST" class="w-full">
-                                            @csrf
-                                            <input type="hidden" name="variant_id" value="{{ $product->variants[0]->id ?? '' }}">
-                                            <input type="hidden" name="qty" value="1">
-                                            <button class="w-full bg-rose-500 text-white py-2 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-rose-600 transition-all">
-                                                <i class="fa-solid fa-cart-plus"></i> Add to Bag
-                                            </button>
-                                        </form> --}}
-
-                                        {{-- Add to Wishlist --}}
-                                        {{-- <form action="{{ route('customer.wishlist.store') }}" method="POST" class="w-full">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                            <input type="hidden" name="variant_id" value="{{ $product->variants->first()->id ?? '' }}">
-                                            <button class="w-full bg-white border-2 border-rose-50 text-rose-500 py-2 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-rose-50 transition-all">
-                                                <i class="{{ in_array($product->variants->first()->id ?? 0, $wishlistVariants) ? 'fa-solid' : 'fa-regular' }} fa-heart"></i>
- Wishlist
-                                            </button>
-                                        </form> --}}
-                                </div>
-                                -->
                             </div>
 
+                            {{-- product name --}}
                             <div class="p-6 text-center">
                                 <a href="{{ route('customer.product.show', ['product' => $product]) }}"
                                     class="font-bold text-gray-800 mb-1 truncate text-lg">
                                     {{ $product->name ?? 'N/A' }}
                                 </a>
-                                <p class="text-rose-500 font-bold mt-1">₹ {{ $product->base_price ?? 0 }}</p>
+
+                                {{-- product price --}}
+                                {{-- <p class="text-rose-500 font-bold mt-1">₹ {{ $product->base_price ?? 0 }}</p> --}}
+                                <div class="mt-1">
+                                    <x-customer.product-price :product="$product" />
+                                </div>
                             </div>
                         </div>
                         @endforeach

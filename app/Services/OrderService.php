@@ -67,7 +67,7 @@ class OrderService
                 logger()->info('variant fetched ', ['variant' => $variant]);
 
                 // save it's total price..
-                $totalAmount += $variant->price * $item['qty'];
+                $totalAmount += $variant->selling_price * $item['qty'];
             }
 
             // 2. Make an order
@@ -119,7 +119,7 @@ class OrderService
                     'variant_id' => $variant->id,
                     'vendor_id' => $variant->product->vendor->id,
                     'quantity' => $item['qty'],
-                    'price' => $variant->price ?? $variant->product->base_price,
+                    'price' => $variant->selling_price,
                     'order_status' => 'pending' // intially
                 ]);
 

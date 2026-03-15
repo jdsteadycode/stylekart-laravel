@@ -53,4 +53,29 @@ class ProductVariant extends Model
     //     // trim and standardize the color values
     //     $this->attributes["color"] = trim(strtolower($colorValue));
     // }
+
+    /**
+     * Calculate the selling price for this specific variant.
+     */
+    public function getSellingPriceAttribute()
+    {
+        // 1. Get the parent product's active discount
+        $discount = $this->product->getActiveDiscount();
+
+        // 2. Use this variant's price
+        $price = $this->price;
+
+        // 3. If no discount exists, return original price
+        if (!$discount) {
+            return $price;
+        }
+
+        // 4. Calculate based on the discount type
+        if ($discount->discount_type === 'percentage') {
+            return round($price - ($price * ($discount->discount_value / 100)));
+        }
+
+        // 5. otherwise calculate discount by value
+        return round(max(0, $price - $discount->discount_value));
+    }
 }
