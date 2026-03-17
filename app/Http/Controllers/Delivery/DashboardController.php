@@ -8,6 +8,7 @@ use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DeliveryOtpMail;
+use App\Notifications\Delivery\NewJobAvailableNotification;
 
 class DashboardController extends Controller
 {
@@ -47,7 +48,7 @@ class DashboardController extends Controller
                             ->where('city', $city);
                     });
                 })
-                ->with(['user', 'address'])
+                ->with(['user', 'address', 'items.vendor.vendorProfile', 'items.vendor.addresses'])
                 ->get();
         }
 
@@ -87,21 +88,81 @@ class DashboardController extends Controller
         }
 
         // wrap inside the transaction
-        DB::transaction(function () use ($order, $user) {
-            // Assign order to me
-            $order->update(['delivery_person_id' => $user->id]);
+        // DB::transaction(function () use ($order, $user) {
+        //     // Assign order to me
+        //     $order->update(['delivery_person_id' => $user->id]);
 
-            // Mark items as Shipped
-            $order->items()->update(['order_status' => 'shipped']);
+        //     // remove the notification as well
+        //     DB::table('notifications')
+        //         ->where('type', NewJobAvailableNotification::class)
+        //         ->where('data->order_id', $order->id)
+        //         ->delete();
 
-            // Sync main order status
-            $order->updateStatus();
+        //     // Mark items as Shipped
+        //     $order->items()->update(['order_status' => 'shipped']);
+
+        //     // Sync main order status
+        //     $order->updateStatus();
+
+        //     // update the profile and mark as un-available
+        //     $user->deliveryProfile()->update(['is_available' => false]);
+        // });
+        // start a manual transaction
+        DB::beginTransaction();
+
+        // safe execution
+        try {
+            // 🚀 get the order with a lock to prevent race conditions!
+            // this ensures only one delivery person can process this order at a time
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first();
+
+            // check again inside the lock
+            if ($lockedOrder->delivery_person_id !== null) {
+                throw new \Exception('Too late! Someone else accepted this.');
+            }
+
+            // assign order to me
+            $lockedOrder->update(['delivery_person_id' => $user->id]);
+
+            // remove the notification as well
+            DB::table('notifications')
+                ->where('type', NewJobAvailableNotification::class)
+                ->where('data->order_id', $order->id)
+                ->delete();
+
+            // mark items as shipped
+            $lockedOrder->items()->update(['order_status' => 'shipped']);
+
+            // sync main order status
+            $lockedOrder->updateStatus();
 
             // update the profile and mark as un-available
             $user->deliveryProfile()->update(['is_available' => false]);
-        });
 
-        return back()->with('success', 'Order accepted! Your status is now BUSY.');
+            // log the status
+            logger()->info("Order #{$order->order_number} successfully claimed by {$user->name}");
+
+            // save all changes!
+            DB::commit();
+
+            return redirect()->route('dashboard.delivery')
+                ->with('success', 'Order accepted! Drive safe – your task is now active.');
+        }
+
+        // when SQL error happens
+        catch (\Exception $e) {
+            // undo the changes if any problem occurs
+            DB::rollBack();
+
+            // log the warning
+            logger()->warning("Failed to accept order: " . $e->getMessage());
+
+            return redirect()->route('dashboard.delivery')->with('error', $e->getMessage());
+        }
+
+        // show success message
+        return redirect()->route('dashboard.delivery')
+            ->with('success', 'Order accepted! Drive safe – your task is now active.');
     }
 
     /**
@@ -243,5 +304,31 @@ class DashboardController extends Controller
 
         // back with success
         return redirect()->back()->with("success", $message);
+    }
+
+    /**
+     * show's order / job
+     */
+    public function showJob(Order $order)
+    {
+        // get current delivery person details..
+        $user = auth()->user();
+
+        // 1. Safety Check: If someone already took it, send them back
+        if ($order->delivery_person_id !== null) {
+            return redirect()->route('delivery.notifications.index')
+                ->with('info', 'This job has already been accepted by another rider.');
+        }
+
+        // 2. NEW Safety Check: Am I already busy?
+        if (!$user->deliveryProfile->is_available) {
+            return redirect()->route('dashboard.delivery')
+                ->with('error', 'You already have an active delivery. Complete it before viewing new jobs.');
+        }
+
+        // get all related data..
+        $order->load(['user', 'address', 'items.vendor.vendorProfile', 'items.vendor.addresses']);
+
+        return view('delivery-person.order.show', compact('order'));
     }
 }
