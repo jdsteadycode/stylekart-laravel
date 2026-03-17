@@ -32,7 +32,7 @@ class ProductDetailController extends Controller
 
         // get the product data i.e., colors & variants
         $product =
-            $product->load(['variants', 'colors.media', 'vendor.vendorProfile']);
+            $product->load(['variants', 'colors.media', 'vendor.vendorProfile', 'brand']);  // new: added brand
 
         // check if variant is already in wishlist
         $inWishlist = auth()->user()?->wishlist()?->where('variant_id', $variantId)->exists() ?? false;
