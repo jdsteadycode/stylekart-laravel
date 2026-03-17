@@ -265,18 +265,30 @@
                                     </div>
                                 @endif --}}
 
-                                {{-- mini timer (better) --}}
+                                {{-- discount badge --}}
                                 @if($discount = $product->getActiveDiscount())
                                     <div class="absolute top-3 left-3 z-10">
-                                        <div class="bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/50 shadow-sm flex items-center gap-1.5">
-                                            <span class="text-[10px]">⏳</span>
-                                            <span class="countdown-timer text-[9px] font-black text-slate-600 uppercase tracking-wider"
-                                                  data-ends-at="{{ $discount->ends_at->toIso8601String() }}">
-                                                00h 00m
+                                        <span class="bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-widest">
+                                            @if($discount->discount_type === 'percentage')
+                                                🎉 {{ $discount->percentage }}% OFF
+                                            @elseif($discount->discount_value)
+                                            💸 ₹{{ $discount->discount_value }} OFF
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 z-10">
+                                        <div class="bg-white/60 backdrop-blur-sm px-3 py-1 rounded-md border border-white/30 shadow-sm flex items-center gap-2">
+                                            <span class="text-s">⏰</span> {{-- better emoji/icon --}}
+                                            <span
+                                                class="countdown-timer text-xs font-medium text-neutral-600 tracking-wide"
+                                                      data-ends-at="{{ $discount->ends_at->toIso8601String() }}">
+                                                    00h 00m 00s
                                             </span>
                                         </div>
                                     </div>
                                 @endif
+
 
                                 {{-- set image --}}
                                 @php
