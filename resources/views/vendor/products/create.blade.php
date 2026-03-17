@@ -30,6 +30,22 @@
             @enderror
         </div>
 
+        {{-- brands section --}}
+        <div class="mb-4">
+            <label class="block text-sm mb-1">Brand (Optional)</label>
+            <select name="brand_id" class="w-full border rounded-md px-3 py-2 text-sm bg-white">
+                <option value="">No Brand / Generic</option>
+                @foreach($brands as $brand)
+                    <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                        {{ $brand->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('brand_id')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         <div class="mb-4">
             <label class="block text-sm mb-1">Category</label>
             <select name="category_id" id="categorySelect"

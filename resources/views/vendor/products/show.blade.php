@@ -25,7 +25,7 @@
     </div>
 
     <!-- Product Details -->
-    <div class="bg-white border rounded-lg p-6">
+    {{-- <div class="bg-white border rounded-lg p-6">
 
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-xl font-semibold">
@@ -52,6 +52,72 @@
             <div>
                 <strong>Sub Category:</strong>
                 {{ $product->subCategory->name }}
+            </div>
+
+            <div>
+                <strong>Base Price:</strong>
+                ₹ {{ number_format($product->base_price, 2) }}
+            </div>
+
+            <div>
+                <strong>Created:</strong>
+                {{ $product->created_at->format('d M Y') }}
+            </div>
+
+        </div>
+
+    </div> --}}
+
+    <div class="bg-white border rounded-lg p-6">
+
+        <div class="flex justify-between items-start mb-6">
+            <div class="flex gap-4">
+                {{-- Brand Logo --}}
+                @if($product->brand && $product->brand->hasMedia('brand_logos'))
+                    <div class="h-12 w-12 rounded-lg border overflow-hidden shadow-sm">
+                        <img src="{{ $product->brand->getFirstMediaUrl('brand_logos') }}" class="h-full w-full object-cover">
+                    </div>
+                @endif
+
+                <div>
+                    <h1 class="text-xl font-semibold text-slate-800">
+                        {{ $product->name }}
+                    </h1>
+                    {{-- Minimal brand label --}}
+                    @if($product->brand)
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">
+                            Label: {{ $product->brand->name }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+            <span class="px-3 py-1 text-xs rounded-full
+                {{ $product->is_active ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                {{ $product->is_active ? 'Active' : 'Inactive' }}
+            </span>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-6">
+            {{ $product->description ?? 'No description provided.' }}
+        </p>
+
+        <div class="grid grid-cols-2 gap-6 text-sm border-t pt-4">
+
+            <div>
+                <strong>Main Category:</strong>
+                {{ $product->subCategory->category->name }}
+            </div>
+
+            <div>
+                <strong>Sub Category:</strong>
+                {{ $product->subCategory->name }}
+            </div>
+
+            {{-- Added Brand Field --}}
+            <div>
+                <strong>Brand:</strong>
+                {{ $product->brand?->name ?? 'None' }}
             </div>
 
             <div>

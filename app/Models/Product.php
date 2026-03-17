@@ -24,6 +24,7 @@ class Product extends Model
         "description",
         "base_price",
         "is_active",
+        "brand_id"
     ];
 
     // () -> has a vendor
@@ -72,6 +73,12 @@ class Product extends Model
     public function discount()
     {
         return $this->hasOne(Discount::class);
+    }
+
+    // () -> is of brand
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 
     /*

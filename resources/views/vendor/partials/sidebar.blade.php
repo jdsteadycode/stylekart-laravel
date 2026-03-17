@@ -1,4 +1,5 @@
 @php
+// for current active module..
 $active = 'bg-indigo-800';
 @endphp
 
@@ -13,6 +14,12 @@ $active = 'bg-indigo-800';
         <a href="{{ route('vendor.profile.edit') }}"
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.profile.*') ? $active : '' }}">
             🏬 My Shop Profile
+        </a>
+
+        {{-- brands --}}
+        <a href="{{ route('vendor.brands.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.brands.*') ? $active : '' }}">
+            🏷️ Brands
         </a>
 
         <a href="{{ route('vendor.products.index') }}"

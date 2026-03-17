@@ -49,6 +49,7 @@
             <tr>
                 <th class="px-4 py-3 text-left">#</th>
                 <th class="px-4 py-3 text-left">Product</th>
+                <th class="px-4 py-3 text-left">Brand</th>
                 <th class="px-4 py-3 text-left">Category</th>
                 <th class="px-4 py-3 text-left">Base Price</th>
                 <th class="px-4 py-3 text-left">Status</th>
@@ -70,6 +71,16 @@
                         >
                             {{ $product->name }}
                         </a>
+                    </td>
+
+                    <td class="px-4 py-3">
+                        @if($product->brand)
+                            <span class="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md uppercase tracking-tighter">
+                                {{ $product->brand->name }}
+                            </span>
+                        @else
+                            <span class="text-slate-400 italic text-xs">No Brand</span>
+                        @endif
                     </td>
 
                     <td class="px-4 py-3">

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Support\Facades\Session;
+use App\Mail\OrderSuccessMail;
+use Illuminate\Support\Facades\Mail;
 
 // path to MockPaymentService Class..
 use App\Services\MockPaymentService;
@@ -54,6 +56,15 @@ class PaymentController extends Controller
 
             // log the status [after stock reduction | success]
             logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
+
+            // when stock is low of that variant
+            if ($variant->stock <= 5) {
+                // Notify the vendor of this specific product
+                $variant->product->vendor->notify(new \App\Notifications\Vendor\LowStockNotification($variant));
+
+                // log the warning
+                logger()->warning("[PaymentController] Low stock alert triggered for Variant: {$variant->id}");
+            }
 
             // update the order status accordingly
             // $item->update([
@@ -148,6 +159,13 @@ class PaymentController extends Controller
 
             // save the changes for DB
             DB::commit();
+
+            // send mail
+            Mail::to($customer->email)
+                ->send(new OrderSuccessMail($order));
+
+            // log the status
+            logger()->info("Online Payment Invoice sent to: {$customer->email}");
         }
 
         // handle SQL errors

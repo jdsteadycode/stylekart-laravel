@@ -17,6 +17,9 @@ use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\Vendor\ProductColorController;
 use App\Http\Controllers\Vendor\DiscountController;
 use App\Http\Controllers\Vendor\VendorOrderController;
+use App\Http\Controllers\Vendor\NotificationController;
+use App\Http\Controllers\Vendor\BrandController;
+
 // use App\Http\Controllers\Vendor\ProductColorImageController;
 
 // for customers (both)
@@ -236,6 +239,43 @@ Route::middleware(["auth", "role:vendor"])
             VendorProfileController::class,
             "update",
         ])->name("vendor.profile.update");
+
+
+        /***
+         * Brands Module
+         */
+        // List all brands
+        Route::get('/vendor/brands', [BrandController::class, 'index'])
+            ->name('vendor.brands.index');
+
+        // Show create form
+        Route::get('/vendor/brands/create', [BrandController::class, 'create'])
+            ->name('vendor.brands.create');
+
+        // Store new brand
+        Route::post('/vendor/brands/store', [BrandController::class, 'store'])
+            ->name('vendor.brands.store');
+
+        // Show edit form
+        Route::get('/vendor/brands/{brand}/edit', [BrandController::class, 'edit'])
+            ->name('vendor.brands.edit');
+
+        // Update brand
+        Route::put('/vendor/brands/{brand}/update', [BrandController::class, 'update'])
+            ->name('vendor.brands.update');
+
+        // Delete brand
+        Route::delete('/vendor/brands/{brand}', [BrandController::class, 'destroy'])
+            ->name('vendor.brands.destroy');
+
+
+        /**
+         * notifications
+         */
+        Route::prefix('vendor/notifications')->name('vendor.notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::post('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('markAllRead');
+        });
 
         /*
             Protected Routes for access if ain't approved..
@@ -546,13 +586,23 @@ Route::middleware(['auth', 'role:delivery_person'])
         Route::get('/', [App\Http\Controllers\Delivery\DashboardController::class, 'index'])
             ->name('dashboard.delivery');
 
-        // 'dashboard/delivery/order/{order}/accept'
-        Route::post('/order/{order}/accept', [App\Http\Controllers\Delivery\DashboardController::class, 'accept'])
+        // 'dashboard/delivery/orders/{order}/'
+        Route::get('/orders/{order}', [App\Http\Controllers\Delivery\DashboardController::class, 'showJob'])
+            ->name('delivery.order.show');
+
+        // 'dashboard/delivery/orders/{order}/accept'
+        Route::post('/orders/{order}/accept', [App\Http\Controllers\Delivery\DashboardController::class, 'accept'])
             ->name('delivery.order.accept');
 
-        // 'dashboard/delivery/order/{order}/complete'
-        Route::post('/order/{order}/complete', [App\Http\Controllers\Delivery\DashboardController::class, 'complete'])
+        // 'dashboard/delivery/orders/{order}/complete'
+        Route::post('/orders/{order}/complete', [App\Http\Controllers\Delivery\DashboardController::class, 'complete'])
             ->name('delivery.order.complete');
+
+        // notifications
+        Route::prefix('/notifications')->name('delivery.notifications.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Delivery\NotificationController::class, 'index'])->name('index');
+            Route::post('/markRead', [App\Http\Controllers\Delivery\NotificationController::class, 'markRead'])->name('markRead');
+        });
     });
 
 /*

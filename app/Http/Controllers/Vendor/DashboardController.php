@@ -268,7 +268,7 @@ class DashboardController extends Controller
          */
         $lowStockVariants =
             // get low stock ones..
-            ProductVariant::where('stock', '<=', 3)
+            ProductVariant::where('stock', '<=', 5)     // extended limit to 5 from 3!
             ->with(['product', 'color.media'])
             ->whereHas('product', function ($product) use ($vendor) {
                 // only of current vendor..

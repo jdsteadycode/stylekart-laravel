@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 
 use App\Models\Product;
@@ -20,7 +21,10 @@ class ShopController extends Controller
         logger()->info('[app\Http\Controllers\Customer\ShopController@index] Shop page products requested.');
 
         // all active products..
-        $query = Product::where('is_active', 1)->with(['colors.media', 'vendor', 'variants']);
+        $query = Product::where('is_active', 1)->with(['colors.media', 'vendor', 'variants', 'brand']);     // new: brand loading..
+
+        // all brands for the sidebar
+        $allBrands = Brand::where('is_active', true)->get();
 
         // all vendors..
         $allVendors = User::where('role', 'vendor')->get();
@@ -90,6 +94,20 @@ class ShopController extends Controller
             logger()->info('Products requested for category: ' . $request->query('category'));
         }
 
+        // if filter by brand
+        if ($request->filled('brand')) {
+            // from all brands
+            $brandSlugs = (array) $request->brand;
+
+            // check if asked brand is one of 'em if so, get according
+            $query->whereHas('brand', function ($q) use ($brandSlugs) {
+                $q->whereIn('slug', $brandSlugs);
+            });
+
+            // log the status
+            logger()->info('Products filtered by brands', ['slugs' => $brandSlugs]);
+        }
+
         // or get all products.. (6 per page)
         $products = $query->latest()->paginate(6);
 
@@ -106,6 +124,6 @@ class ShopController extends Controller
         $wishlistVariants = auth()->user()?->wishlist()->pluck('variant_id')->toArray() ?? [];
 
         // send the view
-        return view('customer.shop.index', compact(['products', 'allVendors', 'allCategories', 'wishlistVariants']));
+        return view('customer.shop.index', compact(['products', 'allVendors', 'allBrands', 'allCategories', 'wishlistVariants']));
     }
 }
