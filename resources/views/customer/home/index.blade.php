@@ -26,6 +26,30 @@
     <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30"></div>
 </div>
 
+{{-- brands section --}}
+<div class="bg-white py-20">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tight">Our Local Labels 🏷️</h2>
+            <p class="text-gray-500 mt-2">Discover unique identities from independent vendors.</p>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-center">
+            @if($brands->isNotEmpty())
+                @foreach($brands as $brand)
+                    <a href="{{ route('customer.shop', ['brand' => $brand->slug]) }}"
+                       class="group flex flex-col items-center grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-500">
+                        <img src="{{ $brand->getFirstMediaUrl('brand_logos') }}"
+                             alt="{{ $brand->name }}"
+                             class="h-12 md:h-16 w-auto object-contain mb-3 group-hover:scale-110 transition-transform">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-rose-500">{{ $brand->name }}</span>
+                    </a>
+                @endforeach
+            @endif
+        </div>
+    </div>
+</div>
+
 {{-- categories section --}}
 <div class="max-w-7xl mx-auto py-20 px-6">
     <div class="flex flex-col md:flex-row justify-between items-end mb-12">
@@ -64,7 +88,9 @@
                 ];
             @endphp
 
-            <div class="group relative overflow-hidden rounded-3xl
+            {{-- backup (old) --}}
+            {{-- <div
+                class="group relative overflow-hidden rounded-3xl
                 {{ $ui['color'] }}
                 p-8 h-80 flex flex-col justify-between
                 hover:shadow-2xl hover:shadow-rose-100
@@ -77,32 +103,23 @@
                         class="mt-2 font-medium {{ $ui['text'] }} opacity-80">Explore Collection →</a>
                 </div>
                 <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-20 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+            </div> --}}
+
+            {{-- new (small and minimal) --}}
+            <div class="group relative overflow-hidden rounded-2xl
+                        {{ $ui['color'] }}
+                        p-4 h-56 w-64 flex flex-col justify-between
+                        hover:shadow-xl hover:shadow-rose-100
+                        transition-all duration-500 cursor-pointer">
+                <div class="text-4xl">{{ $ui['emoji'] }}</div>
+                <div>
+                    <h3 class="text-2xl font-bold {{ $ui['text'] }}">{{ $cat->name }}</h3>
+                    <a href="{{ route('customer.shop' , ['category' => $cat->id]) }}"
+                       class="mt-1 font-medium {{ $ui['text'] }} opacity-80">Explore →</a>
+                </div>
             </div>
+
         @endforeach
-    </div>
-</div>
-
-{{-- vendors section --}}
-<div class="bg-white py-20">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tight">Our Local Labels 🏷️</h2>
-            <p class="text-gray-500 mt-2">Discover unique identities from independent vendors.</p>
-        </div>
-
-        <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-center">
-            @if($brands->isNotEmpty())
-                @foreach($brands as $brand)
-                    <a href="{{ route('customer.shop', ['brand' => $brand->slug]) }}"
-                       class="group flex flex-col items-center grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-500">
-                        <img src="{{ $brand->getFirstMediaUrl('brand_logos') }}"
-                             alt="{{ $brand->name }}"
-                             class="h-12 md:h-16 w-auto object-contain mb-3 group-hover:scale-110 transition-transform">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-rose-500">{{ $brand->name }}</span>
-                    </a>
-                @endforeach
-            @endif
-        </div>
     </div>
 </div>
 
