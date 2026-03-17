@@ -194,6 +194,53 @@ class VendorOrderController extends Controller
             );
         });
 
+        // Check if the entire order has become ready for pickup after the sync
+        $order = $item->order;
+
+        // only if order is ready
+        if ($order->order_status === 'ready_for_pickup') {
+
+            // Get the first address from the collection
+            $vendorAddress = $vendor->addresses->first();
+
+            // if vendor doesn't have any address
+            if (!$vendorAddress) {
+                // log the error
+                logger()->error("Broadcast failed: Vendor {$vendor->id} has no address on file.");
+
+                // back with that error
+                return back()->with('error', 'Please set up your shop address before marking orders as ready.');
+            }
+
+            // get city of vendor's
+            $pickupCity = $vendorAddress->city;
+
+            // get the delivery persons
+            $deliveryPersonnel = \App\Models\User::where('role', 'delivery_person')
+                ->whereHas('deliveryProfile', function ($query) {
+                    $query->where('is_available', true); // only if available
+                })
+                ->whereHas('addresses', function ($query) use ($pickupCity) {
+                    $query->where('city', $pickupCity); // same city of vendor
+                })
+                ->get();
+
+            //  if delivery persons are there.
+            if ($deliveryPersonnel->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send(
+                    $deliveryPersonnel,
+                    new \App\Notifications\Delivery\NewJobAvailableNotification($order, $pickupCity)
+                );
+
+                // log the info
+                logger()->info("Broadcasted Order #{$order->order_number} to " . $deliveryPersonnel->count() . " delivery people in {$pickupCity}");
+            } else {
+
+                // log the warning
+                logger()->warning("No available delivery personnel found in {$pickupCity} for Order #{$order->order_number}");
+            }
+        }
+
         // redirect back with success
         return back()->with('success', 'Order status updated successfully.');
     }
