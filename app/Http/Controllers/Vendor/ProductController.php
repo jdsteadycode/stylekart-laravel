@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Vendor\ProductRequest;
 
@@ -40,7 +41,7 @@ class ProductController extends Controller
             $products = Product::where("vendor_id", $vendorId)
                 ->where("deleted_at", null)
                 ->where("is_active", $status === "active" ? 1 : 0)
-                ->with(["subCategory"])
+                ->with(["subCategory", "brand"])
                 ->latest()
                 ->paginate(10);
 
@@ -55,7 +56,7 @@ class ProductController extends Controller
             // fetch all
             $products = Product::where("vendor_id", $vendorId)
                 ->where("deleted_at", null)
-                ->with(["subCategory"])
+                ->with(["subCategory", "brand"])
                 ->latest()
                 ->paginate(10);
         }
@@ -81,9 +82,14 @@ class ProductController extends Controller
             "[app\Http\Controllers\Vendor\ProductController@create] New product creation begins",
         );
 
+        // get brands available by this vendor
+        $brands = Brand::where('vendor_id', auth()->id())
+            ->where('is_active', true)
+            ->get();
+
         // get the main categories with sub categories.. (early)
         $categories = Category::with("subCategories")->get();
-        return view("vendor.products.create", compact("categories"));
+        return view("vendor.products.create", compact("categories", "brands"));
     }
 
     /* for saving the new product */
@@ -110,6 +116,7 @@ class ProductController extends Controller
             "sub_category_id" => $validated["sub_category_id"],
             "base_price" => $validated["base_price"],
             "is_active" => 0,
+            "brand_id" => $request->brand_id,
         ]);
 
         // Log the status
@@ -135,9 +142,14 @@ class ProductController extends Controller
     {
         abort_if($product->vendor_id !== auth()->id(), 403);
 
+        // get brands available for dropdown
+        $brands = Brand::where('vendor_id', auth()->id())
+            ->where('is_active', true)
+            ->get();
+
         $categories = Category::with("subCategories")->get();
 
-        return view("vendor.products.edit", compact("product", "categories"));
+        return view("vendor.products.edit", compact("product", "categories", "brands"));
     }
 
     /*
@@ -152,6 +164,9 @@ class ProductController extends Controller
         );
 
         $validated = $request->validated();
+
+        // add brand_id if available or null anyways
+        $validated['brand_id'] = $request->brand_id;
 
         // update the product
         $updated = $product->update($validated);
@@ -205,7 +220,9 @@ class ProductController extends Controller
 
         abort_if($product->vendor_id !== auth()->id(), 403);
 
-        $product->load(["subCategory.category", "variants"]);
+        // get related tables also quick (eager loading)
+        $product->load(["subCategory.category", "variants", "brand"]);
+
         // log the end
         Log::info("Single Product view ended.");
 

@@ -86,7 +86,11 @@
                 </div>
             </div>
 
+
+
+            {{-- vendor details --}}
             <div class="flex flex-col h-full pt-4">
+
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 rounded-full">
                         By {{ $product->vendor?->name . "'s STORE" ?? 'N/A' }} 🏠
@@ -230,6 +234,26 @@
                             <p class="text-gray-700 leading-relaxed">
                                 {!! nl2br(e($product->description)) !!}
                             </p>
+                        </div>
+                    @endif
+
+                    {{-- Brand Section --}}
+                    @if($product->brand)
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-5">
+                            @if($product->brand->hasMedia('brand_logos'))
+                                <div class="h-16 w-16 flex-shrink-0 rounded-2xl border border-rose-50 overflow-hidden">
+                                    <img src="{{ $product->brand->getFirstMediaUrl('brand_logos') }}" class="w-full h-full object-cover">
+                                </div>
+                            @endif
+                            <div>
+                                <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Authentic Label</h3>
+                                <p class="text-xl font-black text-gray-900 uppercase tracking-tight">{{ $product->brand->name }}</p>
+
+                                <a href="{{ route('customer.shop', ['brand[]' => $product->brand->slug]) }}"
+                                   class="inline-block mt-4 px-4 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] border border-slate-200 rounded-full hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300">
+                                    Explore Full Collection →
+                                </a>
+                            </div>
                         </div>
                     @endif
 

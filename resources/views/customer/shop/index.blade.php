@@ -44,6 +44,13 @@
             <div class="relative w-full md:w-80 mb-6 md:mb-0">
                 <form method="GET" action="{{ route('customer.shop') }}">
 
+                    {{-- if brand filter exists --}}
+                    @if(request('brand'))
+                        @foreach((array) request('brand') as $brandId)
+                            <input type="hidden" name="brand[]" value="{{ $brandId }}">
+                        @endforeach
+                    @endif
+
                     {{-- if category filter --}}
                     @if(request('category'))
                         <input
@@ -129,6 +136,29 @@
                                 <span class="ml-3 text-sm text-gray-600 group-hover:text-rose-500 transition-colors">{{ $category->name }}</span>
                             </label>
                         @endforeach
+
+
+                        {{-- By Brand --}}
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                            Filter By Brand 🏷️
+                        </h3>
+
+                        <div class="space-y-2 mb-6">
+                            @foreach($allBrands as $brand)
+                                <label class="flex items-center group cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        name="brand[]"
+                                        value="{{ $brand->slug }}"
+                                        class="w-4 h-4 rounded border-rose-200 text-rose-500 focus:ring-rose-500"
+                                        {{ in_array($brand->slug, (array) request('brand')) ? 'checked' : '' }}
+                                    >
+                                    <span class="ml-3 text-sm text-gray-600 group-hover:text-rose-500 transition-colors">
+                                        {{ $brand->name }}
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
 
                         {{-- By Vendor --}}
                         <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
@@ -226,11 +256,25 @@
                             <div class="aspect-[4/5] bg-rose-50 relative overflow-hidden flex items-center justify-center">
 
                                 {{-- if product has live discount going on --}}
-                                @if($product->getActiveDiscount())
+                                {{-- sale live badge (simple) --}}
+                                {{-- @if($product->getActiveDiscount())
                                     <div class="absolute top-3 left-3 z-10">
                                         <span class="bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-widest animate-pulse">
                                                 Sale Live
                                         </span>
+                                    </div>
+                                @endif --}}
+
+                                {{-- mini timer (better) --}}
+                                @if($discount = $product->getActiveDiscount())
+                                    <div class="absolute top-3 left-3 z-10">
+                                        <div class="bg-white/80 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/50 shadow-sm flex items-center gap-1.5">
+                                            <span class="text-[10px]">⏳</span>
+                                            <span class="countdown-timer text-[9px] font-black text-slate-600 uppercase tracking-wider"
+                                                  data-ends-at="{{ $discount->ends_at->toIso8601String() }}">
+                                                00h 00m
+                                            </span>
+                                        </div>
                                     </div>
                                 @endif
 
@@ -283,4 +327,27 @@
         </div>
     </div>
 </div>
+<script>
+    function updateMinimalTimers() {
+        document.querySelectorAll('.countdown-timer').forEach(timer => {
+            const endsAt = new Date(timer.dataset.endsAt).getTime();
+            const now = new Date().getTime();
+            const diff = endsAt - now;
+
+            if (diff <= 0) {
+                timer.closest('.z-10').remove(); // Hide completely if expired
+                return;
+            }
+
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+
+            timer.innerHTML = `${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m`;
+        });
+    }
+
+    // Update every minute is enough for h/m format
+    setInterval(updateMinimalTimers, 60000);
+    updateMinimalTimers();
+</script>
 @endsection

@@ -86,16 +86,23 @@
 <div class="bg-white py-20">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold text-gray-900">Shop from Top Vendors 🏢</h2>
-            <p class="text-gray-500 mt-2">Support local creators and global brands.</p>
+            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tight">Our Local Labels 🏷️</h2>
+            <p class="text-gray-500 mt-2">Discover unique identities from independent vendors.</p>
         </div>
 
-        {{-- <div class="flex flex-wrap justify-center gap-12 grayscale opacity-60 hover:grayscale-0 transition-all">
-            <div class="flex items-center space-x-2 font-black text-2xl text-gray-400 italic">ZARA-ISH</div>
-            <div class="flex items-center space-x-2 font-black text-2xl text-gray-400 italic">URBAN-TREND</div>
-            <div class="flex items-center space-x-2 font-black text-2xl text-gray-400 italic">LITTLE-ONES</div>
-            <div class="flex items-center space-x-2 font-black text-2xl text-gray-400 italic">VINTAGE-CO</div>
-        </div> --}}
+        <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-center">
+            @if($brands->isNotEmpty())
+                @foreach($brands as $brand)
+                    <a href="{{ route('customer.shop', ['brand' => $brand->slug]) }}"
+                       class="group flex flex-col items-center grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-500">
+                        <img src="{{ $brand->getFirstMediaUrl('brand_logos') }}"
+                             alt="{{ $brand->name }}"
+                             class="h-12 md:h-16 w-auto object-contain mb-3 group-hover:scale-110 transition-transform">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest group-hover:text-rose-500">{{ $brand->name }}</span>
+                    </a>
+                @endforeach
+            @endif
+        </div>
     </div>
 </div>
 
@@ -111,13 +118,15 @@
                     alt="{{ $product->name }}"
                     {{-- class="w-full h-full object-cover" --}}
                 />
-
-                {{-- wishlist icon --}}
-                {{-- <button class="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fa-regular fa-heart"></i>
-                </button> --}}
             </div>
             {{-- <p class="text-[10px] font-bold text-rose-400 uppercase tracking-tighter">Vendor Name</p> --}}
+
+            {{-- @if($product->brand)
+                <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">{{ $product->brand->name }}</p>
+            @else
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1">Generic Label</p>
+            @endif --}}
+
             <a
                 href="{{ route('customer.product.show', ['product' => $product]) }}"
                 class="font-semibold text-gray-800 text-sm">{{ $product->name ?? 'N/A' }}</a>
