@@ -1,6 +1,21 @@
 @extends('delivery-person.layouts.app')
 
+
 @section('content')
+
+{{--new: toasts --}}
+@if (session('success'))
+    <div class="m-4 text-green-700 bg-green-100 px-4 py-2 rounded-md text-sm">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="m-4 text-red-700 bg-red-100 px-4 py-2 rounded-md text-sm">
+        {{ session('error') }}
+    </div>
+@endif
+
 <div x-data="{ tab: 'available' }" class="max-w-5xl mx-auto p-6">
 
     {{-- Header --}}
