@@ -4,7 +4,7 @@ StyleKart is a robust, production-ready multivendor e-commerce platform built wi
 
 ## 🚀 Key Modules Completed
 - **Admin Dashboard:** Vendor management, Category/Subcategory control, and Deliveries view.
-- **Vendor Portal:** Product management (Variants, Colors, Inventory).
+- **Vendor Portal:** Product, Order, Brands, Discounts management (Variants, Colors, Inventory) & some analytics.
 - **Customer Experience:** Product browsing, Cart system, Wishlist, and Secure Checkout.
 - **Delivery System (Latest):**
     - On demand Delivery acceptance
