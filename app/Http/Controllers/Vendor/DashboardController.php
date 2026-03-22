@@ -262,6 +262,40 @@ class DashboardController extends Controller
         // log the status
         logger()->info("Orders to Ready: {$ordersToReady}");
 
+        /**
+         * monthly sales report
+         */
+        $salesResults = DB::table('orders')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('order_items.vendor_id', $vendor->id)
+            ->where('orders.payment_status', 'paid')
+            ->where('orders.order_status', 'delivered') // ensure all orders were delivered too
+            ->whereYear('orders.created_at', now()->year)
+            ->selectRaw('MONTH(orders.created_at) as month, SUM(order_items.quantity * order_items.price) as total')
+            ->groupBy('month')
+            ->get();
+
+        // 2. Create the final data for the chart (The "Human" way)
+        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $revenueData = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            // Look at our results: "Is there any money for month $i?"
+            $found = $salesResults->where('month', $i)->first();
+
+            // If we found it, use the total. If not, just use 0.
+            $revenueData[] = $found ? $found->total : 0;
+        }
+
+        /**
+         * Current Workload Breakdown (Order Statuses)
+         */
+        $orderStatusCounts = DB::table('orders')
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('order_items.vendor_id', $vendor->id)
+            ->select('orders.order_status', DB::raw('count(DISTINCT orders.id) as count'))
+            ->groupBy('orders.order_status')
+            ->get();
 
         /**
          * low stock variants..
@@ -282,6 +316,9 @@ class DashboardController extends Controller
             'todayRevenue',
             'thisMonthRevenue',
             'ordersToReady',
+            'monthNames',
+            'revenueData',
+            'orderStatusCounts',
             'lowStockVariants'
         ));
     }
