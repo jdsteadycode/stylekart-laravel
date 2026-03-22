@@ -74,6 +74,28 @@
 
 </div>
 
+{{-- 📈 Business Performance Section --}}
+<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+    <h3 class="text-xl font-bold text-gray-800">Business Performance</h3>
+    <p class="text-sm text-gray-500 mb-6">Monthly revenue trend for this year</p>
+
+    <div class="h-[300px] w-full">
+        {{-- This ID MUST match the one in your JavaScript --}}
+        <canvas id="performanceChart"></canvas>
+    </div>
+</div>
+
+{{-- Donut Chart for order statuses --}}
+<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Order Health</h3>
+    <p class="text-sm text-gray-500 mb-6">Current status of all your orders</p>
+
+    <div class="h-[250px] w-full">
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+
 {{-- ⚠️ Actionable Table: Low Stock Alerts --}}
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
     <div class="p-6 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
@@ -156,4 +178,48 @@
     @endif
 </div>
 
+{{-- JavaScript --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+new Chart(document.getElementById('performanceChart'), {
+        type: 'line',
+        data: {
+            labels: @json($monthNames),
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: @json($revenueData),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4 // This makes the line curvy
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    const statusData = @json($orderStatusCounts);
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map(s => s.order_status.toUpperCase()),
+            datasets: [{
+                data: statusData.map(s => s.count),
+                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'], // Orange, Blue, Green, Red
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' } // Put labels on the side so it looks like a list
+            }
+        }
+    });
+</script>
 @endsection
