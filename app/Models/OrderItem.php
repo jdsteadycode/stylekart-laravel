@@ -4,23 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\User;
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\Order;
-
 class OrderItem extends Model
 {
     // columns to be filled..
     protected $fillable = [
-        "order_id",
-        "product_id",
-        "variant_id",
-        "vendor_id",
-        "quantity",
-        "price",
-        "order_status",
-        "cancel_reason"
+        'order_id',
+        'product_id',
+        'variant_id',
+        'vendor_id',
+        'quantity',
+        'price',
+        'order_status',
+        'cancel_reason',
     ];
 
     // () -> each item is related to order.
@@ -44,6 +39,6 @@ class OrderItem extends Model
     // each item is related to vendor / seller
     public function vendor()
     {
-        return $this->belongsTo(User::class, "vendor_id");
+        return $this->belongsTo(User::class, 'vendor_id');
     }
 }

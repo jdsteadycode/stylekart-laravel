@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Wishlist;
+use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
@@ -24,7 +24,7 @@ class WishlistController extends Controller
             ->get();
 
         // log the status
-        logger()->info("Items in wishlist requested!", ['total' => (bool) $wishlistedItems->count()]);
+        logger()->info('Items in wishlist requested!', ['total' => (bool) $wishlistedItems->count()]);
 
         // get view
         return view('customer.wishlist.index', compact('wishlistedItems'));
@@ -41,7 +41,7 @@ class WishlistController extends Controller
 
         // get the customer..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status..
             logger()->alert('Customer not-authenticated');
 
@@ -56,7 +56,7 @@ class WishlistController extends Controller
         ]);
 
         // log the status
-        logger()->info("Data validated!", ['status' => (bool) $validated]);
+        logger()->info('Data validated!', ['status' => (bool) $validated]);
 
         // has or add new one..
         $wishlist = $customer->wishlist()->firstOrCreate([

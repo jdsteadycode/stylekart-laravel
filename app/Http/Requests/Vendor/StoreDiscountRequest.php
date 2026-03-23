@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreDiscountRequest extends FormRequest
@@ -18,20 +19,21 @@ class StoreDiscountRequest extends FormRequest
         if (auth()->check() && auth()->user()->role === 'vendor') {
 
             // log the status
-            logger()->info("Authorization Granted! | Validating request shortly");
+            logger()->info('Authorization Granted! | Validating request shortly');
 
             return true;
         }
 
         // log the error
-        logger()->alert("un-authorized to proceed further | Terminating further process");
+        logger()->alert('un-authorized to proceed further | Terminating further process');
+
         return false;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

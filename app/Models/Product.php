@@ -5,38 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Models\User;
-use App\Models\SubCategory;
-use App\Models\ProductVariant;
-use App\Models\ProductColor;
-use App\Models\CartItem;
-use App\Models\OrderItem;
-
 class Product extends Model
 {
     use SoftDeletes;
 
     // columns to add.
     protected $fillable = [
-        "vendor_id",
-        "sub_category_id",
-        "name",
-        "description",
-        "base_price",
-        "is_active",
-        "brand_id"
+        'vendor_id',
+        'sub_category_id',
+        'name',
+        'description',
+        'base_price',
+        'is_active',
+        'brand_id',
     ];
 
     // () -> has a vendor
     public function vendor()
     {
-        return $this->belongsTo(User::class, "vendor_id");
+        return $this->belongsTo(User::class, 'vendor_id');
     }
 
     // () -> related to subcategory
     public function subCategory()
     {
-        return $this->belongsTo(Subcategory::class);
+        return $this->belongsTo(SubCategory::class);
     }
 
     // () -> related to variants
@@ -87,7 +80,7 @@ class Product extends Model
     // () -> get total images of the product..
     public function getTotalImagesAttribute()
     {
-        return $this->colors->sum(fn($color) => $color->getMedia('color_images')->count());
+        return $this->colors->sum(fn ($color) => $color->getMedia('color_images')->count());
     }
 
     // New
@@ -96,7 +89,7 @@ class Product extends Model
      */
     public function getActiveDiscount()
     {
-        return \App\Models\Discount::where('is_active', true)
+        return Discount::where('is_active', true)
             ->where('product_id', $this->id)
             ->where('starts_at', '<=', now())
             ->where('ends_at', '>=', now())
@@ -116,10 +109,10 @@ class Product extends Model
         $discount = $this->getActiveDiscount();
 
         // If no discount exists, the selling price is just the original price
-        if (!$discount) {
+        if (! $discount) {
 
             // log the status
-            logger()->info("No discount found on this product. Keeping rates intact");
+            logger()->info('No discount found on this product. Keeping rates intact');
 
             return $this->base_price;
         }
@@ -127,22 +120,23 @@ class Product extends Model
         // Calculate based on type
         if ($discount->discount_type === 'percentage') {
             // log the action
-            logger()->info("Discount exists. Discount type: Percentage");
+            logger()->info('Discount exists. Discount type: Percentage');
 
             // discounted price
             $reduction = ($this->base_price * $discount->discount_value) / 100;
 
             // log the status
             logger()->info("Discount applied! | Discount value: {$reduction} on base price: {$this->base_price} | final price: {($this->base_price - $reduction)}");
+
             return round($this->base_price - $reduction);
         }
 
         // otherwise,
         // log the action
-        logger()->info("Discount exists. Discount type: Value | Added discount value..");
+        logger()->info('Discount exists. Discount type: Value | Added discount value..');
 
         // log the end
-        logger()->info("Getting Discounted Selling Price calcuation complete.");
+        logger()->info('Getting Discounted Selling Price calcuation complete.');
 
         // Fixed amount logic (max(0, ...) ensures price never goes below zero)
         return round(max(0, $this->base_price - $discount->discount_value));

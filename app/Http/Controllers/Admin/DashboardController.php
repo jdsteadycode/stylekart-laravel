@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\VendorProfile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -26,32 +26,32 @@ class DashboardController extends Controller
         $admin = $request->user();
 
         // redirect to un-authorized page
-        abort_if(!$admin, 403);
+        abort_if(! $admin, 403);
 
         // get the categories
         $totalCategories = Category::all()->count();
 
         // log the status
-        Log::info("Total Categories", ["total" => $totalCategories]);
+        Log::info('Total Categories', ['total' => $totalCategories]);
 
         // get the sub categories
         $totalSubCategories = SubCategory::all()->count();
 
         // log the status
-        Log::info("Total Subcategories", ["total" => $totalSubCategories]);
+        Log::info('Total Subcategories', ['total' => $totalSubCategories]);
 
         // get the approved vendors
         $totalApprovedVendors = VendorProfile::where(
-            "status",
-            "approved",
+            'status',
+            'approved',
         )->count();
         $totalPendingVendors = VendorProfile::where(
-            "status",
-            "pending",
+            'status',
+            'pending',
         )->count();
         $totalRejectedVendors = VendorProfile::where(
-            "status",
-            "rejected",
+            'status',
+            'rejected',
         )->count();
 
         // log the status
@@ -60,19 +60,19 @@ class DashboardController extends Controller
         );
 
         // recent vendors
-        $recentVendors = User::where("role", "vendor")
-            ->with("vendorProfile")
+        $recentVendors = User::where('role', 'vendor')
+            ->with('vendorProfile')
             ->get();
 
         return view(
-            "admin.dashboard.index",
+            'admin.dashboard.index',
             compact([
-                "totalCategories",
-                "totalSubCategories",
-                "totalApprovedVendors",
-                "totalPendingVendors",
-                "totalRejectedVendors",
-                "recentVendors",
+                'totalCategories',
+                'totalSubCategories',
+                'totalApprovedVendors',
+                'totalPendingVendors',
+                'totalRejectedVendors',
+                'recentVendors',
             ]),
         );
     }

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\Brand;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Vendor\ProductRequest;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -27,51 +26,51 @@ class ProductController extends Controller
         $vendorId = $request->user()->id;
 
         // log the status
-        Log::info("Vendor accessing products page", [
-            "vendor_id" => $vendorId,
+        Log::info('Vendor accessing products page', [
+            'vendor_id' => $vendorId,
         ]);
 
         // when status filter
-        $status = $request->query("status");
+        $status = $request->query('status');
         if ($status) {
             // log the status
             Log::info("Products with status: $status fetched");
 
             // get products based on status (active / in-active)
-            $products = Product::where("vendor_id", $vendorId)
-                ->where("deleted_at", null)
-                ->where("is_active", $status === "active" ? 1 : 0)
-                ->with(["subCategory", "brand"])
+            $products = Product::where('vendor_id', $vendorId)
+                ->where('deleted_at', null)
+                ->where('is_active', $status === 'active' ? 1 : 0)
+                ->with(['subCategory', 'brand'])
                 ->latest()
                 ->paginate(10);
 
             // log the status
             Log::info("Products with status: $status fetched", [
-                "products" => $products,
+                'products' => $products,
             ]);
         }
 
         // all products..
         else {
             // fetch all
-            $products = Product::where("vendor_id", $vendorId)
-                ->where("deleted_at", null)
-                ->with(["subCategory", "brand"])
+            $products = Product::where('vendor_id', $vendorId)
+                ->where('deleted_at', null)
+                ->with(['subCategory', 'brand'])
                 ->latest()
                 ->paginate(10);
         }
 
         // Log the status
-        Log::info("Products fetched for vendor", [
-            "count" => $products->count(),
+        Log::info('Products fetched for vendor', [
+            'count' => $products->count(),
         ]);
 
         // log the end
-        Log::info("Products fetch complete");
+        Log::info('Products fetch complete');
 
         // check log
         // return "all products fetched";
-        return view("vendor.products.index", compact("products"));
+        return view('vendor.products.index', compact('products'));
     }
 
     /* for new product form */
@@ -88,8 +87,9 @@ class ProductController extends Controller
             ->get();
 
         // get the main categories with sub categories.. (early)
-        $categories = Category::with("subCategories")->get();
-        return view("vendor.products.create", compact("categories", "brands"));
+        $categories = Category::with('subCategories')->get();
+
+        return view('vendor.products.create', compact('categories', 'brands'));
     }
 
     /* for saving the new product */
@@ -106,32 +106,32 @@ class ProductController extends Controller
         $validated = $request->validated();
 
         // check data
-        Log::info("Product data", ["product" => $validated]);
+        Log::info('Product data', ['product' => $validated]);
 
         // try to create the product
         $product = Product::create([
-            "vendor_id" => $vendorId,
-            "name" => $validated["name"],
-            "description" => $validated["description"],
-            "sub_category_id" => $validated["sub_category_id"],
-            "base_price" => $validated["base_price"],
-            "is_active" => 0,
-            "brand_id" => $request->brand_id,
+            'vendor_id' => $vendorId,
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'sub_category_id' => $validated['sub_category_id'],
+            'base_price' => $validated['base_price'],
+            'is_active' => 0,
+            'brand_id' => $request->brand_id,
         ]);
 
         // Log the status
         Log::info("$product->name was just created by $vendorId", [
-            "status" => (bool) $product,
+            'status' => (bool) $product,
         ]);
 
         // log the end
-        Log::info("Product creation end.");
+        Log::info('Product creation end.');
 
         return redirect()
-            ->route("vendor.products.index")
+            ->route('vendor.products.index')
             ->with(
-                "success",
-                "Product created. Click on it to add variants and images.",
+                'success',
+                'Product created. Click on it to add variants and images.',
             );
     }
 
@@ -147,9 +147,9 @@ class ProductController extends Controller
             ->where('is_active', true)
             ->get();
 
-        $categories = Category::with("subCategories")->get();
+        $categories = Category::with('subCategories')->get();
 
-        return view("vendor.products.edit", compact("product", "categories", "brands"));
+        return view('vendor.products.edit', compact('product', 'categories', 'brands'));
     }
 
     /*
@@ -172,14 +172,14 @@ class ProductController extends Controller
         $updated = $product->update($validated);
 
         // Log status
-        Log::info("Product updated", ["status" => (bool) $updated]);
+        Log::info('Product updated', ['status' => (bool) $updated]);
 
         // log the end
-        Log::info("Product update ended.");
+        Log::info('Product update ended.');
 
         return redirect()
-            ->route("vendor.products.index")
-            ->with("success", "Product updated successfully.");
+            ->route('vendor.products.index')
+            ->with('success', 'Product updated successfully.');
     }
 
     /*
@@ -198,14 +198,14 @@ class ProductController extends Controller
         $deleted = $product->delete();
 
         // Log status
-        Log::info("Product deleted", ["status" => (bool) $deleted]);
+        Log::info('Product deleted', ['status' => (bool) $deleted]);
 
         // log the end
-        Log::info("Product deletion ended.");
+        Log::info('Product deletion ended.');
 
         return redirect()
-            ->route("vendor.products.index")
-            ->with("success", "Product deleted successfully.");
+            ->route('vendor.products.index')
+            ->with('success', 'Product deleted successfully.');
     }
 
     /*
@@ -221,12 +221,12 @@ class ProductController extends Controller
         abort_if($product->vendor_id !== auth()->id(), 403);
 
         // get related tables also quick (eager loading)
-        $product->load(["subCategory.category", "variants", "brand"]);
+        $product->load(['subCategory.category', 'variants', 'brand']);
 
         // log the end
-        Log::info("Single Product view ended.");
+        Log::info('Single Product view ended.');
 
-        return view("vendor.products.show", compact("product"));
+        return view('vendor.products.show', compact('product'));
     }
 
     /*
@@ -246,16 +246,16 @@ class ProductController extends Controller
         abort_if($product->vendor_id !== $vendor->id, 403);
 
         // Toggle status
-        $product->is_active = !$product->is_active;
+        $product->is_active = ! $product->is_active;
         $toggled = $product->save();
 
         // log the status
-        Log::info("Product status changed", ["status" => (bool) $toggled]);
+        Log::info('Product status changed', ['status' => (bool) $toggled]);
 
         // Log the end
-        Log::info("Single Product view ended.");
+        Log::info('Single Product view ended.');
 
         // Redirect back with a message
-        return redirect()->back()->with("success", "Product status updated.");
+        return redirect()->back()->with('success', 'Product status updated.');
     }
 }

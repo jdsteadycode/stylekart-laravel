@@ -4,15 +4,15 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payment\ProcessRequest;
+use App\Mail\OrderSuccessMail;
+use App\Notifications\Vendor\LowStockNotification;
+use App\Services\MockPaymentService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Exception;
-use Illuminate\Support\Facades\Session;
-use App\Mail\OrderSuccessMail;
-use Illuminate\Support\Facades\Mail;
-
 // path to MockPaymentService Class..
-use App\Services\MockPaymentService;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 
 class PaymentController extends Controller
 {
@@ -30,7 +30,7 @@ class PaymentController extends Controller
             $variant = $item->variant()->lockForUpdate()->first();
 
             // check
-            if (!$variant) {
+            if (! $variant) {
                 // throw exception when SQL error..
                 throw new Exception("Variant Not found for item {$item->id}");
             }
@@ -40,27 +40,26 @@ class PaymentController extends Controller
             if ($variant->stock < $item->quantity) {
 
                 // log the status
-                logger()->info($item->product->name . " 's Stock is in-sufficient | Payment Failed");
+                logger()->info($item->product->name." 's Stock is in-sufficient | Payment Failed");
 
                 // throw error and go to catch block
-                throw new Exception('Insufficent Stock for variant: ' . $variant->id);
+                throw new Exception('Insufficent Stock for variant: '.$variant->id);
             }
 
             // log the status [before stock reduction]
-            logger()->info('Checking variant: ' . $variant->id . ' stock: ' . $variant->stock);
-
+            logger()->info('Checking variant: '.$variant->id.' stock: '.$variant->stock);
 
             // 2.
             // decrease the stock
             $variant->decrement('stock', $item->quantity);
 
             // log the status [after stock reduction | success]
-            logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
+            logger()->info('reduced the stock for variant: '.$variant->id.' stock: '.$variant->stock);
 
             // when stock is low of that variant
             if ($variant->stock <= 5) {
                 // Notify the vendor of this specific product
-                $variant->product->vendor->notify(new \App\Notifications\Vendor\LowStockNotification($variant));
+                $variant->product->vendor->notify(new LowStockNotification($variant));
 
                 // log the warning
                 logger()->warning("[PaymentController] Low stock alert triggered for Variant: {$variant->id}");
@@ -75,7 +74,7 @@ class PaymentController extends Controller
         // 2. update order level payment details
         $order->update([
             // 'order_status' => 'processing',
-            'payment_status' => 'paid'
+            'payment_status' => 'paid',
         ]);
     }
 
@@ -85,7 +84,7 @@ class PaymentController extends Controller
 
         // check if not authenticated
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the action
             logger()->alert('Custmer not authenticated');
 
@@ -99,9 +98,9 @@ class PaymentController extends Controller
             ->where('payment_status', 'pending')->first();
 
         // when no current order found
-        if (!$order) {
+        if (! $order) {
             // log the status
-            logger()->alert('No Order found for Customer: ' . $customer->id);
+            logger()->alert('No Order found for Customer: '.$customer->id);
 
             // redirect back to checkout
             return redirect()->route('customer.checkout');
@@ -120,14 +119,17 @@ class PaymentController extends Controller
 
         // get the customer authenticated..
         $customer = auth()->user();
-        if (!$customer) return redirect()->route('login');
+        if (! $customer) {
+            return redirect()->route('login');
+        }
 
         // get the current order by customer..
         $order = $customer->orders()->where('order_number', $orderNumber)->where('payment_status', 'pending')->first();
 
         // check no order yet!
-        if (!$order) return redirect()->route('customer.checkout');
-
+        if (! $order) {
+            return redirect()->route('customer.checkout');
+        }
 
         // log the action
         logger()->info('[app\Http\Controllers\Customer\PaymentController@process] Processing the payment');
@@ -139,7 +141,7 @@ class PaymentController extends Controller
         logger()->info('Payment details validated', ['status' => (bool) $validated]);
 
         // MockPaymentService instantiation..
-        $mockPaymentService = new MockPaymentService();
+        $mockPaymentService = new MockPaymentService;
 
         // start a DB transaction..
         DB::beginTransaction();
@@ -149,9 +151,9 @@ class PaymentController extends Controller
             $success = $mockPaymentService->charge($order, $validated);
 
             // if gateway payment response is not valid!
-            if (!$success) {
+            if (! $success) {
                 // throw the excecption..
-                throw new Exception("MockPaymentService Payment Failed!");
+                throw new Exception('MockPaymentService Payment Failed!');
             }
 
             // handle order updates..
@@ -181,7 +183,7 @@ class PaymentController extends Controller
             ]);
 
             // log the status
-            logger()->error('Payment failed | ' . $e->getMessage());
+            logger()->error('Payment failed | '.$e->getMessage());
 
             // redirect back to order-failed view
             return view('customer.checkout.failed')->with('error', $e->getMessage());

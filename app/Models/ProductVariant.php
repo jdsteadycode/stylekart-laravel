@@ -2,22 +2,18 @@
 
 namespace App\Models;
 
-use App\Models\Product;
-use App\Models\CartItem;
-use App\Models\OrderItem;
-
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model
 {
     // columns to be filled..
     protected $fillable = [
-        "product_id",
-        "color_id",
-        "size",
-        "price",
-        "stock",
-        "sku",
+        'product_id',
+        'color_id',
+        'size',
+        'price',
+        'stock',
+        'sku',
     ];
 
     // () -> related product..
@@ -66,7 +62,7 @@ class ProductVariant extends Model
         $price = $this->price;
 
         // 3. If no discount exists, return original price
-        if (!$discount) {
+        if (! $discount) {
             return $price;
         }
 

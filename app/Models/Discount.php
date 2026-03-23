@@ -26,7 +26,6 @@ class Discount extends Model
         'discount_value' => 'decimal:2',
     ];
 
-
     // () -> vendor who defined this discount
     public function vendor()
     {

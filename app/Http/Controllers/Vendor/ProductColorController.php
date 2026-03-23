@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Vendor\ProductColorRequest;
 use App\Models\Product;
 use App\Models\ProductColor;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use App\Http\Requests\Vendor\ProductColorRequest;
 
 class ProductColorController extends Controller
 {
@@ -17,7 +17,7 @@ class ProductColorController extends Controller
     */
     public function create(Product $product)
     {
-        return view("vendor.colors.create", compact("product"));
+        return view('vendor.colors.create', compact('product'));
     }
 
     /*
@@ -33,21 +33,21 @@ class ProductColorController extends Controller
         $validated = $request->validated();
 
         // log the status
-        Log::info("Color data validated!", ["status" => (bool) $validated]);
+        Log::info('Color data validated!', ['status' => (bool) $validated]);
 
         // create color for the product
         $created = $product->colors()->create([
-            "name" => strtolower(trim($validated["name"])),
+            'name' => strtolower(trim($validated['name'])),
         ]);
 
         // log the status
         Log::info("Color: {$created->name} Created", [
-            "status" => (bool) $created,
+            'status' => (bool) $created,
         ]);
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Color added successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Color added successfully.');
     }
 
     /*
@@ -57,11 +57,11 @@ class ProductColorController extends Controller
     {
         if ($color->product_id !== $product->id) {
             // Log the error
-            Log::alert("Invalid edit product color action");
+            Log::alert('Invalid edit product color action');
             abort(404);
         }
 
-        return view("vendor.colors.edit", compact("product", "color"));
+        return view('vendor.colors.edit', compact('product', 'color'));
     }
 
     /*
@@ -80,19 +80,19 @@ class ProductColorController extends Controller
         $validated = $request->validated();
 
         // get new color name
-        $newName = strtolower(trim($validated["name"]));
+        $newName = strtolower(trim($validated['name']));
 
         // update the color name
         $updated = $color->update([
-            "name" => $newName,
+            'name' => $newName,
         ]);
 
         // log status
-        Log::info("Color updated!", ["status" => (bool) $updated]);
+        Log::info('Color updated!', ['status' => (bool) $updated]);
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Color updated successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Color updated successfully.');
     }
 
     /*
@@ -107,14 +107,14 @@ class ProductColorController extends Controller
 
         if ($color->product_id !== $product->id) {
             // Log
-            Log::alert("Invalid delete product color action");
+            Log::alert('Invalid delete product color action');
             abort(404);
         }
 
         // get number of variants having same color
         $variantsOfColor = $product
             ->variants()
-            ->where("color_id", $color->id)
+            ->where('color_id', $color->id)
             ->count();
 
         // check if color name is related to some variants..
@@ -126,10 +126,10 @@ class ProductColorController extends Controller
 
             // back to view
             return redirect()
-                ->route("vendor.products.show", $product)
+                ->route('vendor.products.show', $product)
                 ->with(
-                    "error",
-                    "Cannot delete this color because variants exist for it.",
+                    'error',
+                    'Cannot delete this color because variants exist for it.',
                 );
         }
 
@@ -137,11 +137,11 @@ class ProductColorController extends Controller
         $deleted = $color->delete();
 
         // log the action
-        Log::alert("Color removed", ["status" => (bool) $deleted]);
+        Log::alert('Color removed', ['status' => (bool) $deleted]);
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Color deleted successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Color deleted successfully.');
     }
 
     /*
@@ -152,7 +152,7 @@ class ProductColorController extends Controller
         Product $product,
         ProductColor $color,
     ) {
-        return view("vendor.colors.show", compact(["color", "product"]));
+        return view('vendor.colors.show', compact(['color', 'product']));
     }
 
     /*
@@ -169,23 +169,23 @@ class ProductColorController extends Controller
         );
 
         // check if images exist
-        if ($request->hasFile("images")) {
+        if ($request->hasFile('images')) {
             // iterate each
-            foreach ($request->file("images") as $file) {
+            foreach ($request->file('images') as $file) {
                 // add image according to the color
                 $saved = $color
                     ->addMedia($file)
-                    ->toMediaCollection("color_images");
+                    ->toMediaCollection('color_images');
 
                 // log the status
-                Log::info("Image saved!", ["status" => (bool) $saved]);
+                Log::info('Image saved!', ['status' => (bool) $saved]);
             }
         }
 
         // redirect back
         return redirect()
             ->back()
-            ->with("success", "Images uploaded for color.");
+            ->with('success', 'Images uploaded for color.');
     }
 
     /*
@@ -213,24 +213,24 @@ class ProductColorController extends Controller
 
         // Log
         Log::info("Removing existing image for color: {$media->model->name}", [
-            "status" => (bool) $deleted,
+            'status' => (bool) $deleted,
         ]);
 
         // check if images exist
-        if ($request->hasFile("image")) {
+        if ($request->hasFile('image')) {
             // add image according to the color
             $saved = $media->model
-                ->addMedia($request->file("image"))
-                ->toMediaCollection("color_images");
+                ->addMedia($request->file('image'))
+                ->toMediaCollection('color_images');
 
             // log the status
-            Log::info("Image updated!", ["status" => (bool) $saved]);
+            Log::info('Image updated!', ['status' => (bool) $saved]);
         }
 
         // redirect back
         return redirect()
             ->back()
-            ->with("success", "Images updated for {$media->model->name}");
+            ->with('success', "Images updated for {$media->model->name}");
     }
 
     /*
@@ -258,12 +258,12 @@ class ProductColorController extends Controller
 
         // Log
         Log::info("Removing existing image for color: {$media->model->name}", [
-            "status" => (bool) $deleted,
+            'status' => (bool) $deleted,
         ]);
 
         // redirect back
         return redirect()
             ->back()
-            ->with("success", "Images deleted for {$media->model->name}");
+            ->with('success', "Images deleted for {$media->model->name}");
     }
 }

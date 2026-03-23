@@ -3,21 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-use App\Models\Product;
-use App\Models\Address;
-use App\Models\CartItem;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Wishlist;
-use App\Models\DeliveryProfile;
-
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -26,10 +19,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        "name",
-        "email",
-        "password",
-        "role", // added role column to be filled..
+        'name',
+        'email',
+        'password',
+        'role', // added role column to be filled..
     ];
 
     /**
@@ -37,7 +30,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $hidden = ["password", "remember_token"];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
      * Get the attributes that should be cast.
@@ -47,8 +40,8 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            "email_verified_at" => "datetime",
-            "password" => "hashed",
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
         ];
     }
 
@@ -57,7 +50,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Wishlist::class);
     }
-
 
     // () -> vendor profile
     public function vendorProfile()
@@ -68,7 +60,7 @@ class User extends Authenticatable
     // () -> as vendor, can have many products
     public function products()
     {
-        return $this->hasMany(Product::class, "vendor_id");
+        return $this->hasMany(Product::class, 'vendor_id');
     }
 
     // () -> related addresses.
@@ -92,7 +84,7 @@ class User extends Authenticatable
     // () -> related sold items..
     public function soldItems()
     {
-        return $this->hasMany(OrderItem::class, "vendor_id");
+        return $this->hasMany(OrderItem::class, 'vendor_id');
     }
 
     // () -> related delivery_profile
@@ -104,6 +96,6 @@ class User extends Authenticatable
     // () -> related assigned orders (as delivery personnel)
     public function assignedOrders()
     {
-        return $this->hasMany(Order::class, "delivery_person_id");
+        return $this->hasMany(Order::class, 'delivery_person_id');
     }
 }

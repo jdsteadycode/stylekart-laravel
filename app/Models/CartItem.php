@@ -3,14 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\ProductVariant;
 
 class CartItem extends Model
 {
     // columns to be filled
-    protected $fillable = ["user_id", "product_id", "variant_id", "item_qty"];
+    protected $fillable = ['user_id', 'product_id', 'variant_id', 'item_qty'];
 
     // () -> of user
     public function user()

@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -15,6 +15,7 @@ class DeliveryOtpMail extends Mailable
 
     // variables for otp, and order
     public $order = null;
+
     public $otp = null;
 
     /**
@@ -33,7 +34,7 @@ class DeliveryOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'StyleKart: Your Delivery OTP for Order #' . $this->order->order_number ?? 'N/A'
+            subject: 'StyleKart: Your Delivery OTP for Order #'.$this->order->order_number ?? 'N/A'
         );
     }
 
@@ -50,7 +51,7 @@ class DeliveryOtpMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

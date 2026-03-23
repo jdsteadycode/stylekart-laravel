@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class ProductDetailController extends Controller
 {
@@ -18,7 +18,7 @@ class ProductDetailController extends Controller
         logger()->info('[app\Http\Controllers\Customer\ProductDetailController@show] Product Detail initiated');
 
         // check if product is active?
-        if (!$product->is_active) {
+        if (! $product->is_active) {
             // log the status
             logger()->alert('OOPS! In-active product!');
             abort(403);
@@ -38,7 +38,7 @@ class ProductDetailController extends Controller
         $inWishlist = auth()->user()?->wishlist()?->where('variant_id', $variantId)->exists() ?? false;
 
         // log the status
-        logger()->info('details fetched for ' . $product->name);
+        logger()->info('details fetched for '.$product->name);
 
         // log the end
         logger()->info('Product details complete.');
@@ -47,7 +47,7 @@ class ProductDetailController extends Controller
         return view('customer.product.show', [
             'product' => $product,
             'selectedVariant' => $selectedVariant,
-            'inWishlist' => $inWishlist
+            'inWishlist' => $inWishlist,
         ]);
     }
 }

@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-
 use App\Models\ProductVariant;
-// use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+// use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -66,7 +64,6 @@ class DashboardController extends Controller
     //     // log the status
     //     logger()->info("{$vendor->name}'s today's revenue: {$todayRevenue}");
 
-
     //     // get pending revenue..
     //     $pendingRevenue = DB::table('orders')
     //         ->join('order_items', 'order_items.order_id', '=', 'orders.id')
@@ -75,10 +72,8 @@ class DashboardController extends Controller
     //         ->where('orders.order_status', '!=', 'cancelled')   // and order shouldn't be cancelled..
     //         ->sum(DB::raw('order_items.quantity * order_items.price'));
 
-
     //     // log the status
     //     logger()->info("{$vendor->name}'s total pending revenue: {$pendingRevenue}");
-
 
     //     /**
     //      * SALES PERFORMANCE SECTION
@@ -92,7 +87,6 @@ class DashboardController extends Controller
 
     //     // log the status
     //     logger()->info("Total Units Sold {$totalUnitsSold}");
-
 
     //     // variants which run out of stock..
     //     $lowStockVariants = DB::table('products')
@@ -166,7 +160,6 @@ class DashboardController extends Controller
     //         ->where('order_status', 'cancelled')
     //         ->count();
 
-
     //     return view(
     //         "vendor.dashboard.index",
     //         compact([
@@ -189,7 +182,6 @@ class DashboardController extends Controller
     //     );
     // }
 
-
     /**
      * for dashboard view (index)
      */
@@ -205,9 +197,9 @@ class DashboardController extends Controller
         $vendor = $request->user();
 
         // when no vendor authenticated!
-        if (!$vendor) {
+        if (! $vendor) {
             // log the action
-            logger()->error("OOPS! Not authenticated! | Terminating Dashboard request");
+            logger()->error('OOPS! Not authenticated! | Terminating Dashboard request');
 
             // back to log-in
             return redirect()->route('login');
@@ -229,7 +221,6 @@ class DashboardController extends Controller
         // log the status
         logger()->info("today's revenue: {$todayRevenue}");
 
-
         /*
         * this month's revenue..
         */
@@ -246,7 +237,6 @@ class DashboardController extends Controller
 
         // log the status
         logger()->info("month's revenue: {$thisMonthRevenue}");
-
 
         /*
         * orders to be readyed (i.e., processing)
@@ -303,13 +293,13 @@ class DashboardController extends Controller
         $lowStockVariants =
             // get low stock ones..
             ProductVariant::where('stock', '<=', 5)     // extended limit to 5 from 3!
-            ->with(['product', 'color.media'])
-            ->whereHas('product', function ($product) use ($vendor) {
-                // only of current vendor..
-                $product->where('vendor_id', $vendor->id);
-            })
-            ->limit(5)
-            ->get();
+                ->with(['product', 'color.media'])
+                ->whereHas('product', function ($product) use ($vendor) {
+                    // only of current vendor..
+                    $product->where('vendor_id', $vendor->id);
+                })
+                ->limit(5)
+                ->get();
 
         // return the view..
         return view('vendor.dashboard.index', compact(

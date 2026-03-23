@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Support\Facades\Log;
-use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -21,11 +19,11 @@ class CategoryController extends Controller
         $categories = Category::latest()->get();
 
         // log the status
-        Log::info("Categories fetched successfully", [
-            "total" => count($categories),
+        Log::info('Categories fetched successfully', [
+            'total' => count($categories),
         ]);
 
-        return view("admin.categories.index", compact("categories"));
+        return view('admin.categories.index', compact('categories'));
     }
 
     /*
@@ -37,7 +35,7 @@ class CategoryController extends Controller
             "[app\Http\Controllers\Admin\CategoryController@create] Create Category Page Showed",
         );
 
-        return view("admin.categories.create");
+        return view('admin.categories.create');
     }
 
     /*
@@ -47,18 +45,18 @@ class CategoryController extends Controller
     {
 
         $status = Category::create([
-            "name" => $request->name,
+            'name' => $request->name,
         ]);
 
         // log status
-        Log::info("Category created successfully", [
-            "name" => $request->name,
-            "status" => (bool) $status,
+        Log::info('Category created successfully', [
+            'name' => $request->name,
+            'status' => (bool) $status,
         ]);
 
         return redirect()
-            ->route("admin.categories.index")
-            ->with("success", "Category added successfully!");
+            ->route('admin.categories.index')
+            ->with('success', 'Category added successfully!');
     }
 
     /*
@@ -69,11 +67,11 @@ class CategoryController extends Controller
         Log::info(
             "[app\Http\Controllers\Admin\CategoryController@edit] Edit Category Page Shown",
             [
-                "id" => $category->id,
+                'id' => $category->id,
             ],
         );
 
-        return view("admin.categories.edit", compact("category"));
+        return view('admin.categories.edit', compact('category'));
     }
 
     public function update(CategoryRequest $request, Category $category)
@@ -84,18 +82,18 @@ class CategoryController extends Controller
         );
 
         $status = $category->update([
-            "name" => $request->name,
+            'name' => $request->name,
         ]);
 
         // Log the status
-        Log::info("Category updated successfully", [
-            "name" => $request->name,
-            "status" => (bool) $status,
+        Log::info('Category updated successfully', [
+            'name' => $request->name,
+            'status' => (bool) $status,
         ]);
 
         return redirect()
-            ->route("admin.categories.index")
-            ->with("success", "Category updated successfully!");
+            ->route('admin.categories.index')
+            ->with('success', 'Category updated successfully!');
     }
 
     /*
@@ -111,13 +109,13 @@ class CategoryController extends Controller
         $status = $category->delete();
 
         // log the status
-        Log::warning("Category deleted!", [
-            "name" => $category->name,
-            "status" => (bool) $status,
+        Log::warning('Category deleted!', [
+            'name' => $category->name,
+            'status' => (bool) $status,
         ]);
 
         return redirect()
-            ->route("admin.categories.index")
-            ->with("success", "Category deleted successfully!");
+            ->route('admin.categories.index')
+            ->with('success', 'Category deleted successfully!');
     }
 }

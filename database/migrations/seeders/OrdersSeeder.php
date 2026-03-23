@@ -2,13 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Address;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-
-use App\Models\User;
-use App\Models\CartItem;
-use App\Models\Address;
 
 class OrdersSeeder extends Seeder
 {
@@ -24,14 +21,15 @@ class OrdersSeeder extends Seeder
 
         // order number (unique / random)
         $orderNumber =
-            "STK-" . now()->format("Ymd") . "-" . strtoupper(Str::random(6));
+            'STK-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
 
         // get customer
-        $jinal = User::where("role", "customer")->first();
+        $jinal = User::where('role', 'customer')->first();
 
         // check
-        if (!$jinal) {
-            logger()->alert("OOPS! No customer found! Seeding terminated");
+        if (! $jinal) {
+            logger()->alert('OOPS! No customer found! Seeding terminated');
+
             return;
         }
 
@@ -39,10 +37,11 @@ class OrdersSeeder extends Seeder
         $homeAddress = $jinal->addresses()->first();
 
         // if no address
-        if (!$homeAddress) {
+        if (! $homeAddress) {
             logger()->alert(
                 "OOPS! No Address found for {$jinal->name}! Seeding terminated.",
             );
+
             return;
         }
 
@@ -54,6 +53,7 @@ class OrdersSeeder extends Seeder
             logger()->alert(
                 "OOPS! No cart data found for {$jinal->name}! Seeding terminated.",
             );
+
             return;
         }
 
@@ -76,17 +76,17 @@ class OrdersSeeder extends Seeder
 
         // make the order.
         $orderCreated = $jinal->orders()->create([
-            "order_number" => $orderNumber,
-            "address_id" => $homeAddress->id,
-            "total_amount" => $total_amount,
+            'order_number' => $orderNumber,
+            'address_id' => $homeAddress->id,
+            'total_amount' => $total_amount,
         ]);
 
         // log the action
         logger()->info("Order Created! #{$orderCreated->order_number}", [
-            "status" => (bool) $orderCreated,
+            'status' => (bool) $orderCreated,
         ]);
 
         // log the end
-        logger()->info("Orders Seeding complete!");
+        logger()->info('Orders Seeding complete!');
     }
 }

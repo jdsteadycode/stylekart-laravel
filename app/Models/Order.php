@@ -3,23 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Address;
-use App\Models\OrderItem;
 
 class Order extends Model
 {
     // columns to be filled.
     protected $fillable = [
-        "user_id",
-        "order_number",
-        "address_id",
-        "total_amount",
-        "order_status",
-        "payment_mode",
-        "payment_status",
-        "delivery_person_id",
-        "delivery_otp"
+        'user_id',
+        'order_number',
+        'address_id',
+        'total_amount',
+        'order_status',
+        'payment_mode',
+        'payment_status',
+        'delivery_person_id',
+        'delivery_otp',
     ];
 
     // () -> to user (customer)
@@ -43,45 +40,44 @@ class Order extends Model
     // () -> related delivery personnel
     public function deliveryPerson()
     {
-        return $this->belongsTo(User::class, "delivery_person_id");
+        return $this->belongsTo(User::class, 'delivery_person_id');
     }
-
 
     /***
      * update the status
      */
     public function updateStatus()
     {
-        //.
+        // .
         $items = $this->items;
 
         // when all items are cancelled
-        if ($items->every(fn($item) => $item->order_status === 'cancelled')) {
+        if ($items->every(fn ($item) => $item->order_status === 'cancelled')) {
             $this->order_status = 'cancelled';
         }
 
         // when all items are delivered
-        else if ($items->every(fn($item) => $item->order_status === 'delivered')) {
+        elseif ($items->every(fn ($item) => $item->order_status === 'delivered')) {
             $this->order_status = 'delivered';
         }
 
         // from all is there items out for delivery
-        else if ($items->every(fn($i) => in_array($i->order_status, ['out_for_delivery', 'delivered']))) {
+        elseif ($items->every(fn ($i) => in_array($i->order_status, ['out_for_delivery', 'delivered']))) {
             $this->order_status = 'out_for_delivery';
         }
 
         // from all is there items with shipped
-        else if ($items->every(fn($item) => in_array($item->order_status, ['shipped', 'delivered']))) {
+        elseif ($items->every(fn ($item) => in_array($item->order_status, ['shipped', 'delivered']))) {
             $this->order_status = 'shipped';
         }
 
         // from all is there items with ready_for_pickup
-        else if ($items->every(fn($item) => in_array($item->order_status, ['ready_for_pickup', 'shipped', 'delivered']))) {
+        elseif ($items->every(fn ($item) => in_array($item->order_status, ['ready_for_pickup', 'shipped', 'delivered']))) {
             $this->order_status = 'ready_for_pickup';
         }
 
         // from all is there items with processing
-        else if ($items->every(fn($item) => in_array($item->order_status, ['processing', 'ready_for_pickup', 'shipped', 'delivered']))) {
+        elseif ($items->every(fn ($item) => in_array($item->order_status, ['processing', 'ready_for_pickup', 'shipped', 'delivered']))) {
             $this->order_status = 'processing';
         }
 
@@ -112,9 +108,10 @@ class Order extends Model
         $items = $this->items;
 
         // check if every item is ready to pickup?
-        if ($items->every(fn($item) => $item->order_status === 'ready_for_pickup')) {
+        if ($items->every(fn ($item) => $item->order_status === 'ready_for_pickup')) {
             return true;
         }
+
         return false;
     }
 

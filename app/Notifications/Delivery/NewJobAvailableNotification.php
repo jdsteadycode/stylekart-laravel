@@ -2,11 +2,10 @@
 
 namespace App\Notifications\Delivery;
 
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\Order;
 
 class NewJobAvailableNotification extends Notification
 {
@@ -14,6 +13,7 @@ class NewJobAvailableNotification extends Notification
 
     // variables
     protected $order;
+
     protected $city;
 
     /**

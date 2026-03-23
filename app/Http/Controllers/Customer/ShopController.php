@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Brand;
-use Illuminate\Http\Request;
-
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class ShopController extends Controller
 {
@@ -62,7 +61,7 @@ class ShopController extends Controller
             $query->where('name', 'like', "%{$toSearch}%");
 
             // log the status
-            logger()->info('Products based on search initiated with text: ' . $toSearch);
+            logger()->info('Products based on search initiated with text: '.$toSearch);
         }
 
         // if filter by vendor?
@@ -91,7 +90,7 @@ class ShopController extends Controller
             });
 
             // log the status
-            logger()->info('Products requested for category: ' . $request->query('category'));
+            logger()->info('Products requested for category: '.$request->query('category'));
         }
 
         // if filter by brand

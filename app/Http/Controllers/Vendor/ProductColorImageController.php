@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductColorImageController extends Controller
@@ -23,64 +21,63 @@ class ProductColorImageController extends Controller
         );
 
         // check if not authorized
-        abort_if(!$request->user()->id, 403);
+        abort_if(! $request->user()->id, 403);
 
         // validate the incoming data
         $request->validate(
             [
-                "color" => ["required", "string", "max:50"], // color must be string and within limit
-                "images" => ["required", "array"], // ensure incoming images are in array
-                "images.*" => [
-                    "image",
-                    "mimes:jpeg,png,jpg,gif,webp",
-                    "max:5120",
+                'color' => ['required', 'string', 'max:50'], // color must be string and within limit
+                'images' => ['required', 'array'], // ensure incoming images are in array
+                'images.*' => [
+                    'image',
+                    'mimes:jpeg,png,jpg,gif,webp',
+                    'max:5120',
                 ], // image types & max 5MB
             ],
             [
-                "color.required" => "Enter a color name",
-                "color.string" =>
-                "Color name must be valid text! For ex: indigo",
-                "color.max" => "Color length must be within 50 characters",
+                'color.required' => 'Enter a color name',
+                'color.string' => 'Color name must be valid text! For ex: indigo',
+                'color.max' => 'Color length must be within 50 characters',
 
-                "images.required" => "Select an image",
-                "images.array" => ["Image must be sent in array format"],
+                'images.required' => 'Select an image',
+                'images.array' => ['Image must be sent in array format'],
             ],
         );
 
         // save the color and product details or override the existing
         $saved = $product->colors()->updateOrCreate(
             [
-                "color" => $request->color,
+                'color' => $request->color,
             ],
             [
-                "color" => $request->color,
+                'color' => $request->color,
             ],
         );
 
         // log the status
-        Log::info("Color details saved!", ["status" => (bool) $saved]);
+        Log::info('Color details saved!', ['status' => (bool) $saved]);
 
         // check if files exist
-        if ($request->hasFile("images")) {
+        if ($request->hasFile('images')) {
             // iterate over them
-            foreach ($request->file("images") as $file) {
+            foreach ($request->file('images') as $file) {
                 // save image details to media table
-                $saved->addMedia($file)->toMediaCollection("color_images");
+                $saved->addMedia($file)->toMediaCollection('color_images');
 
                 // check log
                 Log::info(
                     "{$file->getClientOriginalName()} is saved to color: {$saved->color}",
-                    ["status" => (bool) $saved],
+                    ['status' => (bool) $saved],
                 );
             }
         }
 
         // Log the end
-        Log::info("Images by Color & product storage complete");
+        Log::info('Images by Color & product storage complete');
 
         return redirect()
             ->back()
-            ->with("success", "Images saved to {$saved->color} Successfully");
+            ->with('success', "Images saved to {$saved->color} Successfully");
     }
 
     /*
@@ -94,17 +91,17 @@ class ProductColorImageController extends Controller
         );
 
         // check if not authorized
-        abort_if(!$request->user()->id, 403);
+        abort_if(! $request->user()->id, 403);
 
         // validate the incoming data
         $request->validate(
             [
-                "image" => ["required", "max:5024"],
+                'image' => ['required', 'max:5024'],
                 // image types & max 5MB
             ],
             [
-                "image.required" => "Select an image for update",
-                "image.max" => ["Image must be upto 5 MB"],
+                'image.required' => 'Select an image for update',
+                'image.max' => ['Image must be upto 5 MB'],
             ],
         );
 
@@ -112,23 +109,23 @@ class ProductColorImageController extends Controller
         $removed = $media->delete();
 
         // log the status
-        Log::info("Existing image removed!", ["status" => (bool) $removed]);
+        Log::info('Existing image removed!', ['status' => (bool) $removed]);
 
         // check if files exist
-        if ($request->hasFile("image")) {
+        if ($request->hasFile('image')) {
             // save the new image
             $saved = $media->model
-                ->addMedia($request->file("image"))
-                ->toMediaCollection("color_images");
+                ->addMedia($request->file('image'))
+                ->toMediaCollection('color_images');
 
             // log the status
-            Log::info("Image updated!", ["status" => (bool) $saved]);
+            Log::info('Image updated!', ['status' => (bool) $saved]);
         }
 
         // Log the end
-        Log::info("Image update complete");
+        Log::info('Image update complete');
 
-        return redirect()->back()->with("success", "Image updated!");
+        return redirect()->back()->with('success', 'Image updated!');
     }
 
     /*
@@ -142,17 +139,17 @@ class ProductColorImageController extends Controller
         );
 
         // check if not authorized
-        abort_if(!$request->user()->id, 403);
+        abort_if(! $request->user()->id, 403);
 
         // remove the current image from storage and db
         $removed = $media->delete();
 
         // log the status
-        Log::info("Existing image removed!", ["status" => (bool) $removed]);
+        Log::info('Existing image removed!', ['status' => (bool) $removed]);
 
         // Log the end
-        Log::info("Image removal complete");
+        Log::info('Image removal complete');
 
-        return redirect()->back()->with("success", "Image deleted!");
+        return redirect()->back()->with('success', 'Image deleted!');
     }
 }

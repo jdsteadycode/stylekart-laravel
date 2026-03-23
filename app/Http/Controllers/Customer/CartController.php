@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\ProductVariant;
-use Illuminate\Support\Facades\Session;
 use App\Http\Requests\AddToBagRequest;
+use App\Models\ProductVariant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
@@ -21,14 +20,14 @@ class CartController extends Controller
 
         // log the end
         logger()->info('Cart Page end');
+
         return view('customer.cart.index');
     }
-
 
     /*
     Add to bag,
     */
-    public function store(AddtoBagRequest $request)
+    public function store(AddToBagRequest $request)
     {
 
         // log the action
@@ -39,7 +38,6 @@ class CartController extends Controller
 
         // get variant with product it belongs to..
         $variant = ProductVariant::with(['product', 'color'])->find($request->variant_id);
-
 
         // check if stock is available enough
         if ($variant->stock < 1) {
@@ -72,18 +70,18 @@ class CartController extends Controller
                 'price' => $variant->selling_price,     // new: show discounted price if exists
                 'color' => $variant->color->name,
                 'stock' => $variant->stock,
-                'size' => $variant->size
+                'size' => $variant->size,
             ];
 
             // log the status
-            logger()->info('New variant added!', ['status' =>  (bool) $bag[$variant->id]]);
+            logger()->info('New variant added!', ['status' => (bool) $bag[$variant->id]]);
         }
 
         // save bag
         Session::put('bag', $bag);
 
         // redirect back with success
-        return redirect()->back()->with('success', "Added item to bag");
+        return redirect()->back()->with('success', 'Added item to bag');
     }
 
     /*
@@ -99,7 +97,7 @@ class CartController extends Controller
         $bag = Session::get('bag', []);
 
         // check if variant exists?
-        if (!isset($bag[$variantId])) {
+        if (! isset($bag[$variantId])) {
 
             // log the status
             logger()->alert('Variant not found! Item Qty Update terminated.');
@@ -115,7 +113,7 @@ class CartController extends Controller
         switch ($action) {
 
             // when decrease in qty!
-            case "decrease":
+            case 'decrease':
                 // when qty is exactly 1.
                 if ($bag[$variantId]['qty'] == 1) {
 
@@ -123,19 +121,18 @@ class CartController extends Controller
                     return $this->destroy($variantId);
                 }
                 // when qty is above 1
-                else if ($bag[$variantId]['qty'] > 1) {
+                elseif ($bag[$variantId]['qty'] > 1) {
 
                     // update qty
                     $bag[$variantId]['qty']--;
 
                     // log the status
-                    logger()->info('decreased qty for ' . $variantId);
+                    logger()->info('decreased qty for '.$variantId);
                 }
                 break;
 
-
-            // when increase in qty!
-            case "increase":
+                // when increase in qty!
+            case 'increase':
                 // current qty
                 $currentQty = $bag[$variantId]['qty'];
                 $currentStock = $bag[$variantId]['stock'];
@@ -147,13 +144,14 @@ class CartController extends Controller
                     $bag[$variantId]['qty']++;
 
                     // log the status
-                    logger()->info('increased qty for ' . $variantId);
+                    logger()->info('increased qty for '.$variantId);
                 }
                 break;
 
-            // default action
+                // default action
             default:
                 logger()->info('Invalid Action. Item Qty update terminated.');
+
                 return redirect()->back();
         }
 
@@ -161,7 +159,8 @@ class CartController extends Controller
         Session::put('bag', $bag);
 
         // log the end
-        logger()->info('Cart Quantity Update Complete. Action: ' . $action);
+        logger()->info('Cart Quantity Update Complete. Action: '.$action);
+
         return redirect()->back();
     }
 

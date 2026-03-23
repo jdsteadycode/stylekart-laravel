@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Address;
+use Illuminate\Http\Request;
 
 class AddressController extends Controller
 {
-
     /**
      * for creating a new address
      */
@@ -20,7 +19,7 @@ class AddressController extends Controller
 
         // get the user..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! Terminating the New Address store');
 
@@ -39,13 +38,12 @@ class AddressController extends Controller
     public function store(Request $request)
     {
 
-
         // log the action..
         logger()->info('[app\Http\Controllers\Customer\AddressController@store] New Address Save initiated!');
 
         // get the user..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! Terminating the New Address store');
 
@@ -65,7 +63,7 @@ class AddressController extends Controller
             'address_type' => 'required|in:home,office,other',
             'is_default' => 'nullable|boolean',
         ], [
-            'address_type.exists' => 'Address Type is not valid!'
+            'address_type.exists' => 'Address Type is not valid!',
         ]);
 
         // log the status
@@ -82,7 +80,7 @@ class AddressController extends Controller
         }
 
         // create a new address for customer..
-        $saved =  $customer->addresses()->create($validated);
+        $saved = $customer->addresses()->create($validated);
 
         // log the status
         logger()->info('New Address Created!', ['status' => (bool) $saved]);
@@ -110,7 +108,7 @@ class AddressController extends Controller
 
         // get the user..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! Terminating the New Address store');
 
@@ -168,7 +166,7 @@ class AddressController extends Controller
 
         // get the user..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! Terminating the New Address store');
 

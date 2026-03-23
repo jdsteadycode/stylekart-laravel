@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SubcategoryRequest extends FormRequest
@@ -17,15 +18,17 @@ class SubcategoryRequest extends FormRequest
         // check if authorized!
         if ($this->user()->role !== 'admin') {
             logger()->alert('Not authorized! Terminating request.');
+
             return false;
         }
+
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -34,14 +37,15 @@ class SubcategoryRequest extends FormRequest
 
         // sub-category rules..
         $rules = [
-            "name" => "bail|required|string|max:255"
+            'name' => 'bail|required|string|max:255',
         ];
 
         // if method is post?
         if ($this->isMethod('post')) {
             // attach category check also..
-            $rules['category_id'] = "bail|required|exists:categories,id";
+            $rules['category_id'] = 'bail|required|exists:categories,id';
         }
+
         return $rules;
     }
 
@@ -52,8 +56,8 @@ class SubcategoryRequest extends FormRequest
     {
         return [
             // messages for error..
-            "category_id.required" => "Please select a parent category.",
-            "name.required"        => "Enter a sub category name.",
+            'category_id.required' => 'Please select a parent category.',
+            'name.required' => 'Enter a sub category name.',
         ];
     }
 }

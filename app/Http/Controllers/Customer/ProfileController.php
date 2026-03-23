@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-
     /**
      * handle avatar color
      */
@@ -24,7 +23,7 @@ class ProfileController extends Controller
             'F' => '#EC4899', // pink
 
             // fallback for all other letters
-            'default' => '#F97316' // orange
+            'default' => '#F97316', // orange
         ];
 
         // get the color or default one..
@@ -39,7 +38,7 @@ class ProfileController extends Controller
 
         // get the current customer..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! | Being redirected to Login View');
 
@@ -52,14 +51,14 @@ class ProfileController extends Controller
 
         // get the customer addresses
         $addresses = $customer->addresses()->orderBy('created_at', 'desc')->get();
-        if (!$addresses->count()) {
+        if (! $addresses->count()) {
             // log the status
             logger()->info('No addresses found for customer');
         }
 
         // get the recent orders.. (total: 5)
         $recentOrders = $customer->orders()->limit(5)->orderBy('updated_at', 'desc')->get();
-        if (!$recentOrders->count()) {
+        if (! $recentOrders->count()) {
             // log the status
             logger()->info('No orders found for customer');
         }
@@ -82,7 +81,7 @@ class ProfileController extends Controller
             'recentOrders' => $recentOrders,
             'recentOrdersCount' => $recentOrders->count(),
             'firstLetter' => $firstLetter,
-            'avatarColor' => $avatarColor
+            'avatarColor' => $avatarColor,
         ]);
     }
 
@@ -94,7 +93,7 @@ class ProfileController extends Controller
         // get the current customer
         $customer = auth()->user();
         // if no customer!
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated! | Being redirected to Login View');
 
@@ -108,7 +107,7 @@ class ProfileController extends Controller
         // validate input
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255'
+            'email' => 'required|email|max:255',
         ]);
 
         // update customer

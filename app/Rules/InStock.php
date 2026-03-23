@@ -2,16 +2,17 @@
 
 namespace App\Rules;
 
+use App\Models\ProductVariant;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use App\Models\ProductVariant;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class InStock implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -25,7 +26,7 @@ class InStock implements ValidationRule
         if ($variant->stock < 1) {
 
             // log the status
-            logger()->alert($variant->id  . 'variant is Out Of Stock!');
+            logger()->alert($variant->id.'variant is Out Of Stock!');
 
             // redirect client back
             $fail('This item is out of stock');

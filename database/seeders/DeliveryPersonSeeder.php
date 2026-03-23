@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DeliveryPersonSeeder extends Seeder
@@ -26,13 +26,13 @@ class DeliveryPersonSeeder extends Seeder
                 'name' => 'Mahesh Delivery',
                 'email' => 'mahesh@stylekart.com',
                 'vehicle_number' => 'GJ-05-CD-5678',
-            ]
+            ],
         ];
 
         // for each delivery person
         foreach ($persons as $person) {
             // create them as user
-            $user = \App\Models\User::create([
+            $user = User::create([
                 'name' => $person['name'],
                 'email' => $person['email'],
                 'password' => bcrypt('password'),
@@ -49,6 +49,6 @@ class DeliveryPersonSeeder extends Seeder
         }
 
         // log the end
-        logger()->info("Delivery Person Seeding done");
+        logger()->info('Delivery Person Seeding done');
     }
 }

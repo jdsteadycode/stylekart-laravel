@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
+use App\Http\Requests\Vendor\StoreDiscountRequest;
 // get path to Model Classes
 use App\Models\Discount;
 use App\Models\Product;
 use App\Models\SubCategory;
-
 // get path to Request Class
-use App\Http\Requests\Vendor\StoreDiscountRequest;
+use Illuminate\Http\Request;
 
 class DiscountController extends Controller
 {
@@ -92,7 +90,6 @@ class DiscountController extends Controller
     {
         //
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -188,10 +185,11 @@ class DiscountController extends Controller
         logger()->info("[app\Http\Controllers\Vendor\DiscountController@toggle] Discount state update initiated");
 
         $discount->update([
-            'is_active' => !$discount->is_active
+            'is_active' => ! $discount->is_active,
         ]);
 
         $status = $discount->is_active ? 'Activated' : 'Paused';
+
         return back()->with('success', "Discount '{$discount->name}' has been {$status}!");
     }
 }

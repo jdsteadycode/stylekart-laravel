@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Mail\DeliveryOtpMail;
 use App\Models\Order;
+use App\Notifications\Delivery\NewJobAvailableNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\DeliveryOtpMail;
-use App\Notifications\Delivery\NewJobAvailableNotification;
 
 class DashboardController extends Controller
 {
@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $deliveryProfile = $user->deliveryProfile;
 
         // get city of delivery person
-        $city = DB::table("addresses")->where("user_id", $user->id)->value("city");
+        $city = DB::table('addresses')->where('user_id', $user->id)->value('city');
 
         // already accepted orders.
         $acceptedOrders = Order::where('delivery_person_id', $user->id)
@@ -83,7 +83,7 @@ class DashboardController extends Controller
         }
 
         // Check if available or not
-        if (!$user->deliveryProfile->is_available) {
+        if (! $user->deliveryProfile->is_available) {
             return back()->with('error', 'You already have an active order.');
         }
 
@@ -155,7 +155,7 @@ class DashboardController extends Controller
             DB::rollBack();
 
             // log the warning
-            logger()->warning("Failed to accept order: " . $e->getMessage());
+            logger()->warning('Failed to accept order: '.$e->getMessage());
 
             return redirect()->route('dashboard.delivery')->with('error', $e->getMessage());
         }
@@ -174,7 +174,7 @@ class DashboardController extends Controller
         logger()->info("[app\Http\Controllers\Delivery\DashboardController@complete] Order action initiated");
 
         // get delivery person
-        $user =  auth()->user();
+        $user = auth()->user();
 
         // check if order was assigned to delivery
         if ($order->delivery_person_id !== $user->id) {
@@ -195,25 +195,26 @@ class DashboardController extends Controller
         $incomingStatus = $request->order_status;
 
         //  check if incoming status is transitioned correctly?
-        if (!in_array($incomingStatus, $allowedTransitions[$currentStatus] ?? [])) {
+        if (! in_array($incomingStatus, $allowedTransitions[$currentStatus] ?? [])) {
             // log the status
             logger()->alert("Invalid Status {$currentStatus} >> {$incomingStatus} attempted to be transitioned");
+
             return back()->with('error', 'Invalid status jump attempted!');
         }
 
         // check if current status is shipped & new-status is out_for_delivery
-        if ($currentStatus === "shipped" && $incomingStatus === "out_for_delivery") {
+        if ($currentStatus === 'shipped' && $incomingStatus === 'out_for_delivery') {
 
             // generate otp for customer
             $customerOtp = rand(100000, 999999);
 
             // update the order and save otp
-            $otpSaved = $order->update(["delivery_otp" => $customerOtp]);
+            $otpSaved = $order->update(['delivery_otp' => $customerOtp]);
 
             // log the status
-            logger()->info("Delivery Person marked order -> out-for-delivery & Otp generated!", [
-                "status" => (bool) $otpSaved,
-                "otp" => $customerOtp
+            logger()->info('Delivery Person marked order -> out-for-delivery & Otp generated!', [
+                'status' => (bool) $otpSaved,
+                'otp' => $customerOtp,
             ]);
 
             // send the mail to customer's email & with content
@@ -225,25 +226,25 @@ class DashboardController extends Controller
             );
 
             // log the status
-            logger()->info("Customer is notified with Delivery Update", ["status" => (bool) $sent]);
+            logger()->info('Customer is notified with Delivery Update', ['status' => (bool) $sent]);
 
             // process transaction
             return $this->processTransaction(
                 order: $order,
                 incomingStatus: $incomingStatus,
-                message: "You are on the way with order",
+                message: 'You are on the way with order',
                 lastStep: false
             );
         }
 
         // for final order delivery confirmation
         // i.e., current status => out_for_delivery && new status => delivered
-        if ($currentStatus === "out_for_delivery" && $incomingStatus === "delivered") {
+        if ($currentStatus === 'out_for_delivery' && $incomingStatus === 'delivered') {
 
             // validate the otp from customer
-            if (!$request->otp || $order->delivery_otp !== $request->otp) {
+            if (! $request->otp || $order->delivery_otp !== $request->otp) {
                 // log the status
-                logger()->alert("Invalid OTP! Please ask customer for valid otp");
+                logger()->alert('Invalid OTP! Please ask customer for valid otp');
 
                 // back with error
                 return back()->with('error', 'Invalid OTP! Please ask the customer for the correct 6-digit code.');
@@ -252,7 +253,7 @@ class DashboardController extends Controller
             return $this->processTransaction(
                 order: $order,
                 incomingStatus: $incomingStatus,
-                message: "Order delivered successfully",
+                message: 'Order delivered successfully',
                 lastStep: true
             );
         }
@@ -279,17 +280,17 @@ class DashboardController extends Controller
             if ($lastStep && $incomingStatus === 'delivered') {
 
                 // log the status
-                logger()->info("Delivery Person is now free | Order was recently delivered");
+                logger()->info('Delivery Person is now free | Order was recently delivered');
 
                 // if order was Cash On Delivery,
                 if (strtolower($order->payment_mode) === 'cod') {
 
                     // update the status as paid,
                     $order->payment_status = 'paid';
-                    $paid  = $order->save();
+                    $paid = $order->save();
 
                     // log the status
-                    logger()->info("Order: #{$order->order_number} is now paid", ["status" => (bool) $paid]);
+                    logger()->info("Order: #{$order->order_number} is now paid", ['status' => (bool) $paid]);
                 }
 
                 // get the delivery profile
@@ -303,7 +304,7 @@ class DashboardController extends Controller
         });
 
         // back with success
-        return redirect()->back()->with("success", $message);
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -321,7 +322,7 @@ class DashboardController extends Controller
         }
 
         // 2. NEW Safety Check: Am I already busy?
-        if (!$user->deliveryProfile->is_available) {
+        if (! $user->deliveryProfile->is_available) {
             return redirect()->route('dashboard.delivery')
                 ->with('error', 'You already have an active delivery. Complete it before viewing new jobs.');
         }

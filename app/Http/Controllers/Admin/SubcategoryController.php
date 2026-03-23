@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\SubcategoryRequest;
 use App\Models\Category;
 use App\Models\SubCategory;
-use App\Http\Requests\SubcategoryRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SubcategoryController extends Controller
 {
@@ -25,37 +25,37 @@ class SubcategoryController extends Controller
         $categories = Category::all();
 
         // check if filter category?
-        $categoryId = $request->query("category");
+        $categoryId = $request->query('category');
         if ($categoryId) {
             // get all sub categories of incoming category.
-            $subCategories = SubCategory::where("category_id", $categoryId)
-                ->with("category")
+            $subCategories = SubCategory::where('category_id', $categoryId)
+                ->with('category')
                 ->get();
 
             // log the status
             Log::info("sub categories fetched of $categoryId Category.", [
-                "total" => count($subCategories),
-                "status" => (bool) $subCategories,
+                'total' => count($subCategories),
+                'status' => (bool) $subCategories,
             ]);
         }
 
         // All sub categories with main category
         else {
-            $subCategories = SubCategory::with("category")->latest()->get();
+            $subCategories = SubCategory::with('category')->latest()->get();
 
             // log the status
-            Log::info("sub categories fetched", [
-                "total" => count($subCategories),
-                "status" => (bool) $subCategories,
+            Log::info('sub categories fetched', [
+                'total' => count($subCategories),
+                'status' => (bool) $subCategories,
             ]);
         }
 
         // log the end
-        Log::info("Subcategories fetch complete!");
+        Log::info('Subcategories fetch complete!');
 
         return view(
-            "admin.subcategories.index",
-            compact("categories", "subCategories"),
+            'admin.subcategories.index',
+            compact('categories', 'subCategories'),
         );
     }
 
@@ -69,15 +69,15 @@ class SubcategoryController extends Controller
             "[app\Http\Controllers\Admin\SubcategoryController@create] Sub categories creation initiated",
         );
 
-        $categories = Category::orderBy("name")->get();
+        $categories = Category::orderBy('name')->get();
 
         // log the status
-        Log::info("Categories fetched for adding sub categories", [
-            "total" => count($categories),
-            "status" => (bool) $categories,
+        Log::info('Categories fetched for adding sub categories', [
+            'total' => count($categories),
+            'status' => (bool) $categories,
         ]);
 
-        return view("admin.subcategories.create", compact("categories"));
+        return view('admin.subcategories.create', compact('categories'));
     }
 
     /*
@@ -92,16 +92,16 @@ class SubcategoryController extends Controller
         );
 
         $created = SubCategory::create([
-            "category_id" => $request->category_id,
-            "name" => $request->name,
+            'category_id' => $request->category_id,
+            'name' => $request->name,
         ]);
 
         // log the status
-        Log::info("Sub Category Created", ["status" => (bool) $created]);
+        Log::info('Sub Category Created', ['status' => (bool) $created]);
 
         return redirect()
-            ->route("admin.subcategories.index")
-            ->with("success", "Sub category created successfully.");
+            ->route('admin.subcategories.index')
+            ->with('success', 'Sub category created successfully.');
     }
 
     /*
@@ -114,7 +114,7 @@ class SubcategoryController extends Controller
         );
 
         // No need to fetch all categories if you are not changing parent
-        return view("admin.subcategories.edit", compact("subcategory"));
+        return view('admin.subcategories.edit', compact('subcategory'));
     }
 
     /*
@@ -127,16 +127,16 @@ class SubcategoryController extends Controller
         );
 
         $updated = $subcategory->update([
-            "name" => $request->name,
+            'name' => $request->name,
         ]);
 
-        Log::info("Sub Category" . $request->name . " Updated", [
-            "status" => (bool) $updated,
+        Log::info('Sub Category'.$request->name.' Updated', [
+            'status' => (bool) $updated,
         ]);
 
         return redirect()
-            ->route("admin.subcategories.index")
-            ->with("success", "Sub category updated successfully.");
+            ->route('admin.subcategories.index')
+            ->with('success', 'Sub category updated successfully.');
     }
 
     /**
@@ -154,11 +154,11 @@ class SubcategoryController extends Controller
         // Log success
         Log::info(
             "[app\Http\Controllers\Admin\SubcategoryController@destroy] Subcategory deleted successfully",
-            ["status" => (bool) $deleted],
+            ['status' => (bool) $deleted],
         );
 
         return redirect()
-            ->route("admin.subcategories.index")
-            ->with("success", "Subcategory deleted successfully.");
+            ->route('admin.subcategories.index')
+            ->with('success', 'Subcategory deleted successfully.');
     }
 }

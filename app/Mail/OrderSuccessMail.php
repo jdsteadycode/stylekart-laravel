@@ -2,13 +2,13 @@
 
 namespace App\Mail;
 
+use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Order;
 
 class OrderSuccessMail extends Mailable
 {
@@ -32,7 +32,7 @@ class OrderSuccessMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Thank You! Order Success: ' . $this->order->order_number,
+            subject: 'Thank You! Order Success: '.$this->order->order_number,
         );
     }
 
@@ -47,7 +47,7 @@ class OrderSuccessMail extends Mailable
         return new Content(
             view: 'emails.order-success',
             with: [
-                'order' => $this->order
+                'order' => $this->order,
             ],
         );
     }
@@ -55,7 +55,7 @@ class OrderSuccessMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

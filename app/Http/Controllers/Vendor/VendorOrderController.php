@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Vendor\VendorOrderRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
+use App\Notifications\Delivery\NewJobAvailableNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Requests\Vendor\VendorOrderRequest;
+use Illuminate\Support\Facades\Notification;
 
 class VendorOrderController extends Controller
 {
-
     /**
      * Display vendor incoming orders
      */
@@ -24,7 +26,7 @@ class VendorOrderController extends Controller
         $vendor = auth()->user();
 
         // check vendor?
-        if (!$vendor) {
+        if (! $vendor) {
 
             // log the status
             logger()->alert('No authenticated Vendor');
@@ -36,7 +38,7 @@ class VendorOrderController extends Controller
 
         // log the stats..
         logger()->info('Vendor order items fetched', [
-            'status' => $status ?? 'all'
+            'status' => $status ?? 'all',
         ]);
 
         // get order items of vendor
@@ -50,7 +52,7 @@ class VendorOrderController extends Controller
                 $query->where('order_status', $status);
             }
         })
-            ->with(['items' => fn($query) => $query->where('vendor_id', $vendor->id)])
+            ->with(['items' => fn ($query) => $query->where('vendor_id', $vendor->id)])
             ->latest();
 
         // get the orders..
@@ -72,7 +74,7 @@ class VendorOrderController extends Controller
         $vendor = auth()->user();
 
         // check vendor?
-        if (!$vendor) {
+        if (! $vendor) {
 
             // log the status
             logger()->alert('No authenticated Vendor');
@@ -82,7 +84,7 @@ class VendorOrderController extends Controller
         }
 
         // Ensure this vendor owns at least one item
-        if (!$order->items()->where('vendor_id', $vendor->id)->exists()) {
+        if (! $order->items()->where('vendor_id', $vendor->id)->exists()) {
 
             // log the status
             logger()->alert('The order does not contain any vendor items! Terminated order detail view..');
@@ -100,7 +102,7 @@ class VendorOrderController extends Controller
             // get personal info
             'user',
             // get address info
-            'address'
+            'address',
         ]);
 
         // send to orders detail view..
@@ -131,7 +133,6 @@ class VendorOrderController extends Controller
             return back()->with('error', 'Ordered item or order was already cancelled!');
         }
 
-
         // set the transitions for preventing to invalid order state..
         $allowedTransitions = [
             'pending' => ['processing'],
@@ -157,7 +158,7 @@ class VendorOrderController extends Controller
         }
 
         // check if invalid transition requested!
-        if (!in_array($incomingStatus, $allowedTransitions[$currentStatus] ?? [])) {
+        if (! in_array($incomingStatus, $allowedTransitions[$currentStatus] ?? [])) {
 
             // log the status
             logger()->alert("Invalid status transition attempted: {$currentStatus} → {$incomingStatus}");
@@ -165,7 +166,6 @@ class VendorOrderController extends Controller
             // back with error..
             return back()->with('error', 'Invalid status transition.');
         }
-
 
         // start a transaction to avoid invalid db states!
         // i.e., item status updated but later order level status update fails!
@@ -178,7 +178,7 @@ class VendorOrderController extends Controller
 
             // update the status..
             $item->update([
-                'order_status' => $validated['order_status']
+                'order_status' => $validated['order_status'],
             ]);
 
             // Sync parent order status
@@ -189,7 +189,7 @@ class VendorOrderController extends Controller
                 'Updated the order status',
                 [
                     'status' => (bool) $updated,
-                    'new' => $item->order->order_status
+                    'new' => $item->order->order_status,
                 ]
             );
         });
@@ -204,7 +204,7 @@ class VendorOrderController extends Controller
             $vendorAddress = $vendor->addresses->first();
 
             // if vendor doesn't have any address
-            if (!$vendorAddress) {
+            if (! $vendorAddress) {
                 // log the error
                 logger()->error("Broadcast failed: Vendor {$vendor->id} has no address on file.");
 
@@ -216,7 +216,7 @@ class VendorOrderController extends Controller
             $pickupCity = $vendorAddress->city;
 
             // get the delivery persons
-            $deliveryPersonnel = \App\Models\User::where('role', 'delivery_person')
+            $deliveryPersonnel = User::where('role', 'delivery_person')
                 ->whereHas('deliveryProfile', function ($query) {
                     $query->where('is_available', true); // only if available
                 })
@@ -227,13 +227,13 @@ class VendorOrderController extends Controller
 
             //  if delivery persons are there.
             if ($deliveryPersonnel->isNotEmpty()) {
-                \Illuminate\Support\Facades\Notification::send(
+                Notification::send(
                     $deliveryPersonnel,
-                    new \App\Notifications\Delivery\NewJobAvailableNotification($order, $pickupCity)
+                    new NewJobAvailableNotification($order, $pickupCity)
                 );
 
                 // log the info
-                logger()->info("Broadcasted Order #{$order->order_number} to " . $deliveryPersonnel->count() . " delivery people in {$pickupCity}");
+                logger()->info("Broadcasted Order #{$order->order_number} to ".$deliveryPersonnel->count()." delivery people in {$pickupCity}");
             } else {
 
                 // log the warning
@@ -246,7 +246,6 @@ class VendorOrderController extends Controller
     }
 
     /**
-     *
      *  cancel incoming order item..
      */
     public function cancel(OrderItem $item, VendorOrderRequest $request)
@@ -254,14 +253,13 @@ class VendorOrderController extends Controller
         // log the action
         logger()->info('[VendorOrderController@cancel] Vendor cancellation initiated.');
 
-
         // wrap in transaction for valid db state..
         DB::transaction(function () use ($item, $request) {
 
             // Update item status
             $item->update([
                 'order_status' => 'cancelled',
-                'cancel_reason' => $request->cancel_reason
+                'cancel_reason' => $request->cancel_reason,
             ]);
 
             // Restore stock

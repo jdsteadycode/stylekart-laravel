@@ -7,10 +7,9 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-
-// path to Log Class
 use Illuminate\Support\Facades\Log;
+// path to Log Class
+use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -35,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         // Log the authentication
-        Log::info($request->user()->name . ' is logged in successfully');
+        Log::info($request->user()->name.' is logged in successfully');
 
         // return redirect()->intended(route('dashboard', absolute: false));
         return redirect()->route(getDashboardRoute($request->user()));

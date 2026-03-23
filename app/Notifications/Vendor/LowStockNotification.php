@@ -2,11 +2,10 @@
 
 namespace App\Notifications\Vendor;
 
+use App\Models\ProductVariant;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Models\ProductVariant;
 
 class LowStockNotification extends Notification
 {
@@ -40,6 +39,7 @@ class LowStockNotification extends Notification
     {
         // log the action
         logger()->info("[app\Notifications\Vendor\LowStockNotification@toMail] Mailing low stock intel");
+
         return (new MailMessage)
             ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
@@ -63,6 +63,7 @@ class LowStockNotification extends Notification
     {
         // log the action
         logger()->info("[app\Notifications\Vendor\LowStockNotification@toDatabase] Storing notifiying data in db");
+
         return [
             'product_name' => $this->variant->product->name,
             'current_stock' => $this->variant->stock,

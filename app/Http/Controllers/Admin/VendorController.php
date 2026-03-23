@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\User;
-use App\Models\VendorProfile;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\UpdateVendorStatusRequest;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VendorController extends Controller
 {
@@ -23,40 +21,40 @@ class VendorController extends Controller
         );
 
         // when status
-        $status = $request->query("status");
+        $status = $request->query('status');
         if ($status) {
             // get vendors with status requested.
-            $query = User::where("role", "vendor")->with("vendorProfile");
+            $query = User::where('role', 'vendor')->with('vendorProfile');
 
             // get the those vendor profile whose status matches incoming status
             $vendors = $query
                 ->whereHas(
-                    "vendorProfile",
-                    fn($profile) => $profile->where("status", $status),
+                    'vendorProfile',
+                    fn ($profile) => $profile->where('status', $status),
                 )
                 ->get();
 
             // Log the action
             Log::info("Vendors with status: $status fetched", [
-                "total" => $vendors->count(),
+                'total' => $vendors->count(),
             ]);
         }
 
         // Get all users with role vendor, eager load profile
         else {
-            $vendors = User::where("role", "vendor")
-                ->with("vendorProfile")
+            $vendors = User::where('role', 'vendor')
+                ->with('vendorProfile')
                 ->get();
         }
 
-        if (!$vendors) {
-            Log::warning("No Vendor Data found!");
+        if (! $vendors) {
+            Log::warning('No Vendor Data found!');
         }
 
         // log status
-        Log::info("Vendors found", ["total" => $vendors->count()]);
+        Log::info('Vendors found', ['total' => $vendors->count()]);
 
-        return view("admin.vendors.index", compact("vendors"));
+        return view('admin.vendors.index', compact('vendors'));
     }
 
     /**
@@ -71,25 +69,24 @@ class VendorController extends Controller
 
         // Update vendor profile
         $updated = $vendor->vendorProfile->update([
-            "status" => $request->status,
-            "rejection_reason" =>
-            $request->status === "rejected"
+            'status' => $request->status,
+            'rejection_reason' => $request->status === 'rejected'
                 ? $request->rejection_reason
                 : null,
         ]);
 
         // log the action
         Log::info("$vendor->name status update!", [
-            "vendor_id" => $vendor->id,
-            "new_status" => $request->status,
-            "rejected" => $request->status === "rejected",
-            "updated_by" => $request->user()->id,
+            'vendor_id' => $vendor->id,
+            'new_status' => $request->status,
+            'rejected' => $request->status === 'rejected',
+            'updated_by' => $request->user()->id,
         ]);
 
         return redirect()
-            ->route("admin.vendors.index")
+            ->route('admin.vendors.index')
             ->with(
-                "success",
+                'success',
                 "Vendor {$vendor->name} status updated to {$request->status}!",
             );
     }
@@ -105,25 +102,25 @@ class VendorController extends Controller
         );
 
         // get vendor profile withing this request early..
-        $vendor->load("vendorProfile");
+        $vendor->load('vendorProfile');
 
         // when no profile exist!
-        if (!$vendor->vendorProfile) {
+        if (! $vendor->vendorProfile) {
             // log the error
-            Log::warning("No vendor Profile found");
+            Log::warning('No vendor Profile found');
 
             // back with error
             return redirect()
                 ->back()
-                ->with("error", "No vendor Profile found!");
+                ->with('error', 'No vendor Profile found!');
         }
 
         // Log the loaded data counts for debugging
-        Log::info("Vendor loaded", [
-            "vendor_profile" => (bool) $vendor->vendorProfile,
+        Log::info('Vendor loaded', [
+            'vendor_profile' => (bool) $vendor->vendorProfile,
         ]);
 
         // Pass vendor object to view
-        return view("admin.vendors.show", compact("vendor"));
+        return view('admin.vendors.show', compact('vendor'));
     }
 }

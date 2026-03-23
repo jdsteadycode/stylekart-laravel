@@ -1,43 +1,40 @@
 <?php
 
 // package path
+
 namespace App\Services;
 
 // grab the class paths..
-use App\Models\ProductVariant;
-
-// get the Exception Class Path
-use Exception;
-
-// get class path to Str
-use Illuminate\Support\Str;
-
-// get DB Facade Class path
-use Illuminate\Support\Facades\DB;
-
-// get Mail Class Facade path
-use Illuminate\Support\Facades\Mail;
-
-// get class path to OrderSuccessMailable
 use App\Mail\OrderSuccessMail;
+// get the Exception Class Path
+use App\Models\ProductVariant;
+// get class path to Str
+use App\Models\User;
+// get DB Facade Class path
+use App\Notifications\Vendor\LowStockNotification;
+// get Mail Class Facade path
+use App\Notifications\Vendor\NewOrderNotification;
+// get class path to OrderSuccessMailable
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 // UDC Order Service
 class OrderService
 {
-
     /**
      * handle the order creation..
      */
     public function createOrder($customer, $address, array $validated, array $bag)
     {
 
-
         // log the action
         logger()->info('[app\Services\OrderService@createOrder] Order and Order Item creation initiated');
 
         // order number (unique / random)
         $orderNumber =
-            "STK-" . now()->format("Ymd") . "-" . strtoupper(Str::random(6));
+            'STK-'.now()->format('Ymd').'-'.strtoupper(Str::random(6));
 
         // total amount
         $totalAmount = 0;
@@ -51,7 +48,6 @@ class OrderService
         // log the status
         logger()->alert('Removed unpaid online orders', ['total' => $deletedRows]);
 
-
         // start a new transaction
         DB::beginTransaction();
 
@@ -64,7 +60,7 @@ class OrderService
                 $variant = ProductVariant::find($item['variant_id']);
 
                 // when variant not found
-                if (!$variant) {
+                if (! $variant) {
                     // log the error
                     throw new Exception("Product Variant not found for variant_id: {$item['variant_id']}");
                 }
@@ -88,7 +84,7 @@ class OrderService
             ]);
 
             // log the status..
-            logger()->info('Order Created for customer ' . $customer->name, ['status' => (bool) $order]);
+            logger()->info('Order Created for customer '.$customer->name, ['status' => (bool) $order]);
 
             // 3. Save ordered items..
             foreach ($bag as $item) {
@@ -97,7 +93,7 @@ class OrderService
                 $variant = ProductVariant::where('id', $item['variant_id'])->lockForUpdate()->first();
 
                 // when variant not found
-                if (!$variant) {
+                if (! $variant) {
                     // log the error
                     throw new Exception("Product Variant not found for variant_id: {$item['variant_id']}");
                 }
@@ -116,7 +112,7 @@ class OrderService
 
                     // redirect back with error
                     // go to catch part
-                    throw new Exception('Insufficient stock for' . $variant->product->name);
+                    throw new Exception('Insufficient stock for'.$variant->product->name);
                 }
 
                 // create order item
@@ -126,9 +122,8 @@ class OrderService
                     'vendor_id' => $variant->product->vendor->id,
                     'quantity' => $item['qty'],
                     'price' => $variant->selling_price,
-                    'order_status' => 'pending' // intially
+                    'order_status' => 'pending', // intially
                 ]);
-
 
                 // if payment method is cod only then,
                 if ($validated['pay'] === 'cod') {
@@ -142,7 +137,7 @@ class OrderService
                         $vendor = $variant->product->vendor;
 
                         // Notify the vendor immediately about this specific variant
-                        $vendor->notify(new \App\Notifications\Vendor\LowStockNotification($variant));
+                        $vendor->notify(new LowStockNotification($variant));
 
                         // log the warning.
                         logger()->warning("Low stock alert! Variant: {$variant->id} is at {$variant->stock}");
@@ -155,7 +150,7 @@ class OrderService
                     [
                         'status' => (bool) $orderItem,
                         'payment-method' => $order->payment_mode,
-                        'payment-status' => $order->payment_status
+                        'payment-status' => $order->payment_status,
                     ]
                 );
             }
@@ -171,11 +166,11 @@ class OrderService
 
             // for each vendor
             foreach ($vendorIds as $vendorId) {
-                $vendor = \App\Models\User::find($vendorId);
+                $vendor = User::find($vendorId);
 
                 if ($vendor) {
                     // send mail and notification as well
-                    $vendor->notify(new \App\Notifications\Vendor\NewOrderNotification($order));
+                    $vendor->notify(new NewOrderNotification($order));
 
                     // log the status
                     logger()->info("Order notification sent to Vendor: {$vendor->name} (ID: {$vendorId})");
@@ -199,7 +194,7 @@ class OrderService
             DB::rollBack();
 
             // log the error
-            logger()->error('Error: ' . $e->getMessage());
+            logger()->error('Error: '.$e->getMessage());
 
             // throw the error
             throw $e;

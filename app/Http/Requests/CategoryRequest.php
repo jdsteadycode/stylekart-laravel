@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
@@ -20,6 +21,7 @@ class CategoryRequest extends FormRequest
         if ($this->user()->role !== 'admin') {
             // log the status
             logger()->alert('Not authorized! Terminating request!');
+
             return false;
         }
 
@@ -30,7 +32,7 @@ class CategoryRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -39,11 +41,11 @@ class CategoryRequest extends FormRequest
 
         // validate the data..
         return [
-            "name" => [
-                "required",
-                "string",
-                "max:255",
-                Rule::unique('categories', 'name')->ignore($categoryId) // ignore rule when category id is null
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('categories', 'name')->ignore($categoryId), // ignore rule when category id is null
             ],
         ];
     }
@@ -54,9 +56,9 @@ class CategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "name.required" => "Category name is needed!",
-            "name.string" => "Category must be strictly text",
-            "name.max" => "Category must be within 255 characters",
+            'name.required' => 'Category name is needed!',
+            'name.string' => 'Category must be strictly text',
+            'name.max' => 'Category must be within 255 characters',
         ];
     }
 }

@@ -3,12 +3,8 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\User;
-use App\Models\VendorProfile;
-use Illuminate\Support\Facades\Log;
 use App\Http\Requests\Vendor\VendorProfileRequest;
+use Illuminate\Support\Facades\Log;
 
 class VendorProfileController extends Controller
 {
@@ -26,13 +22,14 @@ class VendorProfileController extends Controller
         // get profile or make one
         $vendorProfile =
             $vendor->vendorProfile ??
-            $vendor->vendorProfile->create(["status" => "pending"]);
+            $vendor->vendorProfile->create(['status' => 'pending']);
 
         // log the status
-        Log::info("Vendor profile fetched", [
-            "status" => (bool) $vendorProfile,
+        Log::info('Vendor profile fetched', [
+            'status' => (bool) $vendorProfile,
         ]);
-        return view("vendor.profile.edit", compact("vendor", "vendorProfile"));
+
+        return view('vendor.profile.edit', compact('vendor', 'vendorProfile'));
     }
 
     /*
@@ -54,27 +51,27 @@ class VendorProfileController extends Controller
         $updatedPersonalDetails = $vendor->update($validated);
 
         // log the status
-        Log::info("Vendor details updated", [
-            "status" => (bool) $updatedPersonalDetails,
+        Log::info('Vendor details updated', [
+            'status' => (bool) $updatedPersonalDetails,
         ]);
 
         $updatedShopDetails = $vendor->vendorProfile()->updateOrCreate(
-            ["user_id" => $vendor->id],
+            ['user_id' => $vendor->id],
             [
-                "shop_name" => $request->shop_name,
-                "shop_address" => $request->shop_address,
-                "status" => "pending",
+                'shop_name' => $request->shop_name,
+                'shop_address' => $request->shop_address,
+                'status' => 'pending',
             ],
         );
 
         // log the status..
-        Log::info("Vendor Profile updated!", [
-            "status" => (bool) $updatedShopDetails,
+        Log::info('Vendor Profile updated!', [
+            'status' => (bool) $updatedShopDetails,
         ]);
 
         // back with success
         return redirect()
             ->back()
-            ->with("success", "Profile submitted for approval.");
+            ->with('success', 'Profile submitted for approval.');
     }
 }

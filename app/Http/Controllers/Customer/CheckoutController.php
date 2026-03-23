@@ -3,17 +3,13 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-// use App\Models\ProductVariant;
-use Illuminate\Support\Facades\DB;
-use Exception;
 use App\Http\Requests\CheckoutRequest;
-
-// get the OrderService Class path
 use App\Services\OrderService;
-
+// use App\Models\ProductVariant;
+use Exception;
+use Illuminate\Http\Request;
+// get the OrderService Class path
+use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
@@ -35,13 +31,12 @@ class CheckoutController extends Controller
             return redirect()->route('customer.shop')->with('error', 'Bag is empty. Nothing to checkout');
         }
 
-
         // log the action
         logger()->info('[app\Http\Controllers\Customer\CheckoutController@index] Data for Checkout initiated!');
 
         // check if user is authenticated customer?
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->info('Customer is not logged-in. Checkout Data loading terminated');
             abort(403);
@@ -51,9 +46,9 @@ class CheckoutController extends Controller
         $addresses = $customer->addresses()->latest()->get();
 
         // if not found!
-        if (!$addresses || $addresses->count() == 0) {
+        if (! $addresses || $addresses->count() == 0) {
             // log the status
-            logger()->alert("No saved addresses found");
+            logger()->alert('No saved addresses found');
         }
 
         // get default address or make one
@@ -94,7 +89,7 @@ class CheckoutController extends Controller
         $validated = $request->validated();
 
         // log the validated and clean data
-        logger()->info("Data validated!", ['data' => $validated]);
+        logger()->info('Data validated!', ['data' => $validated]);
 
         // ensure safe execution.
         try {
@@ -102,45 +97,43 @@ class CheckoutController extends Controller
             // get customer
             $customer = $request->user();
 
-
             // if default address opted?
             if ($request->filled('address_id')) {
                 $address = $customer->addresses()->findOrFail($validated['address_id']);
                 // log the status
-                logger()->info("Opted for existing address", [
-                    "status" => (bool) $address,
-                    "data" => [
+                logger()->info('Opted for existing address', [
+                    'status' => (bool) $address,
+                    'data' => [
                         'id' => $address->id,
                         'name' => $address->name,
-                    ]
+                    ],
                 ]);
             }
 
             // asked to create a new address
             else {
                 $address = $customer->addresses()->create([
-                    'name'         => $validated['name'],
-                    'phone'        => $validated['phone'],
+                    'name' => $validated['name'],
+                    'phone' => $validated['phone'],
                     'address_line' => $validated['address_line'],
-                    'city'         => $validated['city'],
-                    'pincode'      => $validated['pincode'],
-                    'state'        => $validated['state'],
-                    'address_type' => $validated['address_type']
+                    'city' => $validated['city'],
+                    'pincode' => $validated['pincode'],
+                    'state' => $validated['state'],
+                    'address_type' => $validated['address_type'],
                 ]);
 
                 // log the status
-                logger()->info("New Address Added and Opted!", [
-                    "status" => (bool) $address,
-                    "address" => $address
+                logger()->info('New Address Added and Opted!', [
+                    'status' => (bool) $address,
+                    'address' => $address,
                 ]);
             }
-
 
             // test and check (temporary)
             // return;
 
             // instantiate the Service Class
-            $orderService = new OrderService();
+            $orderService = new OrderService;
             $order = $orderService->createOrder($customer, $address, $validated, $bag);   // try to make an order..
 
             // if cod!
@@ -184,7 +177,7 @@ class CheckoutController extends Controller
 
         // get the customer..
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('No authenticated customer');
             abort(403);
@@ -194,7 +187,7 @@ class CheckoutController extends Controller
         $order = $customer->orders()->where('order_number', $orderNumber)->first();
 
         // if no order
-        if (!$order) {
+        if (! $order) {
             // log the status
             logger()->alert('No current order found! Terminating Order Success view');
 

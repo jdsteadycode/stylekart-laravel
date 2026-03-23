@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\InStock;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class AddToBagRequest extends FormRequest
 {
@@ -21,7 +22,7 @@ class AddToBagRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -31,8 +32,8 @@ class AddToBagRequest extends FormRequest
         // apply rules.. (constraints)
         return [
             // 'bail' -> to ensure if one rule fails return error and rest won't run unecessarily.
-            'variant_id' => ['bail', 'required', 'integer', 'exists:product_variants,id', new InStock()],
-            'qty' => ['required', 'integer', 'min:1', 'max:5']
+            'variant_id' => ['bail', 'required', 'integer', 'exists:product_variants,id', new InStock],
+            'qty' => ['required', 'integer', 'min:1', 'max:5'],
         ];
     }
 }

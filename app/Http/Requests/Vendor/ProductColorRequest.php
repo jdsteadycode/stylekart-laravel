@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProductColorRequest extends FormRequest
@@ -15,7 +16,6 @@ class ProductColorRequest extends FormRequest
         $product = $this->route('product');
         $color = $this->route('color');
 
-
         // log the action
         logger()->info('[app\Http\Requests\vendor\ProductColorRequest@authorization] Authorization check');
 
@@ -23,6 +23,7 @@ class ProductColorRequest extends FormRequest
         if ($this->user()->id !== $product->vendor_id) {
             // log the action
             logger()->alert('Product doesnot belong to vendor! Terminated Request.');
+
             return false;
         }
 
@@ -30,15 +31,17 @@ class ProductColorRequest extends FormRequest
         if ($color && $color->product_id !== $product->id) {
             // log the action
             logger()->alert("Mismatched Product/Color relationship for Product: {$product->id} and Color: {$color->id}");
+
             return false;
         }
+
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -51,22 +54,22 @@ class ProductColorRequest extends FormRequest
         // when color actions!
         if (in_array($routeName, ['vendor.products.colors.store', 'vendor.products.colors.update'])) {
             return [
-                "name" => "required|string|max:50",
+                'name' => 'required|string|max:50',
             ];
         }
 
         // for multiple images store action
         if ($routeName === 'vendor.colors.images.store') {
             return [
-                "images"   => "required|array",
-                "images.*" => "image|mimes:jpg,jpeg,png,webp,avif|max:10240",
+                'images' => 'required|array',
+                'images.*' => 'image|mimes:jpg,jpeg,png,webp,avif|max:10240',
             ];
         }
 
         // for single image update action
         if ($routeName === 'vendor.colors.images.update') {
             return [
-                "image" => "required|image|mimes:jpg,jpeg,png,webp,avif|max:5120",
+                'image' => 'required|image|mimes:jpg,jpeg,png,webp,avif|max:5120',
             ];
         }
 
@@ -79,10 +82,10 @@ class ProductColorRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "name.required" => "Color name is required.",
-            "images.required" => "No images selected!",
-            "images.*.image" => "Each file must be a valid image.",
-            "images.*.max"   => "Images cannot exceed 10MB.",
+            'name.required' => 'Color name is required.',
+            'images.required' => 'No images selected!',
+            'images.*.image' => 'Each file must be a valid image.',
+            'images.*.max' => 'Images cannot exceed 10MB.',
         ];
     }
 }

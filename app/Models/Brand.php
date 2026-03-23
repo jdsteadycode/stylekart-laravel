@@ -17,7 +17,7 @@ class Brand extends Model implements HasMedia
         'slug',
         'logo',
         'description',
-        'is_active'
+        'is_active',
     ];
 
     /**

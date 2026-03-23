@@ -1,6 +1,7 @@
 <?php
 
 // folder path
+
 namespace App\Services;
 
 // path to class..
@@ -8,7 +9,6 @@ namespace App\Services;
 // UDC MockPaymentService
 class MockPaymentService
 {
-
     /**
      * simulate the payment state
      */
@@ -30,7 +30,7 @@ class MockPaymentService
         // log the action..
         logger()->info('Payment Service Executed!', [
             'orderNumber' => $order->order_number,
-            'status' => (bool) $success
+            'status' => (bool) $success,
         ]);
 
         // log the end..

@@ -8,10 +8,10 @@ class ProductImage extends Model
 {
     // columns to be filled
     protected $fillable = [
-        "product_id",
-        "image_url",
-        "is_primary",
-        "sort_order",
+        'product_id',
+        'image_url',
+        'is_primary',
+        'sort_order',
     ];
 
     // related product

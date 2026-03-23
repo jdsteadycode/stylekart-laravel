@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vendor\ProductVariantRequest;
-use Illuminate\Http\Request;
 use App\Models\Product;
-use Illuminate\Support\Facades\Log;
-
 use App\Models\ProductVariant;
+use Illuminate\Support\Facades\Log;
 
 class ProductVariantController extends Controller
 {
@@ -24,8 +22,9 @@ class ProductVariantController extends Controller
 
         abort_if($product->vendor_id !== auth()->id(), 403);
 
-        return view("vendor.variants.create", compact("product"));
+        return view('vendor.variants.create', compact('product'));
     }
+
     /*
     Save the new variant
     */
@@ -38,8 +37,8 @@ class ProductVariantController extends Controller
 
         $validated = $request->validated();
         // log the status
-        Log::info("Product Variant data validated?", [
-            "status" => (bool) $validated,
+        Log::info('Product Variant data validated?', [
+            'status' => (bool) $validated,
         ]);
 
         // check log
@@ -48,30 +47,29 @@ class ProductVariantController extends Controller
         // Create variant
         $created = $product->variants()->updateOrCreate(
             [
-                "color_id" => $request->color_id,
-                "size" => $request->size,
+                'color_id' => $request->color_id,
+                'size' => $request->size,
             ],
             [
-                "price" =>
-                $request->price == 0
+                'price' => $request->price == 0
                     ? $product->base_price
                     : $request->price,
-                "stock" => $request->stock,
-                "sku" => $request->sku
+                'stock' => $request->stock,
+                'sku' => $request->sku,
             ],
         );
 
         // log the status
-        Log::info("Product Variant Created", [
-            "status" => (bool) $created,
+        Log::info('Product Variant Created', [
+            'status' => (bool) $created,
         ]);
 
         // log the end
-        Log::info("Product Variant Creation ended");
+        Log::info('Product Variant Creation ended');
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Variant added successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Variant added successfully.');
     }
 
     /*
@@ -91,9 +89,9 @@ class ProductVariantController extends Controller
         abort_if($variant->product_id !== $product->id, 404);
 
         // log the status
-        Log::info("Product Variant edit ended!");
+        Log::info('Product Variant edit ended!');
 
-        return view("vendor.variants.edit", compact("product", "variant"));
+        return view('vendor.variants.edit', compact('product', 'variant'));
     }
 
     /*
@@ -112,26 +110,26 @@ class ProductVariantController extends Controller
         $validated = $request->validated();
 
         // log the status
-        Log::info("Variant Data validated?", ["status" => (bool) $validated]);
+        Log::info('Variant Data validated?', ['status' => (bool) $validated]);
 
         // fix the price if 0
-        $validated["price"] =
-            $validated["price"] == 0
+        $validated['price'] =
+            $validated['price'] == 0
             ? $product->base_price
-            : $validated["price"];
+            : $validated['price'];
 
         // update the variant details.
         $updated = $variant->update($validated);
 
         // log the status
-        Log::info("Variant Data updated?", ["status" => (bool) $updated]);
+        Log::info('Variant Data updated?', ['status' => (bool) $updated]);
 
         // log the status
-        Log::info("Product Variant update ended!");
+        Log::info('Product Variant update ended!');
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Variant updated successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Variant updated successfully.');
     }
 
     /*
@@ -153,13 +151,13 @@ class ProductVariantController extends Controller
         $deleted = $variant->delete();
 
         // log the status
-        Log::info("Variant Data Deleted?", ["status" => (bool) $deleted]);
+        Log::info('Variant Data Deleted?', ['status' => (bool) $deleted]);
 
         // log the status
-        Log::info("Product Variant delete ended!");
+        Log::info('Product Variant delete ended!');
 
         return redirect()
-            ->route("vendor.products.show", $product)
-            ->with("success", "Variant deleted successfully.");
+            ->route('vendor.products.show', $product)
+            ->with('success', 'Variant deleted successfully.');
     }
 }

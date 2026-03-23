@@ -4,7 +4,6 @@ namespace App\Notifications\Vendor;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -32,6 +31,7 @@ class NewOrderNotification extends Notification
     {
         // log the action
         logger()->info("[app\Notifications\NewOrderNotification@via] Determining channels for order #{$this->order->id}");
+
         return ['mail', 'database'];
     }
 
@@ -45,10 +45,10 @@ class NewOrderNotification extends Notification
 
         return (new MailMessage)
             ->subject('New Order Received - Stylekart')
-            ->greeting('Hello, ' . $notifiable->name . '!')
+            ->greeting('Hello, '.$notifiable->name.'!')
             ->line('Great news! You have received a new order.')
-            ->line('Order Number: ' . $this->order->order_number)
-            ->line('Total Amount: ₹' . number_format($this->order->total_price, 2))
+            ->line('Order Number: '.$this->order->order_number)
+            ->line('Total Amount: ₹'.number_format($this->order->total_price, 2))
             ->action('View Order Details', route('vendor.orders.index'))
             ->line('Please log in to your dashboard to process this order.');
     }
@@ -76,7 +76,7 @@ class NewOrderNotification extends Notification
             'order_number' => $this->order->order_number,
             'customer_name' => $this->order->user->name,
             'total_amount' => $this->order->total_price,
-            'message' => 'New order #' . $this->order->id . ' received from ' . $this->order->user->name,
+            'message' => 'New order #'.$this->order->id.' received from '.$this->order->user->name,
         ];
     }
 }

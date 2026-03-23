@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Vendor;
 
-
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Brand;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BrandController extends Controller
 {
@@ -30,7 +29,6 @@ class BrandController extends Controller
     {
         return view('vendor.brands.create');
     }
-
 
     /**
      * store new brand
@@ -56,7 +54,7 @@ class BrandController extends Controller
             'name' => $request->name,
             'slug' => Str::slug($request->name), // auto add slug according to name of brand
             'description' => $request->description,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         // handle spatie logo upload
@@ -88,7 +86,7 @@ class BrandController extends Controller
 
         // security: check if vendor owns this brand
         if ($brand->vendor_id !== auth()->id()) {
-            logger()->alert("Unauthorized access attempt by Vendor ID: " . auth()->id() . " on Brand ID: " . $brand->id);
+            logger()->alert('Unauthorized access attempt by Vendor ID: '.auth()->id().' on Brand ID: '.$brand->id);
             abort(403);
         }
 
@@ -110,7 +108,7 @@ class BrandController extends Controller
 
         // validation (ignore current brand id for unique check)
         $request->validate([
-            'name' => 'required|max:100|unique:brands,name,' . $brand->id,
+            'name' => 'required|max:100|unique:brands,name,'.$brand->id,
             'logo' => 'nullable|image|max:2048',
             'description' => 'nullable|string|max:500',
         ]);
@@ -118,7 +116,7 @@ class BrandController extends Controller
         // update details
         $brand->update([
             'name' => $request->name,
-            'slug' => \Illuminate\Support\Str::slug($request->name),
+            'slug' => Str::slug($request->name),
             'description' => $request->description,
         ]);
 
@@ -136,7 +134,7 @@ class BrandController extends Controller
         }
 
         // log success
-        logger()->info("Brand: {$brand->name} updated successfully by Vendor ID: " . auth()->id());
+        logger()->info("Brand: {$brand->name} updated successfully by Vendor ID: ".auth()->id());
 
         return redirect()->route('vendor.brands.index')
             ->with('success', 'Brand details updated!');
@@ -152,7 +150,8 @@ class BrandController extends Controller
 
         // security check
         if ($brand->vendor_id !== auth()->id()) {
-            logger()->alert("Unauthorized delete attempt by Vendor ID: " . auth()->id());
+            logger()->alert('Unauthorized delete attempt by Vendor ID: '.auth()->id());
+
             return back()->with('error', 'Unauthorized action!');
         }
 
@@ -163,7 +162,7 @@ class BrandController extends Controller
         $brand->delete();
 
         // log success
-        logger()->info("Brand: {$brandName} deleted successfully by Vendor ID: " . auth()->id());
+        logger()->info("Brand: {$brandName} deleted successfully by Vendor ID: ".auth()->id());
 
         return redirect()->route('vendor.brands.index')
             ->with('success', "Brand '{$brandName}' removed successfully!");

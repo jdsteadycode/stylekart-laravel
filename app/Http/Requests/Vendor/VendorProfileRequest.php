@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VendorProfileRequest extends FormRequest
@@ -18,13 +19,14 @@ class VendorProfileRequest extends FormRequest
         if ($this->user()->role !== 'vendor') {
             return false;
         }
+
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -33,9 +35,9 @@ class VendorProfileRequest extends FormRequest
 
         // validate
         return [
-            "name" => "required|string|max:255",
-            "shop_name" => "required|string|max:255",
-            "shop_address" => "required|string",
+            'name' => 'required|string|max:255',
+            'shop_name' => 'required|string|max:255',
+            'shop_address' => 'required|string',
         ];
     }
 
@@ -46,13 +48,13 @@ class VendorProfileRequest extends FormRequest
     {
         // custom error messages
         return [
-            "name.required" => "Name is required.",
+            'name.required' => 'Name is required.',
 
-            "shop_name.required" => "Shop Name is required.",
-            "shop_name.string" => "Shop name must be valid text.",
+            'shop_name.required' => 'Shop Name is required.',
+            'shop_name.string' => 'Shop name must be valid text.',
 
-            "shop_address.required" => "Shop address is required.",
-            "shop_address.string" => "Shop address must be valid text.",
+            'shop_address.required' => 'Shop address is required.',
+            'shop_address.string' => 'Shop address must be valid text.',
         ];
     }
 }

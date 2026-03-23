@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Brand;
-use Illuminate\Http\Request;
+use App\Models\Category;
 // use App\Models\User;
 use App\Models\Product;
-
 
 class HomeController extends Controller
 {
@@ -41,8 +39,8 @@ class HomeController extends Controller
         }
 
         // log the status
-        logger()->info("Products fetched!", ["total" => $products->count()]);
-        logger()->info("Brands fetched for Home Page!", ["total" => $brands->count()]);
+        logger()->info('Products fetched!', ['total' => $products->count()]);
+        logger()->info('Brands fetched for Home Page!', ['total' => $brands->count()]);
 
         // log the end.
         logger()->info('Home Page request complete.');

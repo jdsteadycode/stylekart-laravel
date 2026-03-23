@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -23,7 +22,7 @@ class OrderController extends Controller
         $customer = auth()->user();
 
         // if not authenticated!
-        if (!$customer) {
+        if (! $customer) {
 
             // log the status
             logger()->info('Customer not authenticated! Terminating Order View');
@@ -60,7 +59,7 @@ class OrderController extends Controller
 
         // get customer
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated');
 
@@ -69,7 +68,7 @@ class OrderController extends Controller
 
         // get the order..
         $order = Order::where('order_number', $orderNumber)->first();
-        if (!$order) {
+        if (! $order) {
 
             // log the status
             logger()->alert('No Order found!');
@@ -107,7 +106,7 @@ class OrderController extends Controller
 
             // check if order was successful!
             if ($order->wasStockReduced()) {
-                //. 2. Restore stock
+                // . 2. Restore stock
                 $restored = $item->variant->increment('stock', $item->quantity);
 
                 // log the status
@@ -141,7 +140,7 @@ class OrderController extends Controller
 
         // get customer
         $customer = auth()->user();
-        if (!$customer) {
+        if (! $customer) {
             // log the status
             logger()->alert('Customer not authenticated');
 
@@ -154,7 +153,7 @@ class OrderController extends Controller
             ->first();
 
         // no order exist?
-        if (!$order) {
+        if (! $order) {
 
             // log the status
             logger()->alert('No Order found!');
@@ -164,7 +163,7 @@ class OrderController extends Controller
         }
 
         // Allow cancel only in pending or processing
-        if (!in_array($order->order_status, ['pending', 'processing'])) {
+        if (! in_array($order->order_status, ['pending', 'processing'])) {
 
             // log the status
             logger()->info('Order cannot be cancelled because it is out for delivery or delivered.');
@@ -183,7 +182,7 @@ class OrderController extends Controller
                 if ($item->order_status !== 'cancelled') {
 
                     // log the status
-                    logger()->info('Variant ' . $item->variant_id . "'s" . ' Stock before: ' . $item->variant->stock);
+                    logger()->info('Variant '.$item->variant_id."'s".' Stock before: '.$item->variant->stock);
 
                     // check during online payment or cod! which means stock was reduced before!
                     if ($order->wasStockReduced()) {
@@ -195,15 +194,14 @@ class OrderController extends Controller
                         logger()->info("Stock Restored! Variant id: $item->variant_id | stock: {$item->variant->stock}", ['status' => (bool) $restored]);
                     }
 
-
                     // Update item
                     $updated = $item->update([
                         'order_status' => 'cancelled',
-                        'cancel_reason' => 'full order cancelled'
+                        'cancel_reason' => 'full order cancelled',
                     ]);
 
                     // log the status
-                    logger()->info('Item cancelled! Variant id: ' . $item->variant_id, ['status' => (bool) $updated]);
+                    logger()->info('Item cancelled! Variant id: '.$item->variant_id, ['status' => (bool) $updated]);
                 }
             }
 
@@ -212,7 +210,7 @@ class OrderController extends Controller
 
             // Cancel order itself
             $order->update([
-                'order_status' => 'cancelled'
+                'order_status' => 'cancelled',
             ]);
 
             // log the status.

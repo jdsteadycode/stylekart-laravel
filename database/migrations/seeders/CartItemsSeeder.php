@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
-use App\Models\User;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class CartItemsSeeder extends Seeder
 {
@@ -22,44 +20,47 @@ class CartItemsSeeder extends Seeder
         );
 
         // get the customer
-        $jinal = User::where("role", "customer")->first();
+        $jinal = User::where('role', 'customer')->first();
 
         // check
-        if (!$jinal) {
+        if (! $jinal) {
             logger()->alert(
-                "OOPS! customer not found! CartItems Seeding terminated",
+                'OOPS! customer not found! CartItems Seeding terminated',
             );
+
             return;
         }
 
         // get the product
         // 1.
         $sportsJacketProduct = Product::where(
-            "name",
-            "Sports Jacket for Women | Girls",
+            'name',
+            'Sports Jacket for Women | Girls',
         )->first();
 
         // check
-        if (!$sportsJacketProduct) {
+        if (! $sportsJacketProduct) {
             logger()->alert(
-                "OOPS! No product found! CartItems Seeding terminated",
+                'OOPS! No product found! CartItems Seeding terminated',
             );
+
             return;
         }
 
         // get the variant of that product
         $variantM = ProductVariant::where(
-            "product_id",
+            'product_id',
             $sportsJacketProduct->id,
         )
-            ->where("size", "M")
+            ->where('size', 'M')
             ->first();
 
         // check
-        if (!$variantM) {
+        if (! $variantM) {
             logger()->alert(
                 "OOPS! No variant found! of product: {$sportsJacketProduct->name} CartItems Seeding terminated",
             );
+
             return;
         }
 
@@ -69,16 +70,17 @@ class CartItemsSeeder extends Seeder
             logger()->warning(
                 "Couldn't add the variant because Stock is low! Seeding terminated",
             );
+
             return;
         }
         // add sports jacket product to cart
         $jacketToCart = $jinal->cartItems()->updateOrCreate(
             [
-                "product_id" => $sportsJacketProduct->id,
-                "variant_id" => $variantM->id,
+                'product_id' => $sportsJacketProduct->id,
+                'variant_id' => $variantM->id,
             ],
             [
-                "item_qty" => 2,
+                'item_qty' => 2,
             ],
         );
 
@@ -86,31 +88,33 @@ class CartItemsSeeder extends Seeder
         logger()->info(
             "Added {$sportsJacketProduct->name}'s variant of size:{$variantM->size} | color: {$variantM->color->name} to cart",
             [
-                "status" => (bool) $jacketToCart,
+                'status' => (bool) $jacketToCart,
             ],
         );
 
         // 2.
-        $cottonTshirt = Product::where("name", "Cotton Levi's Tshirt")->first();
+        $cottonTshirt = Product::where('name', "Cotton Levi's Tshirt")->first();
 
         // check
-        if (!$cottonTshirt) {
+        if (! $cottonTshirt) {
             logger()->alert(
-                "OOPS! No product found! CartItems Seeding terminated",
+                'OOPS! No product found! CartItems Seeding terminated',
             );
+
             return;
         }
 
         // get the variant of that product
-        $variantXS = ProductVariant::where("product_id", $cottonTshirt->id)
-            ->where("size", "XS")
+        $variantXS = ProductVariant::where('product_id', $cottonTshirt->id)
+            ->where('size', 'XS')
             ->first();
 
         // check
-        if (!$variantXS) {
+        if (! $variantXS) {
             logger()->alert(
                 "OOPS! No variant found! of product: {$cottonTshirt->name} CartItems Seeding terminated",
             );
+
             return;
         }
 
@@ -120,16 +124,17 @@ class CartItemsSeeder extends Seeder
             logger()->warning(
                 "Couldn't add the variant because Stock is low! Seeding terminated",
             );
+
             return;
         }
         // add sports jacket product to cart
         $jacketToCart = $jinal->cartItems()->updateOrCreate(
             [
-                "product_id" => $cottonTshirt->id,
-                "variant_id" => $variantXS->id,
+                'product_id' => $cottonTshirt->id,
+                'variant_id' => $variantXS->id,
             ],
             [
-                "item_qty" => $variantXS->stock <= 2 ? 1 : 2,
+                'item_qty' => $variantXS->stock <= 2 ? 1 : 2,
             ],
         );
 
@@ -137,11 +142,11 @@ class CartItemsSeeder extends Seeder
         logger()->info(
             "Added {$cottonTshirt->name}'s variant of size:{$variantXS->size} | color: {$variantXS->color->name} to cart",
             [
-                "status" => (bool) $cottonTshirt,
+                'status' => (bool) $cottonTshirt,
             ],
         );
 
         // end the seeding
-        logger()->info("CartItems Seeding complete");
+        logger()->info('CartItems Seeding complete');
     }
 }

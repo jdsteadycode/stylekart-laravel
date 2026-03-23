@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VendorOrderRequest extends FormRequest
@@ -23,19 +24,20 @@ class VendorOrderRequest extends FormRequest
         // check if ordered item belongs to vendor
         if ($item->vendor_id !== $user->id) {
             logger()->alert("Vendor ID {$user->id} attempted to access OrderItem ID {$item->id} | Terminating the request");
+
             return false;
         }
 
         // check if payment was done!
-        if (!$item->order->wasStockReduced()) {
+        if (! $item->order->wasStockReduced()) {
             // log the status
             logger()->alert("Stock was reduced when order was placed! {$item->id} | Terminating the request");
+
             return false;
         }
 
-
         // log the success
-        logger()->info("Authorization Success");
+        logger()->info('Authorization Success');
 
         return true;
     }
@@ -43,7 +45,7 @@ class VendorOrderRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

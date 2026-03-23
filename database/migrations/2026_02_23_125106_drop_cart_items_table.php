@@ -21,18 +21,18 @@ return new class extends Migration
     public function down(): void
     {
         // when rollback
-        Schema::create("cart_items", function (Blueprint $table) {
+        Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("user_id")->constrained()->onDelete("cascade");
-            $table->foreignId("product_id")->constrained()->onDelete("cascade");
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table
-                ->foreignId("variant_id")
-                ->constrained("product_variants")
-                ->onDelete("cascade");
-            $table->unsignedInteger("item_qty")->default(1);
+                ->foreignId('variant_id')
+                ->constrained('product_variants')
+                ->onDelete('cascade');
+            $table->unsignedInteger('item_qty')->default(1);
             $table->timestamps();
 
-            $table->unique(["user_id", "variant_id"]); // one variant per user cart
+            $table->unique(['user_id', 'variant_id']); // one variant per user cart
         });
     }
 };

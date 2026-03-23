@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -24,6 +23,7 @@ class NotificationController extends Controller
     public function markRead()
     {
         auth()->user()->unreadNotifications->markAsRead();
+
         return back();
     }
 }

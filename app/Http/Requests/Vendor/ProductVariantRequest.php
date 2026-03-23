@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Vendor;
 
-
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,13 +18,19 @@ class ProductVariantRequest extends FormRequest
         $variant = $this->route('variant');
 
         // if not authorized vendor?
-        if ($this->user()->role !== 'vendor') return false;
+        if ($this->user()->role !== 'vendor') {
+            return false;
+        }
 
         // product doesn't belong to vendor?
-        if ($product->vendor_id !== $this->user()->id) return false;
+        if ($product->vendor_id !== $this->user()->id) {
+            return false;
+        }
 
         // when updating, variant doesn't belong to product
-        if ($variant && $variant->product_id !== $product->id) return false;
+        if ($variant && $variant->product_id !== $product->id) {
+            return false;
+        }
 
         return true;
     }
@@ -32,7 +38,7 @@ class ProductVariantRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -40,15 +46,15 @@ class ProductVariantRequest extends FormRequest
         $variantId = $this->route('variant')?->id;
 
         return [
-            "size"     => "required|string|max:100",
-            "color_id" => "required|exists:product_colors,id",
-            "price"    => "required|numeric|min:0",
-            "stock"    => "required|integer|min:0",
-            "sku"      => [
-                "nullable",
-                "string",
-                "max:100",
-                Rule::unique('product_variants', 'sku')->ignore($variantId) // ignore if not variant-id
+            'size' => 'required|string|max:100',
+            'color_id' => 'required|exists:product_colors,id',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'sku' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('product_variants', 'sku')->ignore($variantId), // ignore if not variant-id
             ],
         ];
     }
@@ -59,9 +65,9 @@ class ProductVariantRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "color_id.required" => "Please select a color for this variant.",
-            "color_id.exists"   => "The selected color is invalid.",
-            "price.min"         => "Price cannot be a negative value.",
+            'color_id.required' => 'Please select a color for this variant.',
+            'color_id.exists' => 'The selected color is invalid.',
+            'price.min' => 'Price cannot be a negative value.',
         ];
     }
 }

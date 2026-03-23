@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -11,6 +10,7 @@ class NotificationController extends Controller
     {
         // log the action.
         logger()->info("[app\Http\Controllers\Vendor\NotificationController@index] Seeing All notifications incoming");
+
         return view('vendor.notifications.index');
     }
 
@@ -21,7 +21,7 @@ class NotificationController extends Controller
         auth()->user()->unreadNotifications->markAsRead();
 
         // log the status
-        logger()->info("Notifications mark as read!");
+        logger()->info('Notifications mark as read!');
 
         return back()->with('success', 'All notifications cleared!');
     }
