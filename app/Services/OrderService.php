@@ -19,7 +19,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 // get class path to OrderSuccessMailable
-use App\Mail\OrderSuccessMail;
+// use App\Mail\OrderSuccessMail;
+
+// get class path to OrderPlacedEvent
+use App\Events\OrderPlaced;
 
 // UDC Order Service
 class OrderService
@@ -163,30 +166,8 @@ class OrderService
             // commit changes..
             DB::commit();
 
-            /***
-             * notify the vendor
-             */
-            // get vendors who have their ordered items..
-            $vendorIds = $order->items->pluck('vendor_id')->unique();
-
-            // for each vendor
-            foreach ($vendorIds as $vendorId) {
-                $vendor = \App\Models\User::find($vendorId);
-
-                if ($vendor) {
-                    // send mail and notification as well
-                    $vendor->notify(new \App\Notifications\Vendor\NewOrderNotification($order));
-
-                    // log the status
-                    logger()->info("Order notification sent to Vendor: {$vendor->name} (ID: {$vendorId})");
-                }
-            }
-
-            // send the mail to customer
-            Mail::to($customer->email)
-                ->send(new OrderSuccessMail($order));
-
-            logger()->info("Online Payment Invoice sent to: {$customer->email}");
+            // fire order placed event.
+            event(new OrderPlaced($order));
 
             // get the final order..
             return $order;
