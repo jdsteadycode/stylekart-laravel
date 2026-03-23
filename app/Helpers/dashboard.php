@@ -23,8 +23,9 @@ if (! function_exists('getDashboardRoute')) {
             case 'customer':
                 return 'customer.profile';
 
+            // a fallback route
             default:
-                return 'welcome';
+                return 'fallback-route';
         }
     }
 }

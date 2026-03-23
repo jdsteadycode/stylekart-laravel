@@ -73,9 +73,10 @@ Route::post('/test-upload', function (Request $request) {
 // for vendor
 use App\Http\Controllers\Vendor\VendorProfileController;
 
+// A Fallback route
 Route::get('/', function () {
-    return 'Working fine!';
-});
+    return 'A Route';
+})->name('fallback-route');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
