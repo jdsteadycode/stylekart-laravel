@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
+// Interface for Queueing
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 // class path to OrderPlacedEvent
 use App\Events\OrderPlaced;
@@ -14,7 +14,8 @@ use App\Mail\OrderSuccessMail;
 // get the Mail Class
 use Illuminate\Support\Facades\Mail;
 
-class SendOrderSuccessMail
+// Class UDE - SendOrderSuccessMail implementing ShouldQueue interface for queueing
+class SendOrderSuccessMail implements ShouldQueue
 {
     /**
      * Create the event listener.

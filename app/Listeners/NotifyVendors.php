@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
+// path to interface ShouldQueue
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 // get OrderPlacedEvent class path
 use App\Events\OrderPlaced;
@@ -14,7 +14,8 @@ use App\Models\User;
 // get NewOrderNotification Class path
 use App\Notifications\Vendor\NewOrderNotification;
 
-class NotifyVendors
+// Class UDE - NotifyVendors implementing ShouldQueue interface for queueing
+class NotifyVendors implements ShouldQueue
 {
     /**
      * Create the event listener.
