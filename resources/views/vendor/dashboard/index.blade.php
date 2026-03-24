@@ -74,26 +74,30 @@
 
 </div>
 
-{{-- 📈 Business Performance Section --}}
-<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
-    <h3 class="text-xl font-bold text-gray-800">Business Performance</h3>
-    <p class="text-sm text-gray-500 mb-6">Monthly revenue trend for this year</p>
+{{-- Fix: Updated layout for analytics part --}}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+    {{-- 📈 Business Performance Section --}}
+    <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+        <h3 class="text-xl font-bold text-gray-800">Business Performance</h3>
+        <p class="text-sm text-gray-500 mb-6">Monthly revenue trend for this year</p>
 
-    <div class="h-[300px] w-full">
-        {{-- This ID MUST match the one in your JavaScript --}}
-        <canvas id="performanceChart"></canvas>
+        <div class="h-[300px] w-full">
+            {{-- This ID MUST match the one in your JavaScript --}}
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+
+    {{-- Donut Chart for order statuses --}}
+    <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Order Health</h3>
+        <p class="text-sm text-gray-500 mb-6">Current status of all your orders</p>
+
+        <div class="h-[250px] w-full">
+            <canvas id="statusChart"></canvas>
+        </div>
     </div>
 </div>
 
-{{-- Donut Chart for order statuses --}}
-<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
-    <h3 class="text-xl font-bold text-gray-800 mb-2">Order Health</h3>
-    <p class="text-sm text-gray-500 mb-6">Current status of all your orders</p>
-
-    <div class="h-[250px] w-full">
-        <canvas id="statusChart"></canvas>
-    </div>
-</div>
 
 
 {{-- ⚠️ Actionable Table: Low Stock Alerts --}}
