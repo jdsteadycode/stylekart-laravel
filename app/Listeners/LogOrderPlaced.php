@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
+// path to interface ShouldQueue
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 // get OrderPlacedEvent class path.
 use App\Events\OrderPlaced;
@@ -11,7 +11,8 @@ use App\Events\OrderPlaced;
 // get Log class path
 use Illuminate\Support\Facades\Log;
 
-class LogOrderPlaced
+// Class UDE - LogOrderPlaced implementing ShouldQueue interface for queueing
+class LogOrderPlaced implements ShouldQueue
 {
     /**
      * Create the event listener.
