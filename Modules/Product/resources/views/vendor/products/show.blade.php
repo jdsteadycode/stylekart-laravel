@@ -161,7 +161,8 @@
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-semibold">Variants</h2>
 
-            <a href="{{ route('vendor.products.variants.create', $product) }}"
+            {{-- fixed route link --}}
+            <a href="{{ route('module.vendor.products.variants.create', $product) }}"
                class="bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-500">
                 + Add Variant
             </a>
@@ -192,12 +193,16 @@
                             </td>
                             <td class="text-center p-2 border">{{ $variant->stock }}</td>
                             <td class="text-center p-2 border space-x-2" x-data="{open: false}">
+
+                                {{-- fixed route links --}}
                                 <a
-                                    href="{{ route('vendor.products.variants.edit', ['product' => $product, 'variant' => $variant]) }}"
+                                    href="{{ route('module.vendor.products.variants.edit', ['product' => $product, 'variant' => $variant]) }}"
                                     class="text-orange-600 hover:underline">Edit</a>
 
                                 <x-admin.delete-modal
-                                    action="{{ route('vendor.products.variants.destroy', ['product' => $product, 'variant' => $variant]) }}"
+                                    action="{{ route('module.vendor.products.variants.destroy', ['product' => $product, 'variant' => $variant]) }}"
+                                    title="Are you sure?"
+                                    message="Delete variant"
                                 />
                             </td>
                         </tr>

@@ -19,6 +19,8 @@ use App\Http\Controllers\Vendor\DiscountController;
 use App\Http\Controllers\Vendor\VendorOrderController;
 use App\Http\Controllers\Vendor\NotificationController;
 use App\Http\Controllers\Vendor\BrandController;
+use App\Http\Controllers\Vendor\VendorProfileController;
+use App\Http\Middleware\CheckRole;
 
 // use App\Http\Controllers\Vendor\ProductColorImageController;
 
@@ -75,10 +77,6 @@ Route::post("/test-upload", function (Request $request) {
 /*
 
 */
-
-// for vendor
-use App\Http\Controllers\Vendor\VendorProfileController;
-use App\Http\Middleware\CheckRole;
 
 Route::get('/', function () {
     return "Working fine!";

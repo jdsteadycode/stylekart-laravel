@@ -57,7 +57,7 @@ class ProductColorRequest extends FormRequest
         }
 
         // for multiple images store action
-        if ($routeName === 'vendor.colors.images.store') {
+        if ($routeName === 'module.vendor.products.colors.images.store') {
             return [
                 "images"   => "required|array",
                 "images.*" => "image|mimes:jpg,jpeg,png,webp,avif|max:10240",
@@ -65,7 +65,7 @@ class ProductColorRequest extends FormRequest
         }
 
         // for single image update action
-        if ($routeName === 'vendor.colors.images.update') {
+        if ($routeName === 'module.vendor.products.colors.images.update') {
             return [
                 "image" => "required|image|mimes:jpg,jpeg,png,webp,avif|max:5120",
             ];
