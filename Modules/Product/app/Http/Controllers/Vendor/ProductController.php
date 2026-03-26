@@ -5,8 +5,8 @@ namespace Modules\Product\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-// get the Request class path
-use App\Http\Requests\Vendor\ProductRequest;
+// fixed: Request class path
+use Modules\Product\Http\Requests\ProductRequest;
 
 // get the Model Classes
 use App\Models\Category;
