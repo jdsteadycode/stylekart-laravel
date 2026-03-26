@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 // controller class paths..
 use Modules\Product\Http\Controllers\Vendor\ProductController;
 use Modules\Product\Http\Controllers\Vendor\ProductColorController;
+use Modules\Product\Http\Controllers\Vendor\ProductVariantController;
 
 // class path to Middleware
 use App\Http\Middleware\EnsureVendorIsApproved;
@@ -96,5 +97,30 @@ Route::middleware(['auth', 'role:vendor', EnsureVendorIsApproved::class])
         /**
          * Variant (Sub-Module) Routes
          */
+         Route::prefix("/{product}/variants")->group(function () {
+             Route::get("/create", [
+                 ProductVariantController::class,
+                 "create",
+             ])->name("module.vendor.products.variants.create");
 
+             Route::post("/", [
+                 ProductVariantController::class,
+                 "store",
+             ])->name("module.vendor.products.variants.store");
+
+             Route::get("/{variant}/edit", [
+                 ProductVariantController::class,
+                 "edit",
+             ])->name("module.vendor.products.variants.edit");
+
+             Route::put("/{variant}", [
+                 ProductVariantController::class,
+                 "update",
+             ])->name("module.vendor.products.variants.update");
+
+             Route::delete("/{variant}", [
+                 ProductVariantController::class,
+                 "destroy",
+             ])->name("module.vendor.products.variants.destroy");
+         });
 });
