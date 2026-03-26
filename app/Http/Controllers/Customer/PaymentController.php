@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Mail;
 // path to MockPaymentService Class..
 use App\Services\MockPaymentService;
 
+// path to OrderPlaced Event, LowVariantStockReached Event class
+use App\Events\LowVariantStockReached;
+use App\Events\OrderPlaced;
+
 class PaymentController extends Controller
 {
     /**
@@ -35,35 +39,13 @@ class PaymentController extends Controller
                 throw new Exception("Variant Not found for item {$item->id}");
             }
 
-            // 1.
-            // check stock
-            if ($variant->stock < $item->quantity) {
-
-                // log the status
-                logger()->info($item->product->name . " 's Stock is in-sufficient | Payment Failed");
-
-                // throw error and go to catch block
-                throw new Exception('Insufficent Stock for variant: ' . $variant->id);
-            }
-
-            // log the status [before stock reduction]
-            logger()->info('Checking variant: ' . $variant->id . ' stock: ' . $variant->stock);
-
-
-            // 2.
-            // decrease the stock
-            $variant->decrement('stock', $item->quantity);
-
-            // log the status [after stock reduction | success]
-            logger()->info('reduced the stock for variant: ' . $variant->id . ' stock: ' . $variant->stock);
+            // deduct the stock
+            deductVariantStock($variant, $item->quantity);
 
             // when stock is low of that variant
             if ($variant->stock <= 5) {
-                // Notify the vendor of this specific product
-                $variant->product->vendor->notify(new \App\Notifications\Vendor\LowStockNotification($variant));
-
-                // log the warning
-                logger()->warning("[PaymentController] Low stock alert triggered for Variant: {$variant->id}");
+                // low variant event.
+                event(new LowVariantStockReached($variant));
             }
 
             // update the order status accordingly
@@ -160,12 +142,8 @@ class PaymentController extends Controller
             // save the changes for DB
             DB::commit();
 
-            // send mail
-            Mail::to($customer->email)
-                ->send(new OrderSuccessMail($order));
-
-            // log the status
-            logger()->info("Online Payment Invoice sent to: {$customer->email}");
+            // fire the Order placed event.
+            event(new OrderPlaced($order));
         }
 
         // handle SQL errors

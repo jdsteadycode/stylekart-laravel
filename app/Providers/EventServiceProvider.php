@@ -11,6 +11,10 @@ use App\Listeners\LogOrderPlaced;
 use App\Listeners\NotifyVendors;
 use App\Listeners\SendOrderSuccessMail;
 
+// class path of LowVariantStockReachedEvent, SendLowVariantStockNotification Listener
+use App\Events\LowVariantStockReached;
+use App\Listeners\SendLowVariantStockNotification;
+
 class EventServiceProvider extends ServiceProvider
 {
 
@@ -23,7 +27,11 @@ class EventServiceProvider extends ServiceProvider
             LogOrderPlaced::class,
             NotifyVendors::class,
             SendOrderSuccessMail::class,
-        ]
+        ],
+        // LowVariantStockReachedEvent would have listeners to react upon
+        LowVariantStockReached::class => [
+            SendLowVariantStockNotification::class
+        ],
      ];
 
     /**

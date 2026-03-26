@@ -21,8 +21,9 @@ use Illuminate\Support\Facades\Mail;
 // get class path to OrderSuccessMailable
 // use App\Mail\OrderSuccessMail;
 
-// get class path to OrderPlacedEvent
-use App\Events\OrderPlaced;
+// get class path to OrderPlacedEvent, LowVariantStockReached
+// use App\Events\OrderPlaced;
+use App\Events\LowVariantStockReached;
 
 // UDC Order Service
 class OrderService
@@ -135,20 +136,14 @@ class OrderService
 
                 // if payment method is cod only then,
                 if ($validated['pay'] === 'cod') {
-                    // reduce the stock according to qty
-                    // for that variant
-                    $variant->decrement('stock', $item['qty']);
+
+                    // deduct the stock
+                    deductVariantStock($variant, $item['qty']);
 
                     // only when the variant is at low stock
                     if ($variant->stock <= 5) {
-                        // get the vendor
-                        $vendor = $variant->product->vendor;
-
-                        // Notify the vendor immediately about this specific variant
-                        $vendor->notify(new \App\Notifications\Vendor\LowStockNotification($variant));
-
-                        // log the warning.
-                        logger()->warning("Low stock alert! Variant: {$variant->id} is at {$variant->stock}");
+                        // low variant event.
+                        event(new LowVariantStockReached($variant));
                     }
                 }
 
@@ -165,9 +160,6 @@ class OrderService
 
             // commit changes..
             DB::commit();
-
-            // fire order placed event.
-            event(new OrderPlaced($order));
 
             // get the final order..
             return $order;
