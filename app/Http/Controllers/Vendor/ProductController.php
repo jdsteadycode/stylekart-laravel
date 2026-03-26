@@ -218,7 +218,13 @@ class ProductController extends Controller
             "[app\Http\Controllers\Vendor\ProductController@show] Single Product view begins",
         );
 
-        abort_if($product->vendor_id !== auth()->id(), 403);
+       // check if vendor is accessing own product?
+       if($product->vendor_id !== auth()->id()) {
+
+           // log the status
+           logger()->info("Access blocked / Forbidden!. Cannot access other's resource");
+           abort(403);
+       }
 
         // get related tables also quick (eager loading)
         $product->load(["subCategory.category", "variants", "brand"]);
