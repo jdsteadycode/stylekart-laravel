@@ -14,6 +14,9 @@ use App\Http\Requests\CheckoutRequest;
 // get the OrderService Class path
 use App\Services\OrderService;
 
+// get class path to OrderPlacedEvent
+use App\Events\OrderPlaced;
+
 
 class CheckoutController extends Controller
 {
@@ -151,6 +154,9 @@ class CheckoutController extends Controller
 
                 // log the status..
                 logger()->info('Bag emptied!');
+
+                // fire order placed event.
+                event(new OrderPlaced($order));
 
                 // send to order success page..
                 return redirect()->route('customer.checkout.success', ['orderNumber' => $order->order_number]);
