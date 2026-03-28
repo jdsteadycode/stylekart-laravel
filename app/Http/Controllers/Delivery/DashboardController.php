@@ -1,11 +1,21 @@
 <?php
 
+// package path
 namespace App\Http\Controllers\Delivery;
 
 use App\Http\Controllers\Controller;
+
+// Request Class path
 use Illuminate\Http\Request;
+
+// Models Class paths
 use App\Models\Order;
+use App\Models\DeliveryJob;
+
+// DB Facade class path
 use Illuminate\Support\Facades\DB;
+
+// Mail, Notifications class path
 use Illuminate\Support\Facades\Mail;
 use App\Mail\DeliveryOtpMail;
 use App\Notifications\Delivery\NewJobAvailableNotification;
