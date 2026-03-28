@@ -33,10 +33,16 @@ $active = 'bg-indigo-800';
             🏷️ Discounts
         </a>
 
+        {{-- orders module link --}}
         <a href="{{ route('vendor.orders.index') }}"
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.orders.*') ? $active : '' }}">
             🧾 Orders
         </a>
 
+        {{-- returns module link --}}
+        <a href="{{ route('vendor.return.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.return.*') ? $active : '' }}">
+            🔄 Return Orders
+        </a>
     </nav>
 </aside>
