@@ -37,6 +37,11 @@
                 {{ session('error') }}
             </div>
         @endif
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                <p class="text-orange-500">{{ $error }}</p>
+            @endforeach
+        @endif
 
         <div class="bg-white rounded-3xl border border-rose-50 shadow-sm overflow-hidden">
 
@@ -53,6 +58,25 @@
                             {{ $statuses[$order->customer_status] }}
                         </span>
                     </div>
+                </div>
+                {{-- payment method status section --}}
+                <div class="mt-3 flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                            @if(strtolower($order->payment_mode) === 'cod')
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            @else
+                                <i class="fa-solid fa-credit-card"></i>
+                            @endif
+                        </div>
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                            {{ str_replace('_', ' ', $order->payment_mode) }}
+
+                            @if(strtolower($order->payment_status) === 'paid')
+                                <span class="ml-2 text-[9px] text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-md font-black tracking-widest">PAID</span>
+                            @else
+                                <span class="ml-2 text-[9px] text-yellow-600 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-md font-black tracking-widest">PENDING</span>
+                            @endif
+                        </p>
                 </div>
             </div>
 
@@ -227,10 +251,99 @@
                                     </form>
                                 </div>
                             </div>
-                            {{-- @elseif($item->order_status === 'delivered')
-                            <button class="text-xs font-bold text-blue-500 hover:underline">
-                                Return Item
-                            </button> --}}
+
+                            <!-- New: Returning an delivered item ordered! -->
+                            @elseif($item->order_status === 'delivered' && $item->return_status === null)
+
+                                <div x-data="{ open: false, reasonType: '' }">
+
+                                    {{-- The Trigger Button (Now inside the bubble, so it can see 'open') --}}
+                                    <button
+                                        @click="open = true"
+                                        class="text-xs font-bold text-blue-500 hover:text-blue-700 hover:underline transition-all">
+                                        Return Item
+                                    </button>
+
+                                    {{-- The Return Modal --}}
+                                    <div x-cloak
+                                         x-show="open"
+                                         class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+
+                                        <div @click.away="open = false" class="bg-white rounded-xl p-6 w-80 shadow-2xl transform transition-all">
+
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                    <i class="fa-solid fa-box-open"></i>
+                                                </div>
+                                                <h3 class="font-black text-gray-900 text-sm">Return Item?</h3>
+                                            </div>
+
+                                            <p class="text-[10px] text-gray-500 mb-4 leading-relaxed">
+                                                Please tell us why you are returning this item so we can notify the vendor.
+                                            </p>
+
+                                            <form action="{{ route('customer.order-items.return', $item) }}" method="POST">
+                                                @csrf
+                                                <label class="block text-xs font-bold text-gray-700 mb-2">
+                                                    Reason for Return <span class="text-rose-500">*</span>
+                                                </label>
+
+                                                {{-- 1. The Dropdown Select --}}
+                                                <select x-model="reasonType"
+                                                        :name="reasonType === 'Other' ? '' : 'reason'"
+                                                        required
+                                                        class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all cursor-pointer">
+                                                    <option value="" disabled selected>Select a reason...</option>
+                                                    <option value="Wrong size or fit">Wrong size or fit</option>
+                                                    <option value="Damaged or defective product">Damaged or defective product</option>
+                                                    <option value="Item not as described">Item not as described</option>
+                                                    <option value="Other">Other (Please specify)</option>
+                                                </select>
+
+                                                {{-- 2. The Custom Textarea (Only shows if 'Other' is selected) --}}
+                                                <textarea x-show="reasonType === 'Other'"
+                                                          :name="reasonType === 'Other' ? 'reason' : ''"
+                                                          :required="reasonType === 'Other'"
+                                                          rows="3"
+                                                          placeholder="Please type your specific reason..."
+                                                          class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition-all"></textarea>
+
+                                                {{-- Action buttons--}}
+                                                <div class="flex justify-end gap-2 mt-2">
+                                                    {{-- btn: keep the existing delivered item --}}
+                                                    <button type="button" @click="open = false" class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors">
+                                                        Keep Item
+                                                    </button>
+
+                                                    {{-- btn: submit for return request --}}
+                                                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">
+                                                        Submit Return
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            {{-- show status when delivered item is requested for return! --}}
+                            @if($item->return_status === 'requested')
+                                <span class="text-xs text-yellow-500 font-bold">
+                                    Return Requested
+                                </span>
+                            @endif
+
+                            {{-- show status when item to be returned is approved! --}}
+                            @if($item->return_status === 'approved')
+                                <span class="text-xs text-teal-500 font-bold">
+                                    Return Approved
+                                </span>
+                            @endif
+
+                            {{-- show status when item return is rejected! --}}
+                            @if($item->return_status === 'rejected')
+                                <span class="text-xs text-red-500 font-bold">
+                                    Return Rejected
+                                </span>
                             @endif
                         </div>
                         @if($item->order_status === 'cancelled')
