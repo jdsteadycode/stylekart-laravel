@@ -20,7 +20,9 @@ class OrderItem extends Model
         "quantity",
         "price",
         "order_status",
-        "cancel_reason"
+        "cancel_reason",
+        "return_reason",
+        "return_status"
     ];
 
     // () -> each item is related to order.
