@@ -47,7 +47,9 @@
     {{-- Tab 1: Available Jobs --}}
     <section x-show="tab === 'available'" x-transition.opacity>
         <div class="space-y-3">
-            @forelse ($availableOrders as $order)
+
+            {{-- for available orders --}}
+            @foreach ($availableOrders as $order)
                 <div class="bg-white border border-slate-100 rounded-xl p-5 hover:shadow-md transition-all">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-4">
 
@@ -62,10 +64,10 @@
                         </div>
 
                         <div class="flex items-center gap-6">
-                            <div class="text-right">
+                            {{-- <div class="text-right">
                                 <p class="text-[9px] font-bold text-slate-400 uppercase">Payout</p>
                                 <p class="text-lg font-black text-slate-900">₹{{ number_format($order->total_amount, 2) }}</p>
-                            </div>
+                            </div> --}}
                             <a
                                href="{{ route('delivery.order.show', ['order'=>$order]) }}"
                                 class="bg-slate-900 text-white text-[11px] font-bold px-5 py-2.5 rounded-lg hover:bg-slate-800 transition">
@@ -74,9 +76,16 @@
                         </div>
                     </div>
                 </div>
-            @empty
-                <div class="py-20 text-center text-slate-300 text-sm italic">Searching for local jobs...</div>
-            @endforelse
+            @endforeach
+
+            {{-- empty states --}}
+            @if($availableOrders->count() < 1)
+                <p
+                    class="text-gray-400 bg-gray-50"
+                >
+                    Waiting for jobs...
+                </p>
+            @endif
         </div>
     </section>
 
