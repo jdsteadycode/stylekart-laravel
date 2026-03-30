@@ -1,13 +1,24 @@
 <?php
 
+// folder path
 namespace App\Http\Controllers\Vendor;
 
+// Controller class path
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
+// Model class path
 use App\Models\Order;
 use App\Models\OrderItem;
+
+// DB facade class path
 use Illuminate\Support\Facades\DB;
+
+// VendorOrderRequest class path
 use App\Http\Requests\Vendor\VendorOrderRequest;
+
+// LogisticsAvailable Event class path
+use App\Events\LogisticsJobAvailable;
 
 class VendorOrderController extends Controller
 {
@@ -215,30 +226,13 @@ class VendorOrderController extends Controller
             // get city of vendor's
             $pickupCity = $vendorAddress->city;
 
-            // get the delivery persons
-            $deliveryPersonnel = \App\Models\User::where('role', 'delivery_person')
-                ->whereHas('deliveryProfile', function ($query) {
-                    $query->where('is_available', true); // only if available
-                })
-                ->whereHas('addresses', function ($query) use ($pickupCity) {
-                    $query->where('city', $pickupCity); // same city of vendor
-                })
-                ->get();
-
-            //  if delivery persons are there.
-            if ($deliveryPersonnel->isNotEmpty()) {
-                \Illuminate\Support\Facades\Notification::send(
-                    $deliveryPersonnel,
-                    new \App\Notifications\Delivery\NewJobAvailableNotification($order, $pickupCity)
-                );
-
-                // log the info
-                logger()->info("Broadcasted Order #{$order->order_number} to " . $deliveryPersonnel->count() . " delivery people in {$pickupCity}");
-            } else {
-
-                // log the warning
-                logger()->warning("No available delivery personnel found in {$pickupCity} for Order #{$order->order_number}");
-            }
+            // trigger the LogisticsJobAvailable Event
+            event(new LogisticsJobAvailable(
+                job: null,
+                type: 'order',
+                city: $pickupCity,
+                order: $order
+            ));
         }
 
         // redirect back with success
