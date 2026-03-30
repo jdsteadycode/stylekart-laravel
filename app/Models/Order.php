@@ -130,4 +130,12 @@ class Order extends Model
 
         return $this->order_status;
     }
+
+    /**
+     * Get all of the wallet transactions associated with this order.
+     */
+    public function walletTransactions()
+    {
+        return $this->morphMany(WalletTransaction::class, 'reference');
+    }
 }
