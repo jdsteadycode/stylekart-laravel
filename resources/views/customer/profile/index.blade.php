@@ -61,11 +61,21 @@
                         </div>
                     </div>
 
-                    <button
-                        onclick="toggleModal('editProfileModal')"
-                        class="w-full mt-8 py-3 bg-rose-50/50 text-rose-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-300">
-                        Edit Profile
-                    </button>
+                    {{-- Action Buttons Container --}}
+                    <div class="mt-8 flex flex-col gap-3">
+                        {{-- New Wallet Button --}}
+                        <a href="{{ route('customer.wallet.index') }}"
+                           class="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                            <i class="fa-solid fa-wallet text-emerald-400"></i> My Wallet
+                        </a>
+
+                        {{-- Existing Edit Profile Button --}}
+                        <button
+                            onclick="toggleModal('editProfileModal')"
+                            class="w-full py-3 bg-rose-50/50 text-rose-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-300">
+                            Edit Profile
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white p-8 rounded-3xl border border-rose-50 shadow-sm">
