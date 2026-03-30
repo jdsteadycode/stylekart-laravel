@@ -100,6 +100,17 @@
                     <p class="text-xs text-blue-600">Waiting for delivery partner to pick up the item from the customer.</p>
                 </div>
 
+                {{-- when request is returned --}}
+                @elseif($item->return_status === 'received')
+                    <div class="p-6 bg-green-50 rounded-xl text-center border border-green-100">
+                        <div class="w-12 h-12 bg-green-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                            {{-- <i class="fa-solid fa-truck-fast"></i> --}}
+                            <span>✅</span>
+                        </div>
+                        <h4 class="font-bold text-green-400 mb-1">Returned</h4>
+                        <p class="text-xs text-green-600">Item got delivered from the delivery person.</p>
+                    </div>
+
             {{-- when request is rejected --}}
             @else
                 {{-- Fix: changed the background, border and text color --}}
