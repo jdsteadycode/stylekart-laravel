@@ -35,7 +35,10 @@
 
                         <div>
                             <p class="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition">
-                                {{ $notification->data['city'] }} <span class="mx-1 text-slate-300">/</span> Order #{{ $notification->data['order_number'] }}
+                                {{ $notification->data['city'] }} <span class="mx-1 text-slate-300">/</span>
+                                @if(array_key_exists('order_number', $notification->data))
+                                    Order #{{ $notification->data['order_number'] }}
+                                @endif
                             </p>
                             <p class="text-[10px] text-slate-400 font-medium">
                                 {{ $notification->created_at->diffForHumans() }}

@@ -80,11 +80,21 @@
 
             {{-- empty states --}}
             @if($availableOrders->count() < 1)
-                <p
-                    class="text-gray-400 bg-gray-50"
-                >
-                    Waiting for jobs...
-                </p>
+                @if($acceptedOrders->count() > 0)
+                    {{-- State: Driver is currently busy --}}
+                    <div class="py-12 text-center bg-indigo-50/30 rounded-2xl border border-indigo-100">
+                        <div class="text-4xl mb-3">🚚</div>
+                        <h4 class="text-slate-800 font-bold mb-1">Active Delivery in Progress</h4>
+                        <p class="text-slate-500 text-sm">Please complete your current active task to unlock and view new jobs.</p>
+                    </div>
+                @else
+                    {{-- State: Driver is free, but no jobs exist in their city --}}
+                    <div class="py-12 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="text-4xl mb-3 opacity-50">📍</div>
+                        <h4 class="text-slate-800 font-bold mb-1">No Orders Available</h4>
+                        <p class="text-slate-500 text-sm">There are no pending deliveries in your city right now. Check back later!</p>
+                    </div>
+                @endif
             @endif
         </div>
     </section>
@@ -134,5 +144,37 @@
         @endforelse
     </section>
 
+    {{-- Tab 3: Delivery History --}}
+        <section x-show="tab === 'history'" x-transition.opacity style="display: none;">
+            <div class="space-y-3">
+                @forelse($deliveredOrders as $order)
+                    <div class="bg-white border border-slate-100 rounded-xl p-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:shadow-sm transition-all">
+
+                        {{-- Left Side: Order Details --}}
+                        <div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Order #{{ $order->order_number }}</span>
+                            <p class="text-sm font-bold text-slate-800">{{ $order->user->name ?? 'Customer' }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                <i class="fa-solid fa-location-dot text-slate-300 mr-1"></i> {{ $order->address->city ?? 'N/A' }}
+                                <span class="mx-2 text-slate-300">|</span>
+                                {{ $order->updated_at->format('d M, Y \a\t h:i A') }}
+                            </p>
+                        </div>
+
+                        {{-- Right Side: Status Badge --}}
+                        <div class="text-left sm:text-right">
+                            <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider border border-emerald-100">
+                                <i class="fa-solid fa-circle-check"></i> Delivered
+                            </span>
+                        </div>
+
+                    </div>
+                @empty
+                    <div class="py-16 text-center text-slate-400 text-sm italic border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                        You haven't completed any deliveries yet.
+                    </div>
+                @endforelse
+            </div>
+        </section>
 </div>
 @endsection
