@@ -44,5 +44,11 @@ $active = 'bg-indigo-800';
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.return.*') ? $active : '' }}">
             🔄 Return Orders
         </a>
+
+        {{-- Reports module link --}}
+        <a href="{{ route('vendor.reports.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.reports.*') ? $active : '' }}">
+            📊 Business Reports
+        </a>
     </nav>
 </aside>
