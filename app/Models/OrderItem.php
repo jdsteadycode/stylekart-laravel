@@ -48,4 +48,12 @@ class OrderItem extends Model
     {
         return $this->belongsTo(User::class, "vendor_id");
     }
+
+    /**
+     * Get all of the wallet transactions for this order item.
+     */
+    public function walletTransactions()
+    {
+        return $this->morphMany(WalletTransaction::class, 'reference');
+    }
 }
