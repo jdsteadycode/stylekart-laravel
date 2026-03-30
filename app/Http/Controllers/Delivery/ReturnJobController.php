@@ -8,9 +8,16 @@ use Illuminate\Http\Request;
 // get the Model class paths
 use App\Models\DeliveryJob;
 use App\Models\OrderItem;
+use App\Models\Wallet;
+
+// Exceptionclass path
+use Exception;
 
 // DB Facade class path
 use Illuminate\Support\Facades\DB;
+
+// RefundProcessed Event class path
+use App\Events\RefundProcessed;
 
 
 class ReturnJobController extends Controller
@@ -40,7 +47,19 @@ class ReturnJobController extends Controller
             ->whereIn('status', ['accepted', 'picked_up'])
             ->first();
 
-        return view('delivery-person.return.index', compact('availableReturns', 'activeReturn'));
+        // already returned / completed - return orders.. (history)
+        $completedReturns = DeliveryJob::where('delivery_person_id', $deliveryPerson->id)
+            ->where('status', 'completed')
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        // send data to view..
+        return view('delivery-person.return.index', compact(
+            'availableReturns',
+            'activeReturn',
+            'completedReturns'
+        ));
     }
 
     /**
@@ -75,11 +94,16 @@ class ReturnJobController extends Controller
      */
     public function accept(DeliveryJob $job)
     {
+        // log the action
         logger()->info("[app\Http\Controllers\Delivery\ReturnJobController@accept] Accepting Return Pickup!");
+
+        // current logged-in delivery person
         $deliveryPerson = auth()->user();
 
+        // a transaction for consistent and safer updates
         DB::beginTransaction();
 
+        // try safely
         try {
             // lock the job for current action
             $lockedJob = DeliveryJob::where('id', $job->id)->lockForUpdate()->first();
@@ -101,10 +125,16 @@ class ReturnJobController extends Controller
             // save the changes and record the changes..
             DB::commit();
 
+            // trigger the ReturnJobAccepted Event (for notifying customer)
+            event(new \App\Events\ReturnJobAccepted($lockedJob));
+
             // sucess and redirect
             return redirect()->route('delivery.return.index')
                 ->with('success', 'Return pickup accepted! Head to the customer\'s location.');
-        } catch (\Exception $e) {
+        }
+
+        // catch the run-time SQL errors..
+        catch (\Exception $e) {
 
             // rollback if any update above goes wrong
             DB::rollBack();
@@ -115,6 +145,40 @@ class ReturnJobController extends Controller
             // redirect back with error
             return redirect()->route('delivery.return.index')->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * handle the refund process
+     */
+    public function refundAmountToCustomer($orderItem, $refundAmount)
+    {
+
+        // Either get the existing customer's wallet or make one..
+        $customerWallet = Wallet::firstOrCreate(
+            ['user_id' => $orderItem->order->user_id],
+            ['balance' => 0.00]
+        );
+
+        // Add the money back to customer's wallet (for refund)
+        $customerWallet->increment('balance', $refundAmount);
+
+        // Make an entry for history and track record
+        $customerWallet->transactions()->create([
+            'type' => 'credit',
+            'amount' => $refundAmount,
+            'description' => "Refund for returned item (Order #" . $orderItem->order->order_number . ")",
+
+            // Ensure link to OrderItem Model class path
+            'reference_type' => get_class($orderItem),
+            'reference_id' => $orderItem->id,
+        ]);
+
+        // log the status
+        logger()->info("Refund Processed: ₹{$refundAmount} credited to User ID {$orderItem->order->user_id}");
+
+        // old
+        // trigger refund processed event!
+        // event(new RefundProcessed($orderItem, $refundAmount));
     }
 
     /**
@@ -140,6 +204,10 @@ class ReturnJobController extends Controller
 
         $incomingStatus = $request->status; // Expecting 'picked_up' or 'completed'
 
+        // initial orderItem, refund amount
+        $orderItem = null;
+        $refundAmount = 0;
+
         // begin the transaction
         DB::beginTransaction();
 
@@ -160,6 +228,8 @@ class ReturnJobController extends Controller
 
                 // update the order item's return status
                 $orderItem = OrderItem::find($job->reference_id);
+
+                // if order item?
                 if ($orderItem) {
                     // update the orderItem's return-status as recived as vendor recieved the item
                     $orderItem->update(['return_status' => 'received']);
@@ -175,7 +245,12 @@ class ReturnJobController extends Controller
                     // log the status
                     logger()->info("After re-stock: {$orderItem->variant->stock}");
 
+                    // 💰 THE REFUND LOGIC 💰
+                    $refundAmount = $orderItem->price * $orderItem->quantity;
+
                     // refund here (or ensure refund begins when vendor approves the return request)
+                    // new: added refund part..
+                    $this->refundAmountToCustomer($orderItem, $refundAmount);
                 }
 
                 // update the delivery person status as free
@@ -185,7 +260,7 @@ class ReturnJobController extends Controller
                 $message = "Return delivery completed successfully! Great job.";
             }
 
-            // otherwise throw sql error.
+            // otherwise, throw sql error.
             else {
                 throw new \Exception('Invalid status transition.');
             }
@@ -193,9 +268,18 @@ class ReturnJobController extends Controller
             // save the changes and push to db
             DB::commit();
 
+            // only trigger event if delivery person has handed the item to vendor
+            if ($incomingStatus === 'completed' && isset($orderItem)) {
+                // trigger the refund customer event
+                event(new RefundProcessed($orderItem, $refundAmount));
+            }
+
             // back with success
             return back()->with('success', $message);
-        } catch (\Exception $e) {
+        }
+
+        // catch the sql run-time error
+        catch (\Exception $e) {
 
             // rollback
             DB::rollBack();
