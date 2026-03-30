@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 // fix: correct eventserviceprovider class path
+
+
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 // class path of OrderPlacedEvent, LogOrderPlaced Listener
@@ -15,13 +17,19 @@ use App\Listeners\SendOrderSuccessMail;
 use App\Events\LowVariantStockReached;
 use App\Listeners\SendLowVariantStockNotification;
 
+// class path of LogisticsJobAvailableEvent, NotifyNearbyDrivers Listener
+use App\Events\LogisticsJobAvailable;
+use App\Events\RefundProcessed;
+use App\Listeners\NotifyNearbyDrivers;
+use App\Listeners\SendRefundNotification;
+
 class EventServiceProvider extends ServiceProvider
 {
 
     /**
      * events and listeners to setup
      */
-     protected $listen = [
+    protected $listen = [
         // OrderPlacedEvent would have for listeners to react upon
         OrderPlaced::class => [
             LogOrderPlaced::class,
@@ -32,7 +40,17 @@ class EventServiceProvider extends ServiceProvider
         LowVariantStockReached::class => [
             SendLowVariantStockNotification::class
         ],
-     ];
+
+        // LogisticsJobAvailableEvent would have listeners to react upon
+        LogisticsJobAvailable::class => [
+            NotifyNearbyDrivers::class
+        ],
+
+        // RefundProcessedEvent would have listeners to react upon
+        RefundProcessed::class => [
+            SendRefundNotification::class
+        ]
+    ];
 
     /**
      * Register services.
