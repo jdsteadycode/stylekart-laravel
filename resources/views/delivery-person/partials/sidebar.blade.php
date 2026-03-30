@@ -9,5 +9,10 @@ $active = 'bg-slate-800';
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('dashboard.delivery') ? $active : '' }}">
             📦 Orders
         </a>
+
+        <a href="{{ route('delivery.return.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('delivery.return.index') ? $active : '' }}">
+            ↩️ Returns
+        </a>
     </nav>
 </aside>

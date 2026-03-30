@@ -4,87 +4,120 @@
 
 @section('content')
 
-@php
-    $statuses = [
-        'pending' => 'Placed',
-        'processing' => 'Packing',
-        'shipped' => 'Shipped',
-        'out_for_delivery' => 'On Way',
-        'delivered' => 'Delivered'
-    ];
-@endphp
+    @php
+        $statuses = [
+            'pending' => 'Placed',
+            'processing' => 'Packing',
+            'shipped' => 'Shipped',
+            'out_for_delivery' => 'On Way',
+            'delivered' => 'Delivered',
+        ];
+    @endphp
 
-<div class="bg-rose-50/20 min-h-screen py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-rose-50/20 min-h-screen py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <div class="mb-8">
-            <a href="{{ route('customer.profile') }}" class="text-xs font-black text-rose-400 uppercase tracking-widest flex items-center gap-2 hover:text-rose-600 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Back to Profile
-            </a>
-        </div>
+            <div class="mb-8">
+                <a href="{{ route('customer.profile') }}"
+                    class="text-xs font-black text-rose-400 uppercase tracking-widest flex items-center gap-2 hover:text-rose-600 transition-colors">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Profile
+                </a>
+            </div>
 
-        {{-- toasts --}}
-        @if(session('success'))
-            <div class="mb-6 p-4 bg-green-50 border border-green-200
+            {{-- toasts --}}
+            @if (session('success'))
+                <div
+                    class="mb-6 p-4 bg-green-50 border border-green-200
                         text-green-700 rounded-xl text-sm font-semibold">
-                {{ session('success') }}
-            </div>
-        @endif
+                    {{ session('success') }}
+                </div>
+            @endif
 
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-rose-50 border border-rose-200
+            @if (session('error'))
+                <div
+                    class="mb-6 p-4 bg-rose-50 border border-rose-200
                         text-rose-600 rounded-xl text-sm font-semibold">
-                {{ session('error') }}
-            </div>
-        @endif
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    <p class="text-orange-500">{{ $error }}</p>
+                @endforeach
+            @endif
 
-        <div class="bg-white rounded-3xl border border-rose-50 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-3xl border border-rose-50 shadow-sm overflow-hidden">
 
-            <div class="p-8 border-b border-rose-50 bg-white">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-1">Receipt & Status</p>
-                        <h1 class="text-2xl font-black text-gray-900">Order # {{ $order->order_number ?? 'N/A' }}</h1>
-                        <p class="text-sm text-gray-500 font-medium">Placed on {{ $order->created_at->format('d M, Y \a\t h:i A') ?? 'N/A' }}</p>
+                <div class="p-8 border-b border-rose-50 bg-white">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-1">Receipt & Status
+                            </p>
+                            <h1 class="text-2xl font-black text-gray-900">Order # {{ $order->order_number ?? 'N/A' }}</h1>
+                            <p class="text-sm text-gray-500 font-medium">Placed on
+                                {{ $order->created_at->format('d M, Y \a\t h:i A') ?? 'N/A' }}</p>
+                        </div>
+                        <div class="text-left md:text-right">
+                            <p class="text-2xl font-black text-gray-900">₹
+                                {{ number_format($order->total_amount, 2) ?? 'N/A' }}</p>
+                            <span
+                                class="inline-block px-4 py-1.5 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest mt-1 shadow-lg shadow-rose-100">
+                                {{ $statuses[$order->customer_status] }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="text-left md:text-right">
-                        <p class="text-2xl font-black text-gray-900">₹ {{ number_format($order->total_amount, 2) ?? 'N/A' }}</p>
-                        <span class="inline-block px-4 py-1.5 bg-rose-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest mt-1 shadow-lg shadow-rose-100">
-                            {{ $statuses[$order->customer_status] }}
-                        </span>
+                    {{-- payment method status section --}}
+                    <div class="mt-3 flex items-center gap-2">
+                        <div
+                            class="w-6 h-6 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                            @if (strtolower($order->payment_mode) === 'cod')
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            @else
+                                <i class="fa-solid fa-credit-card"></i>
+                            @endif
+                        </div>
+                        <p class="text-xs font-bold text-gray-700 uppercase tracking-wide">
+                            {{ str_replace('_', ' ', $order->payment_mode) }}
+
+                            @if (strtolower($order->payment_status) === 'paid')
+                                <span
+                                    class="ml-2 text-[9px] text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-md font-black tracking-widest">PAID</span>
+                            @else
+                                <span
+                                    class="ml-2 text-[9px] text-yellow-600 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-md font-black tracking-widest">PENDING</span>
+                            @endif
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            <div class="p-8 bg-rose-50/10">
-                {{-- Order Progress / Cancelled UI --}}
-                @if($order->order_status === 'cancelled')
+                <div class="p-8 bg-rose-50/10">
+                    {{-- Order Progress / Cancelled UI --}}
+                    @if ($order->order_status === 'cancelled')
 
-                    {{-- Cancelled UI --}}
-                    <div class="p-10 bg-rose-50/20 border-t border-b border-rose-100 text-center">
+                        {{-- Cancelled UI --}}
+                        <div class="p-10 bg-rose-50/20 border-t border-b border-rose-100 text-center">
 
-                        <div class="inline-flex items-center justify-center w-16 h-16
+                            <div
+                                class="inline-flex items-center justify-center w-16 h-16
                                     rounded-full bg-rose-100 text-rose-500
                                     shadow-lg shadow-rose-100 mb-6">
-                            <i class="fa-solid fa-xmark text-xl"></i>
+                                <i class="fa-solid fa-xmark text-xl"></i>
+                            </div>
+
+                            <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-500 mb-2">
+                                Order Cancelled
+                            </h3>
+
+                            <p class="text-xs text-gray-500 font-medium max-w-sm mx-auto leading-relaxed">
+                                This order has been successfully cancelled.
+                                If payment was completed, the refund will be processed
+                                according to our refund policy.
+                            </p>
+
                         </div>
-
-                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-500 mb-2">
-                            Order Cancelled
-                        </h3>
-
-                        <p class="text-xs text-gray-500 font-medium max-w-sm mx-auto leading-relaxed">
-                            This order has been successfully cancelled.
-                            If payment was completed, the refund will be processed
-                            according to our refund policy.
-                        </p>
-
-                    </div>
-
-                @else
-
-                    {{-- Normal Timeline UI --}}
-                    {{-- <div class="p-8 bg-rose-50/10">
+                    @else
+                        {{-- Normal Timeline UI --}}
+                        {{-- <div class="p-8 bg-rose-50/10">
                         <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-8 text-center">
                             Order Progress
                         </h3>
@@ -107,7 +140,7 @@
                                 $currentIndex = $currentIndex !== false ? $currentIndex : -1;
                             @endphp
 
-                            @foreach($steps as $index => $step)
+                            @foreach ($steps as $index => $step)
                                 @php $isActive = $index <= $currentIndex; @endphp
                                 <div class="relative z-10 flex flex-col items-center">
                                     <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs
@@ -125,168 +158,319 @@
                         </div>
                     </div> --}}
 
-                    {{-- Normal Timeline UI --}}
-                    <div class="p-10 bg-white rounded-3xl border border-rose-50 shadow-sm mt-6">
-                        <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-10 text-center">
-                            Track Your Package 🚚
-                        </h3>
+                        {{-- Normal Timeline UI --}}
+                        <div class="p-10 bg-white rounded-3xl border border-rose-50 shadow-sm mt-6">
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-10 text-center">
+                                Track Your Package 🚚
+                            </h3>
 
-                        @php
-                            // Steps with Labels and Emojis
-                            $steps = [
-                                'pending'          => ['label' => 'Placed',    'emoji' => '📝'],
-                                'processing'       => ['label' => 'Packing',   'emoji' => '📦'],
-                                'shipped'          => ['label' => 'Shipped',   'emoji' => '🚛'],
-                                'out_for_delivery' => ['label' => 'On Way',    'emoji' => '🛵'],
-                                'delivered'        => ['label' => 'Delivered', 'emoji' => '🎁']
-                            ];
-
-                            $stepKeys = array_keys($steps);
-
-                            // Aapne accessor vapriye chhiye ($order->customer_status)
-                            $currentStatus = $order->customer_status;
-                            $currentIndex = array_search($currentStatus, $stepKeys);
-                            $currentIndex = ($currentIndex !== false) ? $currentIndex : 0;
-                        @endphp
-
-                        <div class="flex items-center justify-between relative max-w-2xl mx-auto px-2">
-
-                            {{-- Progress Line Background --}}
-                            <div class="absolute top-[20px] left-0 w-full h-1.5 bg-gray-100 rounded-full"></div>
-
-                            {{-- Active Progress Line (Blue Color) --}}
                             @php
-                                $progressWidth = ($currentIndex / (count($steps) - 1)) * 100;
+                                // Steps with Labels and Emojis
+                                $steps = [
+                                    'pending' => ['label' => 'Placed', 'emoji' => '📝'],
+                                    'processing' => ['label' => 'Packing', 'emoji' => '📦'],
+                                    'shipped' => ['label' => 'Shipped', 'emoji' => '🚛'],
+                                    'out_for_delivery' => ['label' => 'On Way', 'emoji' => '🛵'],
+                                    'delivered' => ['label' => 'Delivered', 'emoji' => '🎁'],
+                                ];
+
+                                $stepKeys = array_keys($steps);
+
+                                // Aapne accessor vapriye chhiye ($order->customer_status)
+                                $currentStatus = $order->customer_status;
+                                $currentIndex = array_search($currentStatus, $stepKeys);
+                                $currentIndex = $currentIndex !== false ? $currentIndex : 0;
                             @endphp
-                            <div class="absolute top-[20px] left-0 h-1.5 bg-teal-500 rounded-full transition-all duration-1000 ease-in-out"
-                                 style="width: {{ $progressWidth }}%"></div>
 
-                            @foreach($steps as $key => $data)
+                            <div class="flex items-center justify-between relative max-w-2xl mx-auto px-2">
+
+                                {{-- Progress Line Background --}}
+                                <div class="absolute top-[20px] left-0 w-full h-1.5 bg-gray-100 rounded-full"></div>
+
+                                {{-- Active Progress Line (Blue Color) --}}
                                 @php
-                                    $isActive = (array_search($key, $stepKeys) <= $currentIndex);
-                                    $isCurrent = ($key === $currentStatus);
+                                    $progressWidth = ($currentIndex / (count($steps) - 1)) * 100;
                                 @endphp
+                                <div class="absolute top-[20px] left-0 h-1.5 bg-teal-500 rounded-full transition-all duration-1000 ease-in-out"
+                                    style="width: {{ $progressWidth }}%"></div>
 
-                                <div class="relative z-10 flex flex-col items-center">
-                                    {{-- Circle with Emoji --}}
-                                    <div class="w-10 h-10 rounded-full border-4 flex items-center justify-center text-sm transition-all duration-500
+                                @foreach ($steps as $key => $data)
+                                    @php
+                                        $isActive = array_search($key, $stepKeys) <= $currentIndex;
+                                        $isCurrent = $key === $currentStatus;
+                                    @endphp
+
+                                    <div class="relative z-10 flex flex-col items-center">
+                                        {{-- Circle with Emoji --}}
+                                        <div
+                                            class="w-10 h-10 rounded-full border-4 flex items-center justify-center text-sm transition-all duration-500
                                         {{ $isCurrent ? 'bg-teal-600 border-teal-200 scale-125 shadow-xl shadow-blue-100' : '' }}
                                         {{ $isActive && !$isCurrent ? 'bg-teal-500 border-white shadow-md' : '' }}
                                         {{ !$isActive ? 'bg-white border-gray-100 grayscale' : '' }}">
-                                        {{ $data['emoji'] }}
-                                    </div>
-
-                                    {{-- Labels --}}
-                                    <p class="absolute -bottom-8 text-[10px] font-black uppercase tracking-widest whitespace-nowrap
-                                        {{ $isActive ? 'text-teal-600' : 'text-gray-300' }}">
-                                        {{ $data['label'] }}
-                                    </p>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-            </div>
-
-            <div class="p-8 border-t border-rose-50 mt-4">
-                <h3 class="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">Items Ordered ({{ $order->items->count() }})</h3>
-                <div class="space-y-4">
-                    @foreach($order->items as $item)
-                    <div x-data="{ open: false }" class="flex items-center gap-6 p-5 rounded-2xl border border-rose-50 hover:bg-rose-50/10 transition-colors">
-                        <div class="w-16 h-16 bg-rose-50 rounded-xl flex items-center justify-center text-rose-200 text-xl">
-                            <i class="fa-solid fa-shirt"></i>
-                        </div>
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-gray-800">{{ $item->product->name ?? 'N/A' }}</h4>
-                            <p class="text-xs text-gray-400 font-medium">Qty: {{ $item->quantity ?? 'N/A' }} | Size: {{ $item->variant->size }}</p>
-
-                            @if(
-                                in_array($item->order_status, ['pending', 'processing'])
-                                && $order->order_status !== 'cancelled'
-                            )
-                            <button @click="open = true" class="text-xs font-bold text-rose-500 hover:underline">
-                                Cancel Item
-                            </button>
-
-                            {{-- Modal --}}
-                            <div x-cloak x-show="open" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-                                <div @click.away="open = false" class="bg-white rounded-xl p-6 w-80">
-                                    <h3 class="font-bold text-gray-900 text-sm mb-4">Cancel Item?</h3>
-                                    <form action="{{ route('customer.order-item.cancel', ['orderNumber' => $order->order_number, 'item' => $item]) }}" method="POST">
-                                        @csrf
-                                        <label class="block text-xs font-medium text-gray-600 mb-2">
-                                            Reason (optional)
-                                        </label>
-                                        <input type="text" name="cancel_reason" placeholder="Reason..." class="w-full border border-gray-200 rounded-lg p-2 mb-4 text-xs">
-
-                                        <div class="flex justify-end gap-2">
-                                            <button type="button" @click="open = false" class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100">Close</button>
-                                            <button type="submit" class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600">Confirm</button>
+                                            {{ $data['emoji'] }}
                                         </div>
-                                    </form>
-                                </div>
+
+                                        {{-- Labels --}}
+                                        <p
+                                            class="absolute -bottom-8 text-[10px] font-black uppercase tracking-widest whitespace-nowrap
+                                        {{ $isActive ? 'text-teal-600' : 'text-gray-300' }}">
+                                            {{ $data['label'] }}
+                                        </p>
+                                    </div>
+                                @endforeach
                             </div>
-                            {{-- @elseif($item->order_status === 'delivered')
-                            <button class="text-xs font-bold text-blue-500 hover:underline">
-                                Return Item
-                            </button> --}}
-                            @endif
                         </div>
-                        @if($item->order_status === 'cancelled')
-                            <div class="mt-3 p-3 bg-red-50 rounded-xl text-xs text-red-600">
-                                <strong>Cancelled by Vendor</strong><br>
-                                Reason: {{ $item->cancel_reason ?? 'No reason provided.' }}
-                            </div>
-                        @endif
-                        <div class="text-right">
-                            <p class="font-black text-gray-900 italic">₹ {{ $item->price ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                    @endforeach
+                    @endif
 
                 </div>
-            </div>
 
-            <div class="p-8 bg-gray-50/50 border-t border-rose-50 flex flex-col md:flex-row justify-between items-center gap-6">
-                {{-- <div>
+                <div class="p-8 border-t border-rose-50 mt-4">
+                    <h3 class="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">Items Ordered
+                        ({{ $order->items->count() }})</h3>
+                    <div class="space-y-4">
+                        @foreach ($order->items as $item)
+                            <div x-data="{ open: false }"
+                                class="flex flex-col gap-4 p-5 rounded-2xl border border-rose-50 hover:bg-rose-50/10 transition-colors">
+
+                                {{-- TOP SECTION: Product Details & Actions --}}
+                                <div class="flex items-start md:items-center gap-6">
+                                    <div
+                                        class="w-16 h-16 bg-rose-50 rounded-xl flex items-center justify-center text-rose-200 text-xl shrink-0">
+                                        <i class="fa-solid fa-shirt"></i>
+                                    </div>
+
+                                    <div class="flex-grow">
+                                        <h4 class="font-bold text-gray-800">{{ $item->product->name ?? 'N/A' }}</h4>
+                                        <p class="text-xs text-gray-400 font-medium">Qty: {{ $item->quantity ?? 'N/A' }} |
+                                            Size: {{ $item->variant->size }}</p>
+
+                                        {{-- Cancel Button Logic --}}
+                                        @if (in_array($item->order_status, ['pending', 'processing']) && $order->order_status !== 'cancelled')
+                                            <button @click="open = true"
+                                                class="text-xs font-bold text-rose-500 hover:underline mt-1">
+                                                Cancel Item
+                                            </button>
+
+                                            {{-- Cancel Modal (Hidden) --}}
+                                            <div x-cloak x-show="open"
+                                                class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                                                <div @click.away="open = false" class="bg-white rounded-xl p-6 w-80">
+                                                    <h3 class="font-bold text-gray-900 text-sm mb-4">Cancel Item?</h3>
+                                                    <form
+                                                        action="{{ route('customer.order-item.cancel', ['orderNumber' => $order->order_number, 'item' => $item]) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <label class="block text-xs font-medium text-gray-600 mb-2">Reason
+                                                            (optional)</label>
+                                                        <input type="text" name="cancel_reason" placeholder="Reason..."
+                                                            class="w-full border border-gray-200 rounded-lg p-2 mb-4 text-xs">
+                                                        <div class="flex justify-end gap-2">
+                                                            <button type="button" @click="open = false"
+                                                                class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100">Close</button>
+                                                            <button type="submit"
+                                                                class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600">Confirm</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            {{-- Return Button Logic --}}
+                                        @elseif($item->order_status === 'delivered' && $item->return_status === null)
+                                            <div x-data="{ openReturn: false, reasonType: '' }" class="mt-1">
+                                                <button @click="openReturn = true"
+                                                    class="text-xs font-bold text-blue-500 hover:text-blue-700 hover:underline transition-all">
+                                                    Return Item
+                                                </button>
+
+                                                {{-- Return Modal (Hidden) --}}
+                                                <div x-cloak x-show="openReturn"
+                                                    class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                                                    <div @click.away="openReturn = false"
+                                                        class="bg-white rounded-xl p-6 w-80 shadow-2xl transform transition-all">
+                                                        <div class="flex items-center gap-3 mb-2">
+                                                            <div
+                                                                class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                                                                <i class="fa-solid fa-box-open"></i>
+                                                            </div>
+                                                            <h3 class="font-black text-gray-900 text-sm">Return Item?</h3>
+                                                        </div>
+                                                        <p class="text-[10px] text-gray-500 mb-4 leading-relaxed">Please
+                                                            tell us why you are returning this item so we can notify the
+                                                            vendor.</p>
+                                                        <form action="{{ route('customer.order-items.return', $item) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <label class="block text-xs font-bold text-gray-700 mb-2">Reason
+                                                                for Return <span class="text-rose-500">*</span></label>
+                                                            <select x-model="reasonType"
+                                                                :name="reasonType === 'Other' ? '' : 'reason'" required
+                                                                class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer">
+                                                                <option value="" disabled selected>Select a reason...
+                                                                </option>
+                                                                <option value="Wrong size or fit">Wrong size or fit</option>
+                                                                <option value="Damaged or defective product">Damaged or
+                                                                    defective product</option>
+                                                                <option value="Item not as described">Item not as described
+                                                                </option>
+                                                                <option value="Other">Other (Please specify)</option>
+                                                            </select>
+                                                            <textarea x-show="reasonType === 'Other'" :name="reasonType === 'Other' ? 'reason' : ''"
+                                                                :required="reasonType === 'Other'" rows="3" placeholder="Please type your specific reason..."
+                                                                class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all"></textarea>
+                                                            <div class="flex justify-end gap-2 mt-2">
+                                                                <button type="button" @click="openReturn = false"
+                                                                    class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors">Keep
+                                                                    Item</button>
+                                                                <button type="submit"
+                                                                    class="px-4 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">Submit
+                                                                    Return</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="text-right shrink-0">
+                                        <p class="font-black text-gray-900 italic">₹ {{ $item->price ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+
+                                {{-- BOTTOM SECTION: The New Return Status Tracker --}}
+                                @if ($item->return_status)
+                                    <div
+                                        class="mt-2 p-4 rounded-xl bg-white border border-gray-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+
+                                            @if ($item->return_status === 'requested')
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                                </div>
+                                                <div>
+                                                    <p
+                                                        class="text-[11px] font-black text-orange-600 uppercase tracking-widest leading-none mb-1">
+                                                        Return Requested</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Awaiting
+                                                        vendor approval</p>
+                                                </div>
+                                            @elseif($item->return_status === 'approved')
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-box-open"></i>
+                                                </div>
+                                                <div>
+                                                    <p
+                                                        class="text-[11px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">
+                                                        Return Approved</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Driver
+                                                        will pick up soon</p>
+                                                </div>
+                                            @elseif($item->return_status === 'picked_up')
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-truck-fast"></i>
+                                                </div>
+                                                <div>
+                                                    <p
+                                                        class="text-[11px] font-black text-indigo-600 uppercase tracking-widest leading-none mb-1">
+                                                        Item Picked Up</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Heading
+                                                        back to the store</p>
+                                                </div>
+                                            @elseif($item->return_status === 'received')
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-wallet"></i>
+                                                </div>
+                                                <div>
+                                                    <p
+                                                        class="text-[11px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">
+                                                        Refund Processed</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Securely
+                                                        added to your wallet</p>
+                                                </div>
+                                            @elseif($item->return_status === 'rejected')
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                                    <i class="fa-solid fa-ban"></i>
+                                                </div>
+                                                <div>
+                                                    <p
+                                                        class="text-[11px] font-black text-red-600 uppercase tracking-widest leading-none mb-1">
+                                                        Return Declined</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Vendor
+                                                        rejected this request</p>
+                                                </div>
+                                            @endif
+
+                                        </div>
+
+                                        {{-- Show the exact refund amount if it is completed --}}
+                                        @if ($item->return_status === 'received')
+                                            <div class="text-right sm:border-l sm:border-gray-100 sm:pl-4">
+                                                <p
+                                                    class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
+                                                    Credited</p>
+                                                <p class="text-sm font-black text-emerald-600">+
+                                                    ₹{{ number_format($item->price * $item->quantity, 2) }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                {{-- Vendor Cancelled Status --}}
+                                @if ($item->order_status === 'cancelled')
+                                    <div class="mt-2 p-3 bg-red-50 rounded-xl text-xs text-red-600 border border-red-100">
+                                        <strong>Cancelled by Vendor</strong><br>
+                                        Reason: {{ $item->cancel_reason ?? 'No reason provided.' }}
+                                    </div>
+                                @endif
+
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div
+                    class="p-8 bg-gray-50/50 border-t border-rose-50 flex flex-col md:flex-row justify-between items-center gap-6">
+                    {{-- <div>
                     <p class="text-xs text-gray-400 font-medium">Need help with this order?</p>
                     <button class="text-xs font-bold text-rose-500 hover:underline">Contact Vendor Support</button>
                 </div> --}}
 
-                <div class="flex items-center gap-4">
-                    @if(in_array($order->order_status, ['pending', 'processing']))
-                    <form action="{{ route('customer.orders.cancel', $order->order_number) }}"
-                              method="POST"
-                              onsubmit="return confirm('Are you sure you want to cancel this entire order?');">
+                    <div class="flex items-center gap-4">
+                        @if (in_array($order->order_status, ['pending', 'processing']))
+                            <form action="{{ route('customer.orders.cancel', $order->order_number) }}" method="POST"
+                                onsubmit="return confirm('Are you sure you want to cancel this entire order?');">
 
-                            @csrf
+                                @csrf
 
-                            <button type="submit"
-                                class="px-6 py-3 bg-white border border-rose-100
+                                <button type="submit"
+                                    class="px-6 py-3 bg-white border border-rose-100
                                        text-gray-400 rounded-2xl font-bold text-[10px]
                                        uppercase tracking-widest
                                        hover:bg-rose-50 hover:text-rose-500 transition-all">
-                                Cancel Full Order
-                            </button>
+                                    Cancel Full Order
+                                </button>
 
-                        </form>
-                    @endif
+                            </form>
+                        @endif
 
-                    <a href="{{ route('customer.orders.invoice', $order->id) }}"
-                       target="_blank"
-                       class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all">
-                       View / Print Invoice
-                    </a>
+                        <a href="{{ route('customer.orders.invoice', $order->id) }}" target="_blank"
+                            class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all">
+                            View / Print Invoice
+                        </a>
 
 
-                    <p class="text-[9px] text-gray-300 italic max-w-[120px] leading-tight">
-                        Cancellations are only available during 'Processing'.
-                    </p>
+                        <p class="text-[9px] text-gray-300 italic max-w-[120px] leading-tight">
+                            Cancellations are only available during 'Processing'.
+                        </p>
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
-</div>
 @endsection

@@ -221,6 +221,11 @@ class DashboardController extends Controller
             ->where('order_items.vendor_id', '=', $vendor->id)
             ->where('orders.payment_status', '=', 'paid')
             ->where('orders.order_status', '=', 'delivered')    // fix: counts earning only when order was delivered to customer && was paid
+            ->where(function ($query) {
+                // exclude those orders where order items are returned to vendor
+                $query->where('order_items.return_status', '!=', 'received')
+                    ->orWhereNull('order_items.return_status');
+            })
             ->whereDate('orders.created_at', today())
             ->sum(
                 DB::raw('order_items.quantity * order_items.price')
@@ -237,9 +242,14 @@ class DashboardController extends Controller
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('order_items.vendor_id', '=', $vendor->id)
             ->where('orders.payment_status', '=', 'paid')
-            ->where('orders.order_status', '=', 'delivered')
-            ->whereMonth('orders.created_at', now()->month)
-            ->whereYear('orders.created_at', now()->year)
+            ->where('order_items.order_status', '=', 'delivered')
+            ->where(function ($query) {
+                // exclude those orders where order items are returned to vendor
+                $query->where('order_items.return_status', '!=', 'received')
+                    ->orWhereNull('order_items.return_status');
+            })
+            ->whereMonth('order_items.created_at', now()->month)
+            ->whereYear('order_items.created_at', now()->year)
             ->sum(
                 DB::raw('order_items.quantity * order_items.price')
             );
@@ -270,6 +280,11 @@ class DashboardController extends Controller
             ->where('order_items.vendor_id', $vendor->id)
             ->where('orders.payment_status', 'paid')
             ->where('orders.order_status', 'delivered') // ensure all orders were delivered too
+            ->where(function ($query) {
+                // exclude those orders where order items are returned to vendor
+                $query->where('order_items.return_status', '!=', 'received')
+                    ->orWhereNull('order_items.return_status');
+            })
             ->whereYear('orders.created_at', now()->year)
             ->selectRaw('MONTH(orders.created_at) as month, SUM(order_items.quantity * order_items.price) as total')
             ->groupBy('month')

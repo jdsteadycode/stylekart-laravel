@@ -20,7 +20,9 @@ class OrderItem extends Model
         "quantity",
         "price",
         "order_status",
-        "cancel_reason"
+        "cancel_reason",
+        "return_reason",
+        "return_status"
     ];
 
     // () -> each item is related to order.
@@ -45,5 +47,13 @@ class OrderItem extends Model
     public function vendor()
     {
         return $this->belongsTo(User::class, "vendor_id");
+    }
+
+    /**
+     * Get all of the wallet transactions for this order item.
+     */
+    public function walletTransactions()
+    {
+        return $this->morphMany(WalletTransaction::class, 'reference');
     }
 }

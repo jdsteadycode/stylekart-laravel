@@ -5,8 +5,11 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+
+// Notifiable trait for handling mail notifications
 use Illuminate\Notifications\Notifiable;
 
+// Model class paths..
 use App\Models\Product;
 use App\Models\Address;
 use App\Models\CartItem;

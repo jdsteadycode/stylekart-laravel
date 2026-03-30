@@ -20,6 +20,7 @@ use App\Http\Controllers\Vendor\VendorOrderController;
 use App\Http\Controllers\Vendor\NotificationController;
 use App\Http\Controllers\Vendor\BrandController;
 use App\Http\Controllers\Vendor\VendorProfileController;
+use App\Http\Controllers\Vendor\VendorReturnController;
 use App\Http\Middleware\CheckRole;
 
 // use App\Http\Controllers\Vendor\ProductColorImageController;
@@ -35,6 +36,10 @@ use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\AddressController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\WishlistController;
+use App\Http\Controllers\Customer\ReturnController;
+
+// for delivery person(s)
+use App\Http\Controllers\Delivery\ReturnJobController;
 
 use App\Models\ProductColor;
 use Illuminate\Http\Request;
@@ -239,34 +244,6 @@ Route::middleware(["auth", "role:vendor"])
         ])->name("vendor.profile.update");
 
 
-        /***
-         * Brands Module
-         */
-        // List all brands
-        Route::get('/vendor/brands', [BrandController::class, 'index'])
-            ->name('vendor.brands.index');
-
-        // Show create form
-        Route::get('/vendor/brands/create', [BrandController::class, 'create'])
-            ->name('vendor.brands.create');
-
-        // Store new brand
-        Route::post('/vendor/brands/store', [BrandController::class, 'store'])
-            ->name('vendor.brands.store');
-
-        // Show edit form
-        Route::get('/vendor/brands/{brand}/edit', [BrandController::class, 'edit'])
-            ->name('vendor.brands.edit');
-
-        // Update brand
-        Route::put('/vendor/brands/{brand}/update', [BrandController::class, 'update'])
-            ->name('vendor.brands.update');
-
-        // Delete brand
-        Route::delete('/vendor/brands/{brand}', [BrandController::class, 'destroy'])
-            ->name('vendor.brands.destroy');
-
-
         /**
          * notifications
          */
@@ -329,6 +306,38 @@ Route::middleware(["auth", "role:vendor"])
                     "toggleStatus",
                 ])->name("vendor.products.toggle-status");
             });
+
+            /***
+             * Brands Module
+             */
+
+            Route::prefix('/vendor/brands')->group(function () {
+
+                // List all brands
+                Route::get('/', [BrandController::class, 'index'])
+                    ->name('vendor.brands.index');
+
+                // Show create form
+                Route::get('/create', [BrandController::class, 'create'])
+                    ->name('vendor.brands.create');
+
+                // Store new brand
+                Route::post('/store', [BrandController::class, 'store'])
+                    ->name('vendor.brands.store');
+
+                // Show edit form
+                Route::get('/{brand}/edit', [BrandController::class, 'edit'])
+                    ->name('vendor.brands.edit');
+
+                // Update brand
+                Route::put('/{brand}/update', [BrandController::class, 'update'])
+                    ->name('vendor.brands.update');
+
+                // Delete brand
+                Route::delete('/{brand}', [BrandController::class, 'destroy'])
+                    ->name('vendor.brands.destroy');
+            });
+
 
             /*
            Product Color routes
@@ -453,7 +462,7 @@ Route::middleware(["auth", "role:vendor"])
             });
 
             /*
-            Orders Module
+            Orders Module routes
             */
             Route::prefix("orders")->group(function () {
 
@@ -474,6 +483,39 @@ Route::middleware(["auth", "role:vendor"])
                     '/items/{item}/cancel',
                     [VendorOrderController::class, 'cancel']
                 )->name('vendor.orders.cancel');
+            });
+
+            /**
+             * Return Order Module routes
+             */
+            Route::prefix('return')->name('vendor.return.')->group(function () {
+
+                // '/return/' - show all return requested item(s)
+                Route::get('/', [VendorReturnController::class, 'index'])->name('index');
+
+                // '/{23}' - show return request item
+                Route::get('/{item}', [VendorReturnController::class, 'show'])->name('show');
+
+                // '{23}/approve' - approve the return request item
+                Route::patch('/{item}/approve', [VendorReturnController::class, 'approve'])->name('approve');
+
+                // '{23}/reject' - reject the return request item
+                Route::patch('/{item}/reject', [VendorReturnController::class, 'reject'])->name('reject');
+            });
+
+
+            /**
+             * Reports Module
+             */
+            Route::prefix('reports')->name('vendor.reports.')->group(function () {
+
+                // 'dashboard/vendor/reports/' - The main reporting UI
+                Route::get('/', [\App\Http\Controllers\Vendor\ReportController::class, 'index'])
+                    ->name('index');
+
+                // 'dashboard/vendor/reports/generate' - The logic for preview/download
+                Route::get('/generate', [\App\Http\Controllers\Vendor\ReportController::class, 'generate'])
+                    ->name('generate');
             });
         });
     });
@@ -547,7 +589,6 @@ Route::prefix("/stylekart-store")->group(function () {
             ->name('customer.orders.invoice');
 
 
-
         // 'stylekart-store/checkout' - initial data for checkout
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
 
@@ -573,6 +614,15 @@ Route::prefix("/stylekart-store")->group(function () {
 
         // 'stylekart-store/order/fail' -> when order placement fails
         // Route::get('/order/fail', fn() =>  view('customer.checkout.failed'))->name('customer.checkout.fail');
+
+        // 'stylekart-store/order-items/XXX/return' -> for returning an delivered ordered item.
+        Route::post('/order-items/{item}/return', [ReturnController::class, 'store'])
+            ->name('customer.order-items.return');
+
+        /*
+            Wallet routes
+        */
+        Route::get('/wallet', [\App\Http\Controllers\Customer\WalletController::class, 'index'])->name('customer.wallet.index');
     });
 });
 
@@ -601,6 +651,24 @@ Route::middleware(['auth', 'role:delivery_person'])
             Route::get('/', [App\Http\Controllers\Delivery\NotificationController::class, 'index'])->name('index');
             Route::post('/markRead', [App\Http\Controllers\Delivery\NotificationController::class, 'markRead'])->name('markRead');
         });
+
+        /**
+         * for return orders
+         */
+        Route::get('/returns', [ReturnJobController::class, 'index'])
+            ->name('delivery.return.index');
+
+        // 'dashboard/delivery/returns/{job}' - Show the return job details (The map view)
+        Route::get('/returns/{job}', [ReturnJobController::class, 'showJob'])
+            ->name('delivery.return.show');
+
+        // 'dashboard/delivery/returns/{job}/accept' - Accept the return pickup
+        Route::post('/returns/{job}/accept', [ReturnJobController::class, 'accept'])
+            ->name('delivery.return.accept');
+
+        // 'dashboard/delivery/returns/{job}/complete' - Update status (picked_up -> completed)
+        Route::post('/returns/{job}/complete', [ReturnJobController::class, 'complete'])
+            ->name('delivery.return.complete');
     });
 
 /*
