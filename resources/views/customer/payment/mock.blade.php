@@ -27,7 +27,7 @@
 
             <div class="px-8 pt-10 pb-6 text-center border-b border-dashed border-gray-100">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Payable Amount</p>
-                <h2 class="text-4xl font-extrabold text-slate-900">₹ {{ $order->total_amount ?? 0 }}<span class="text-xl text-gray-400 font-medium">.00</span></h2>
+                <h2 class="text-4xl font-extrabold text-slate-900">₹ {{ $order->payable_amount ?? 0 }}<span class="text-xl text-gray-400 font-medium">.00</span></h2>
                 <div class="mt-4 inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider">
                     ORDER NUMBER: {{ $order->order_number ?? 'N/A' }}
                 </div>
