@@ -214,6 +214,20 @@ Route::middleware(["auth", "role:admin"])
             VendorController::class,
             "show",
         ])->name("admin.vendors.show");
+
+        /**
+         * Admin Reports Module
+         */
+        Route::prefix('reports')->group(function () {
+
+            // 'admin/reports/' - The central reporting hub for the Admin
+            Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])
+                ->name('admin.reports.index');
+
+            // 'admin/reports/generate' - Logic to pull data for All Vendors/Users
+            Route::get('/generate', [\App\Http\Controllers\Admin\ReportController::class, 'generate'])
+                ->name('admin.reports.generate');
+        });
     });
 
 // Vendor dashboard
