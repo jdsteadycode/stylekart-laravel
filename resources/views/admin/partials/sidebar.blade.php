@@ -35,5 +35,9 @@ $active = 'bg-slate-800';
             🚚 Deliveries
         </a>
 
+        <a href="{{ route('admin.reports.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('admin.reports.index') ? $active : ''}}">
+            📄 Business Reports
+        </a>
     </nav>
 </aside>
