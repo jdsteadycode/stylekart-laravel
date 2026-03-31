@@ -15,6 +15,8 @@ class Order extends Model
         "order_number",
         "address_id",
         "total_amount",
+        "wallet_amount_used",
+        "payable_amount",
         "order_status",
         "payment_mode",
         "payment_status",
