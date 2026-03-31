@@ -33,6 +33,10 @@ class CheckoutRequest extends FormRequest
 
         // validate according to rules.
         return [
+
+            // wallet used?
+            'use_wallet'   => 'nullable',
+
             // if default address opted check?
             'address_id' => 'nullable|exists:addresses,id',
 
@@ -46,7 +50,7 @@ class CheckoutRequest extends FormRequest
             'address_type' => 'required_without:address_id|nullable|in:home,office,other',
 
             // payment method / mode.
-            'pay' => 'required|in:cod,online'
+            'pay' => 'nullable|in:cod,online'
         ];
     }
 }
