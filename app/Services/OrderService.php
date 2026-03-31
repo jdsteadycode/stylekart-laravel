@@ -32,7 +32,7 @@ class OrderService
     /**
      * handle the order creation..
      */
-    public function createOrder($customer, $address, array $validated, array $bag)
+    public function createOrder($customer, $address, array $validated, array $bag, $useWallet = false)
     {
 
 
@@ -80,19 +80,60 @@ class OrderService
                 $totalAmount += $variant->selling_price * $item['qty'];
             }
 
+            // initial walletAmount
+            $walletAmountUsed = 0;
+            $payableAmount = $totalAmount;
+
+            // if wallet was used by customer
+            if ($useWallet && $customer->wallet) {
+
+                // wallet balance
+                $walletBalance  = $customer->wallet->balance ?? 0;
+
+                // get the amount which smaller either wallet's balance or total amount
+                $walletAmountUsed = min($totalAmount, $walletBalance);
+
+                // payable amount calculation
+                $payableAmount = $totalAmount - $walletAmountUsed;
+            }
+
             // 2. Make an order
             // create a new order..
             $order = $customer->orders()->create([
                 'address_id' => $address->id,
                 'order_number' => $orderNumber,
                 'total_amount' => $totalAmount,
+                'wallet_amount_used' => $walletAmountUsed,
+                'payable_amount'     => $payableAmount,
                 'order_status' => 'pending',
-                'payment_mode' => $validated['pay'],
-                'payment_status' => 'pending', // for both cod or online (temp for online..),
+                'payment_mode' => $payableAmount <= 0 ? 'wallet' : ($validated['pay'] ?? null),
+                'payment_status' =>  $payableAmount <= 0 ? 'paid' : 'pending', // for both cod or online (temp for online..),
             ]);
 
             // log the status..
             logger()->info('Order Created for customer ' . $customer->name, ['status' => (bool) $order]);
+
+            // if wallet amount is used.
+            if ($walletAmountUsed > 0) {
+
+                // log the amount before deduction
+                logger()->info("Wallet amount before deduction: {$customer->wallet->balance}");
+
+                // deduct the amount from wallet
+                $customer->wallet->decrement('balance', $walletAmountUsed);
+
+                // log the amount after deduction
+                logger()->info("Wallet amount after deduction: {$customer->wallet->balance}");
+
+                // make a transaction entry
+                $customer->wallet->transactions()->create([
+                    'type' => 'debit',
+                    'amount' => $walletAmountUsed,
+                    'description' => "Order Payment #$orderNumber",
+                    'reference_type' => get_class($order),
+                    'reference_id' => $order->id
+                ]);
+            }
 
             // 3. Save ordered items..
             foreach ($bag as $item) {
@@ -134,8 +175,8 @@ class OrderService
                 ]);
 
 
-                // if payment method is cod only then,
-                if ($validated['pay'] === 'cod') {
+                // if payment method is cod only or wallet paid the full price then,
+                if ($payableAmount <= 0 || $validated['pay'] === 'cod') {
 
                     // deduct the stock
                     deductVariantStock($variant, $item['qty']);
