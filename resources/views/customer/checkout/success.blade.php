@@ -18,14 +18,41 @@
             Your style journey has begun! We've sent the order details to your email. Get ready to look fabulous.
         </p>
 
-        <div class="bg-white p-6 rounded-3xl border border-rose-50 shadow-sm mb-10">
-            <div class="flex justify-between items-center mb-3">
+        <div class="bg-white p-6 rounded-3xl border border-rose-50 shadow-sm mb-10 space-y-3">
+            {{-- Order ID --}}
+            <div class="flex justify-between items-center">
                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order ID</span>
                 <span class="text-sm font-bold text-gray-800">#{{ $order->order_number ?? 'XXXX' }}</span>
             </div>
-            <div class="flex justify-between items-center">
-                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Paid</span>
-                <span class="text-lg font-black text-rose-500">₹{{ $order->total_amount ?? 0 }}</span>
+
+            {{-- Wallet Breakdown (Shows only when the wallet was actually tapped) --}}
+            @if($order->wallet_amount_used > 0)
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order Total</span>
+                    <span class="text-sm font-bold text-gray-800">₹{{ number_format($order->total_amount, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Wallet Used</span>
+                    <span class="text-sm font-bold text-emerald-600">- ₹{{ number_format($order->wallet_amount_used, 2) }}</span>
+                </div>
+                <div class="border-t border-rose-50 my-1"></div>
+            @endif
+
+            {{-- The Dynamic Label --}}
+            <div class="flex justify-between items-center pt-1">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    {{ $order->payment_status === 'paid' ? 'Total Paid' : 'Remaining to Pay' }}
+                </span>
+                <span class="text-lg font-black text-rose-500">
+                    ₹{{ number_format($order->payable_amount, 2) }}
+                </span>
+            </div>
+
+            {{-- Payment Method Tag --}}
+            <div class="text-right pt-2">
+                <span class="text-[8px] font-black bg-rose-50 text-rose-400 px-2 py-1 rounded-md uppercase tracking-widest">
+                    Via {{ strtoupper($order->payment_mode) }}
+                </span>
             </div>
         </div>
 

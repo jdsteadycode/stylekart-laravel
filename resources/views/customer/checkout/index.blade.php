@@ -15,11 +15,26 @@
     </div>
 @endif
 
+@if($errors->any())
+    @foreach($errors->all() as $error)
+        <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm font-bold">
+            {{ $error }}
+        </div>
+    @endforeach
+@endif
 
 <div class="bg-rose-50/20 min-h-screen py-12">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <form action="{{ route('customer.checkout.placeOrder') }}" method="POST">
+        <form action="{{ route('customer.checkout.placeOrder') }}" method="POST" x-data="{
+                mode: '{{ old('use_new_address') == '1' || old('name') ? 'new' : ($addresses->isNotEmpty() ? 'saved' : 'new') }}',
+                selectedAddress: '{{ old('address_id', $addresses->where('is_default', 1)->first()?->id ?? $addresses->first()?->id) }}',
+                subTotal: {{ $subTotal }},
+                walletBalance: {{ $walletBalance }},
+                useWallet: false,
+                get walletUsed() { return this.useWallet ? Math.min(this.subTotal, this.walletBalance) : 0 },
+                get payable() { return this.subTotal - this.walletUsed }
+            }">
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
 
@@ -27,10 +42,7 @@
 
                     {{-- addresses section --}}
                     <div
-                        x-data="{
-                                mode: '{{ old('use_new_address') == '1' || old('name') ? 'new' : ($addresses->isNotEmpty() ? 'saved' : 'new') }}',
-                                selectedAddress: '{{ old('address_id', $addresses->where('is_default', 1)->first()?->id ?? $addresses->first()?->id) }}'
-                            }"
+
                         class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm">
 
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -116,6 +128,20 @@
                             </div>
                     </div>
 
+                    <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-black text-gray-900">Stylekart Wallet</h3>
+                            <span class="text-emerald-600 font-bold">₹ {{ number_format($walletBalance, 2) }}</span>
+                        </div>
+
+                        @if($walletBalance > 0)
+                        <label class="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 cursor-pointer">
+                            <input type="checkbox" name="use_wallet" x-model="useWallet" class="w-5 h-5 accent-emerald-500">
+                            <span class="text-sm font-bold text-gray-700">Use wallet balance (Save ₹<span x-text="walletUsed"></span>)</span>
+                        </label>
+                        @endif
+                    </div>
+
                     {{-- payment mode section --}}
                     <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm">
                         <div class="flex items-center gap-3 mb-8">
@@ -171,7 +197,7 @@
                             </div>
                             <div class="pt-4 border-t border-rose-50 flex justify-between items-center">
                                 <span class="font-black text-gray-900">Total Payable</span>
-                                <span class="text-2xl font-black text-rose-500">₹ {{ $subTotal }}</span>
+                                <span class="text-2xl font-black text-rose-500">₹ <span x-text="payable"></span></span>
                             </div>
                         </div>
 

@@ -11,6 +11,7 @@
             'shipped' => 'Shipped',
             'out_for_delivery' => 'On Way',
             'delivered' => 'Delivered',
+            'cancelled' => 'Cancelled'
         ];
     @endphp
 
@@ -423,7 +424,7 @@
                                 {{-- Vendor Cancelled Status --}}
                                 @if ($item->order_status === 'cancelled')
                                     <div class="mt-2 p-3 bg-red-50 rounded-xl text-xs text-red-600 border border-red-100">
-                                        <strong>Cancelled by Vendor</strong><br>
+                                        {{-- <strong>Cancelled by Vendor</strong><br> --}}
                                         Reason: {{ $item->cancel_reason ?? 'No reason provided.' }}
                                     </div>
                                 @endif

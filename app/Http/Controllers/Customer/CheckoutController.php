@@ -50,6 +50,9 @@ class CheckoutController extends Controller
             abort(403);
         }
 
+        // customer's wallet balance amount!
+        $walletBalance = $customer->wallet->balance ?? 0;
+
         // get all adresses saved by customer including default
         $addresses = $customer->addresses()->latest()->get();
 
@@ -71,7 +74,7 @@ class CheckoutController extends Controller
         }
 
         // get the view..
-        return view('customer.checkout.index', compact('addresses', 'defaultAddress', 'bag', 'subTotal'));
+        return view('customer.checkout.index', compact('addresses', 'walletBalance', 'defaultAddress', 'bag', 'subTotal'));
     }
 
     /***
@@ -105,6 +108,8 @@ class CheckoutController extends Controller
             // get customer
             $customer = $request->user();
 
+            // log the status
+            // logger()->info("Wallet was used: {$request->has('use_wallet') === true}");
 
             // if default address opted?
             if ($request->filled('address_id')) {
@@ -144,10 +149,10 @@ class CheckoutController extends Controller
 
             // instantiate the Service Class
             $orderService = new OrderService();
-            $order = $orderService->createOrder($customer, $address, $validated, $bag);   // try to make an order..
+            $order = $orderService->createOrder($customer, $address, $validated, $bag, $request->has('use_wallet'));   // try to make an order..
 
-            // if cod!
-            if ($validated['pay'] === 'cod') {
+            // if order is already paid (via wallet money) or cod
+            if ($order->payment_status === 'paid' || $validated['pay'] === 'cod') {
 
                 // clear the cart! (bag)
                 Session::forget('bag');

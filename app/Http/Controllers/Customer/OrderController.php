@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\Wallet;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
+
+use App\Events\RefundProcessed;
+
 
 class OrderController extends Controller
 {
@@ -47,6 +51,36 @@ class OrderController extends Controller
 
         // send to customer view..
         return view('customer.orders.show', compact('order'));
+    }
+
+    /**
+     * handle the refund process
+     */
+    public function refundAmountToCustomer($orderItem, $refundAmount)
+    {
+
+        // Either get the existing customer's wallet or make one..
+        $customerWallet = Wallet::firstOrCreate(
+            ['user_id' => $orderItem->order->user_id],
+            ['balance' => 0.00]
+        );
+
+        // Add the money back to customer's wallet (for refund)
+        $customerWallet->increment('balance', $refundAmount);
+
+        // Make an entry for history and track record
+        $customerWallet->transactions()->create([
+            'type' => 'credit',
+            'amount' => $refundAmount,
+            'description' => "Refund for returned item (Order #" . $orderItem->order->order_number . ")",
+
+            // Ensure link to OrderItem Model class path
+            'reference_type' => get_class($orderItem),
+            'reference_id' => $orderItem->id,
+        ]);
+
+        // log the status
+        logger()->info("Refund Processed: ₹{$refundAmount} credited to User ID {$orderItem->order->user_id}");
     }
 
     /**
@@ -114,18 +148,35 @@ class OrderController extends Controller
                 logger()->info("Stock Restored! Variant id: $item->variant_id | stock: {$item->variant->stock}", ['status' => (bool) $restored]);
             }
 
-            // log the status..
-            logger()->info('Order status synced!');
-
             // 3. sync state with order. (update order level status if needed)
             $order->updateStatus();
 
             // log the status..
             logger()->info('Order status synced!');
 
+            // refund process
+            if ($order->payment_status === 'paid') {
+
+                // amount to refund
+                $refundAmount = $item->price * $item->quantity;
+
+                // refund
+                $this->refundAmountToCustomer($item, $refundAmount);
+
+                // trigger event
+                event(new RefundProcessed($item, $refundAmount));
+            } else {
+                // For COD/Pending: Just reduce the bill they owe at the door!
+                $order->decrement('payable_amount', $item->price * $item->quantity);
+
+                // log the status
+                logger()->info("COD bill reduced for item #{$item->id}");
+            }
+
             // log the status.
             logger()->info("Order Item #{$item->id} cancelled by customer.");
         });
+
 
         return back()->with('success', 'Item cancelled successfully.');
     }
@@ -217,6 +268,16 @@ class OrderController extends Controller
 
             // log the status.
             logger()->info('Order state updated!');
+
+            // THE REFUND (Happens once, after the loop finishes)
+            if ($order->wallet_amount_used > 0) {
+
+                // refund to customer
+                $this->refundAmountToCustomer($order->items->first(), $order->wallet_amount_used);
+
+                // update the column
+                $order->update(['wallet_amount_used' => 0]); // Empty the used bucket
+            }
 
             // sync the state according to its items ordered.
             $order->updateStatus();
