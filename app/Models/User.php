@@ -109,4 +109,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, "delivery_person_id");
     }
+
+    // () -> related wallet
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
 }
