@@ -136,6 +136,42 @@ class ReportController extends Controller
         ];
     }
 
+    // () -> apply date filter(s)
+    private function applyDateFilter($query, $request, $year, $month, $day, &$readableDate)
+    {
+        // log the action
+        logger()->info("[app\Http\Controllers\Admin\ReportController@applyDateFilter] Applying Date Filter.");
+
+        // filter by given year
+        $query->whereYear('created_at', $year);
+
+        // if quarterly filter is requested for the report selected?
+        if ($request->quarterly == '1') {
+
+            // log the sub-action
+            logger()->info("Filtering based on Quarterly filter requirements.");
+
+            $curM = now()->month;
+            $start = ceil($curM / 3) * 3 - 2;
+            $end = ceil($curM / 3) * 3;
+            $query->whereMonth('created_at', '>=', $start)->whereMonth('created_at', '<=', $end);
+            $readableDate = "Q" . ceil($curM / 3) . " (" . Carbon::create()->month($start)->format('M') . "-" . Carbon::create()->month($end)->format('M') . ") " . $year;
+        }
+
+        // otherwise filter by given date
+        else {
+
+            // log the sub-action
+            logger()->info("Filtering based on normal (day || month || year) filter requirements");
+
+            if ($month) $query->whereMonth('created_at', $month);
+            if ($day)   $query->whereDay('created_at', $day);
+            $readableDate = Carbon::create($year, $month ?? 1, $day ?? 1)->format($day ? 'd M Y' : ($month ? 'M Y' : 'Y'));
+        }
+
+        // log the end
+        logger()->info("Date filters addon ended.");
+    }
 
 
 
@@ -165,7 +201,7 @@ class ReportController extends Controller
         // log the type of report to generate..
         logger()->info("Report in Generation: {$type}");
 
-        // if date (year or day or month) is in future.
+        // check date
         if ($year == date('Y') && $month > date('m')) {
 
             // back with error
@@ -176,25 +212,7 @@ class ReportController extends Controller
 
         // () -> filter by date
         $dateFilter = function ($query) use ($request, $year, $month, $day, &$readableDate) {
-
-            // filter by given year
-            $query->whereYear('created_at', $year);
-
-            // if quarterly filter is requested for the report selected?
-            if ($request->quarterly == '1') {
-                $curM = now()->month;
-                $start = ceil($curM / 3) * 3 - 2;
-                $end = ceil($curM / 3) * 3;
-                $query->whereMonth('created_at', '>=', $start)->whereMonth('created_at', '<=', $end);
-                $readableDate = "Q" . ceil($curM / 3) . " (" . Carbon::create()->month($start)->format('M') . "-" . Carbon::create()->month($end)->format('M') . ") " . $year;
-            }
-
-            // otherwise filter by given date
-            else {
-                if ($month) $query->whereMonth('created_at', $month);
-                if ($day)   $query->whereDay('created_at', $day);
-                $readableDate = Carbon::create($year, $month ?? 1, $day ?? 1)->format($day ? 'd M Y' : ($month ? 'M Y' : 'Y'));
-            }
+            $this->applyDateFilter($query, $request, $year, $month, $day, $readableDate);
         };
 
 
@@ -239,13 +257,35 @@ class ReportController extends Controller
                 abort(404);
         }
 
+        // for average, maximum (delivered, refunds, returns)
+        $avgValue = 0;
+        $maxValue = 0;
+        if (isset($baseQuery)) {
+            $avgValue = (clone $baseQuery)->avg(DB::raw('price * quantity'));
+            $maxValue = (clone $baseQuery)->max(DB::raw('price * quantity'));
+        }
+
+
         // for reports view
         $stats = [
             'type_label'  => strtoupper($type),
-            'total_count' => $results->total(),
+            'total_count' => isset($baseQuery)
+                ? (clone $baseQuery)->count()
+                : $results->total(),
             'total_value' => $totalValue,
-            'date_string' => $readableDate
+            'date_string' => $readableDate,
+
+            'avg_value' => $avgValue,
+            'max_value' => $maxValue
         ];
+
+        // TEST
+        // log the avg, max result.
+        logger()->info("Average & Maximum data", [
+            "average" => $avgValue ?? 0,
+            "maximum" => $maxValue ?? 0,
+            'date_string' => $stats['date_string']
+        ]);
 
         // log the status
         logger()->info("Preview results count: " . $results->count());
