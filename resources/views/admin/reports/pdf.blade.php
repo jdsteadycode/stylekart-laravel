@@ -15,7 +15,12 @@
 <body>
     <div class="header">
         <h1>STYLEKART GLOBAL AUDIT</h1>
-        <p>{{ $stats['type_label'] }} | {{ $stats['date_string'] }}</p>
+        {{-- fixed: extra | if no date  --}}
+        @if(isset($stats['date_string']) && $stats['date_string'] !== '')
+            <p>{{ $stats['type_label'] }} | {{ $stats['date_string'] }}</p>
+        @else
+            <p>{{ $stats['type_label'] }}</p>
+        @endif
     </div>
     <div class="summary">
         <p><strong>Platform Status:</strong> Operational</p>
@@ -30,7 +35,7 @@
                 {{-- for customer wallet report --}}
                 @if($type == 'wallets')
                     <th>User</th>
-                    <th>Balance (RS)</th>
+                    <th class="text-right">Balance (RS)</th>
                 {{-- for delivered report (sales) --}}
                 @else
                     <th>Date</th>
@@ -44,11 +49,15 @@
             @foreach($results as $item)
             <tr>
                 @if($type == 'wallets')
-                    <td>{{ $item->user->name }}</td><td class="text-right">{{ number_format($item->balance, 2) }}</td>
+                    <td>{{ $item->user->name ?? 'N/A' }}</td>
+                    <td class="text-right">{{ number_format($item->balance, 2) }}</td>
                 @else
                     <td>{{ $item->created_at->format('d/m/y') }}</td>
                     <td>{{ $item->vendor->name ?? 'N/A' }}</td>
-                    <td>{{ $type == 'vendors' ? 'Vendor Account' : '#'.$item->order->order_number }}</td>
+                    <td>{{ $type == 'vendors'
+                        ? 'Vendor Account'
+                        : (optional($item->order)->order_number ? '#' . optional($item->order)->order_number : 'N/A')
+                    }}</td>
                     <td class="text-right">{{ number_format($type == 'vendors' ? $item->total_sales_count : ($item->price * $item->quantity), 2) }}</td>
                 @endif
             </tr>

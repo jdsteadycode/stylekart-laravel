@@ -42,12 +42,45 @@
         <div class="p-6 bg-slate-50/50 flex justify-between items-center border-b border-slate-100">
             <div>
                 <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">{{ $stats['type_label'] }}</h3>
-                <p class="text-[10px] font-bold text-slate-400 mt-1">{{ $stats['date_string'] }} | {{ $stats['total_count'] }} Found</p>
+                {{-- fixed | part --}}
+                @if(isset($stats['date_string']) && $stats['date_string'] !== '')
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">{{ $stats['date_string'] }} | {{ $stats['total_count'] }} Found</p>
+                @else
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">{{ $stats['total_count'] }} Found</p>
+                @endif
             </div>
             <div class="text-xl font-black text-indigo-600">
                 {{ $type == 'vendors' ? '' : '₹' . number_format($stats['total_value'], 2) }}
             </div>
         </div>
+
+        @if($type != 'vendors')
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-white border-b border-slate-100">
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Total Records</p>
+                    <p class="text-lg font-black text-slate-800">{{ $stats['total_count'] }}</p>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Total Value</p>
+                    <p class="text-lg font-black text-indigo-600">₹{{ number_format($stats['total_value'], 2) }}</p>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Average Value</p>
+                    <p class="text-lg font-black text-green-600">
+                        ₹{{ number_format($stats['avg_value'] ?? 0, 2) }}
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Max Value</p>
+                    <p class="text-lg font-black text-red-500">
+                        ₹{{ number_format($stats['max_value'] ?? 0, 2) }}
+                    </p>
+                </div>
+            </div>
+        @endif
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -67,20 +100,28 @@
                     <tr class="hover:bg-slate-50/50 transition">
                         @if($type == 'wallets')
                             <td class="px-6 py-4 font-bold text-slate-700">
-                                <a href="{{ route('admin.reports.wallet.details', $res->user->id) }}" class="text-indigo-600 hover:underline">
-                                    {{ $res->user->name }}
+                                <a
+                                    href="{{ route('admin.reports.wallet.details', array_merge(
+                                        ['user' => optional($res->user)->id ?? null],
+                                        request()->query()
+                                    )) }}"
+                                    class="text-indigo-600 hover:underline"
+                                >
+                                    {{ optional($res->user)->name ?? 'N/A' }}
                                 </a>
                             </td>
                             <td class="px-6 py-4 text-[10px] font-black text-green-500 uppercase">Active</td>
-                            <td class="px-6 py-4 text-right font-black text-slate-900">₹{{ number_format($res->balance, 2) }}</td>
+                            <td class="px-6 py-4 text-right font-black text-black uppercase">{{ $res->balance ?? 'N/A' }}</td>
                         @elseif($type == 'vendors')
-                            <td class="px-6 py-4 font-bold text-slate-700">{{ $res->name }}</td>
+                            <td class="px-6 py-4 font-bold text-slate-700">{{ $res->name ?? 'N/A' }}</td>
                             <td class="px-6 py-4 text-slate-500">{{ $res->created_at->format('M Y') }}</td>
                             <td class="px-6 py-4 text-right font-black text-indigo-600">{{ $res->total_sales_count ?? 0 }}</td>
+                        {{-- for return, sales, refunds --}}
                         @else
                             <td class="px-6 py-4 text-slate-400">{{ $res->created_at->format('d M') }}</td>
-                            <td class="px-6 py-4 font-black text-indigo-500 text-[10px] uppercase">{{ $res->vendor->name ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 font-bold text-slate-700">#{{ $res->order->order_number }}</td>
+                            <td
+                                class="px-6 py-4 font-black text-indigo-500 text-[10px] uppercase">{{ optional($res->vendor)->name ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 font-bold text-slate-700">#{{ optional($res->order)->order_number ?? 'N/A' }}</td>
                             <td class="px-6 py-4 text-right font-black text-slate-900">₹{{ number_format($res->price * $res->quantity, 2) }}</td>
                         @endif
                     </tr>
