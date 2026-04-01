@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <a href="{{ route('admin.reports.index') }}"
+        <a href="{{ route('admin.reports.generate', request()->query()) }}"
            class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-200">
             ← Back to Reports
         </a>
