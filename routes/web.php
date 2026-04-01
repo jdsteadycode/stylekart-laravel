@@ -227,6 +227,10 @@ Route::middleware(["auth", "role:admin"])
             // 'admin/reports/generate' - Logic to pull data for All Vendors/Users
             Route::get('/generate', [\App\Http\Controllers\Admin\ReportController::class, 'generate'])
                 ->name('admin.reports.generate');
+
+            // 'admin/reports/wallet/{user}' - Shows customer's wallet transaction details.
+            Route::get('/wallet/{user}', [\App\Http\Controllers\Admin\ReportController::class, 'walletDetails'])
+                ->name('admin.reports.wallet.details');
         });
     });
 
