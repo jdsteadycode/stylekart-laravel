@@ -27,7 +27,17 @@
     <table>
         <thead>
             <tr>
-                @if($type == 'wallets') <th>User</th><th>Balance</th> @else <th>Date</th><th>Vendor</th><th>Details</th><th class="text-right">Value</th> @endif
+                {{-- for customer wallet report --}}
+                @if($type == 'wallets')
+                    <th>User</th>
+                    <th>Balance (RS)</th>
+                {{-- for delivered report (sales) --}}
+                @else
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>Details</th>
+                    <th class="text-right">Value (RS)</th>
+                @endif
             </tr>
         </thead>
         <tbody>

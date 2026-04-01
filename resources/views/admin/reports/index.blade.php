@@ -1,4 +1,13 @@
 @extends('admin.layouts.app')
+
+@if($errors->any())
+    @foreach($errors->all() as $error)
+        <p>
+            {{ $error }}
+        </p>
+    @endforeach
+@endif
+
 @section('content')
 <script src="{{ asset('js/admin-reports.js') }}" defer></script>
 
@@ -57,7 +66,11 @@
                     @foreach($results as $res)
                     <tr class="hover:bg-slate-50/50 transition">
                         @if($type == 'wallets')
-                            <td class="px-6 py-4 font-bold text-slate-700">{{ $res->user->name }}</td>
+                            <td class="px-6 py-4 font-bold text-slate-700">
+                                <a href="{{ route('admin.reports.wallet.details', $res->user->id) }}" class="text-indigo-600 hover:underline">
+                                    {{ $res->user->name }}
+                                </a>
+                            </td>
                             <td class="px-6 py-4 text-[10px] font-black text-green-500 uppercase">Active</td>
                             <td class="px-6 py-4 text-right font-black text-slate-900">₹{{ number_format($res->balance, 2) }}</td>
                         @elseif($type == 'vendors')
@@ -75,7 +88,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-6 border-t border-slate-50">{{ $results->links() }}</div>
+        <div class="p-6 border-t border-slate-50">{{ $results->appends(request()->query())->links() }}</div>
     </div>
 @endif
 @endsection
