@@ -9,6 +9,28 @@
 {{-- Stats Cards --}}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
 
+    {{-- New: earnings widget [Platform Revenue (Wallet)] --}}
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100
+                    hover:shadow-lg hover:-translate-y-1 transition duration-300">
+
+        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-3 text-blue-500">
+            💰
+        </div>
+
+        <p>
+            <a
+                class="text-sm text-gray-500 font-medium hover:text-blue-600 transition"
+                href="{{ route('admin.wallet.index') }}"
+            >
+                Platform Revenue <span class="text-xs text-blue-500 ml-1">View Ledger &rarr;</span>
+            </a>
+        </p>
+
+        <h3 class="text-3xl font-extrabold mt-2 tracking-tight text-gray-900">
+            <span class="text-gray-400 font-medium mr-1 text-2xl">₹</span>{{ number_format($walletBalance ?? 0, 2) }}
+        </h3>
+    </div>
+
     {{-- Total Categories --}}
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100
                 hover:shadow-lg hover:-translate-y-1 transition duration-300">

@@ -19,6 +19,8 @@ class OrderItem extends Model
         "vendor_id",
         "quantity",
         "price",
+        "admin_commission",
+        "vendor_earning",
         "order_status",
         "cancel_reason",
         "return_reason",

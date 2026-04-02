@@ -279,8 +279,17 @@ class DashboardController extends Controller
             // get delivery person
             $user = auth()->user();
 
+            // old
             // update the items status
-            $order->items()->update(['order_status' => $incomingStatus]);
+            // $order->items()->update(['order_status' => $incomingStatus]);
+
+            // new
+            // iterate over each item
+            // and update it's status as incoming status
+            // Why? works for Observer if present.
+            $order->items->each(function ($item) use ($incomingStatus) {
+                $item->update(['order_status' => $incomingStatus]);
+            });
 
             // sync with main order
             $order->updateStatus();

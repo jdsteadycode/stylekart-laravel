@@ -45,6 +45,12 @@ $active = 'bg-indigo-800';
             🔄 Return Orders
         </a>
 
+        {{-- NEW: Wallet / Earnings link --}}
+        <a href="{{ route('vendor.wallet.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->route('vendor.wallet.*') ? $active : '' }}">
+            💰 Earnings (Wallet)
+        </a>
+
         {{-- Reports module link --}}
         <a href="{{ route('vendor.reports.index') }}"
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 {{ request()->routeIs('vendor.reports.*') ? $active : '' }}">

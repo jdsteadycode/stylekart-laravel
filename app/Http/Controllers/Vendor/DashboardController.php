@@ -1,15 +1,23 @@
 <?php
 
+// folder path
 namespace App\Http\Controllers\Vendor;
 
+// Controller class path
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
+// Request class path
+use Illuminate\Http\Request;
+
+// Model class paths
 use App\Models\ProductVariant;
+use App\Models\Wallet;
 // use App\Models\User;
+// use App\Models\Order;
+// use App\Models\Product;
+
+// Log, DB Facade class path(s)
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -326,6 +334,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // get wallet balance.
+        $vendorWallet = Wallet::where('user_id', $vendor->id)->first();
+        $walletBalance = $vendorWallet ? $vendorWallet->balance : 0.00;
+
         // return the view..
         return view('vendor.dashboard.index', compact(
             'todayRevenue',
@@ -334,7 +346,8 @@ class DashboardController extends Controller
             'monthNames',
             'revenueData',
             'orderStatusCounts',
-            'lowStockVariants'
+            'lowStockVariants',
+            'walletBalance'
         ));
     }
 }

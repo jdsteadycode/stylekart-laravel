@@ -98,6 +98,7 @@ Route::get("/dashboard", function () {
 Route::middleware(["auth", "role:admin"])
     ->prefix("dashboard/admin")
     ->group(function () {
+
         // 'dashboard/admin/'
         Route::get("/", [
             App\Http\Controllers\Admin\DashboardController::class,
@@ -158,7 +159,7 @@ Route::middleware(["auth", "role:admin"])
         /*
         subcategories
         module
-    */
+        */
         // 'dashboard/admin/subcategories'
         Route::get("/subcategories", [
             SubcategoryController::class,
@@ -232,6 +233,12 @@ Route::middleware(["auth", "role:admin"])
             Route::get('/wallet/{user}', [\App\Http\Controllers\Admin\ReportController::class, 'walletDetails'])
                 ->name('admin.reports.wallet.details');
         });
+
+        /**
+         * Admin Master Wallet
+         */
+        Route::get("/wallet", [\App\Http\Controllers\Admin\WalletController::class, "index"])
+            ->name("admin.wallet.index");
     });
 
 // Vendor dashboard
@@ -535,6 +542,12 @@ Route::middleware(["auth", "role:vendor"])
                 Route::get('/generate', [\App\Http\Controllers\Vendor\ReportController::class, 'generate'])
                     ->name('generate');
             });
+
+            /**
+             * Vendor Earnings Wallet Module.
+             */
+            Route::get("/wallet", [\App\Http\Controllers\Vendor\WalletController::class, "index"])
+                ->name("vendor.wallet.index");
         });
     });
 
