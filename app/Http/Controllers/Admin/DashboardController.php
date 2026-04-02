@@ -1,14 +1,21 @@
 <?php
 
+// folder path
 namespace App\Http\Controllers\Admin;
 
+// Controller, Request class paths
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
+// Log Facade Class
 use Illuminate\Support\Facades\Log;
+
+// Model class paths
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\User;
 use App\Models\VendorProfile;
+use App\Models\Wallet;
 
 class DashboardController extends Controller
 {
@@ -64,6 +71,10 @@ class DashboardController extends Controller
             ->with("vendorProfile")
             ->get();
 
+        // Fetch Admin Wallet Balance for the widget
+        $adminWallet = Wallet::where('user_id', $admin->id)->first();
+        $walletBalance = $adminWallet ? $adminWallet->balance : 0.00;
+
         return view(
             "admin.dashboard.index",
             compact([
@@ -73,6 +84,7 @@ class DashboardController extends Controller
                 "totalPendingVendors",
                 "totalRejectedVendors",
                 "recentVendors",
+                "walletBalance"
             ]),
         );
     }
