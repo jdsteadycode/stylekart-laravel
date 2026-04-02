@@ -10,8 +10,9 @@
 </div>
 
 {{-- 🚀 Priority Action & Revenue Section --}}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 
+    {{-- OLD --}}
     {{-- Orders to Ship (Action Item #1) --}}
     {{-- <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-orange-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
         <div class="flex items-center justify-between mb-3">
@@ -28,6 +29,7 @@
         </a>
     </div> --}}
 
+    {{-- NEW: Better color, accessibility --}}
     {{-- Orders to Ready (Action Item #1) --}}
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-l-4 border-l-orange-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
             <div class="flex items-center justify-between mb-3">
@@ -70,6 +72,22 @@
             ₹{{ number_format($thisMonthRevenue ?? 0, 2) }}
         </h3>
         <p class="text-xs text-gray-400 mt-4">Current month total</p>
+    </div>
+
+    {{-- Available Earnings (Wallet) --}}
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 border-b-4 border-b-emerald-500 hover:shadow-lg hover:-translate-y-1 transition duration-300">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-wider">Earnings (WALLET)</p>
+            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl">
+                💰
+            </div>
+        </div>
+        <h3 class="text-4xl font-black mt-2 tracking-tight text-gray-800">
+            ₹{{ number_format($walletBalance ?? 0, 2) }}
+        </h3>
+        <a href="{{ route('vendor.wallet.index') }}" class="text-xs text-emerald-600 font-medium hover:underline mt-4 inline-block">
+            View earnings ledger &rarr;
+        </a>
     </div>
 
 </div>
