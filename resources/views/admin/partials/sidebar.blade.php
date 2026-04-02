@@ -35,6 +35,13 @@ $active = 'bg-slate-800';
             🚚 Deliveries
         </a>
 
+        {{-- new: added wallet link --}}
+        <a href="{{ route('admin.wallet.index') }}"
+            class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('admin.wallet.index') ? $active : ''}}">
+            💰 Wallet
+        </a>
+
+        {{-- fixed: business reports emoji --}}
         <a href="{{ route('admin.reports.index') }}"
             class="flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 {{ request()->routeIs('admin.reports.index') ? $active : ''}}">
             📄 Business Reports
