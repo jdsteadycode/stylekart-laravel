@@ -51,7 +51,10 @@
                         <div>
                             @if($transaction->reference)
                                 <a
-                                    href="{{ route('vendor.orders.show', ['order' => optional($transaction->reference)->order ?? null]) }}"
+                                    href="{{ route('vendor.orders.show',
+                                    [
+                                        'order' => optional($transaction->reference)->order ? optional($transaction->reference)->order : $transaction->reference
+                                    ]) }}"
                                     class="text-sm font-bold text-slate-900"
                                 >{{ $transaction->description }}</a>
                             @else
