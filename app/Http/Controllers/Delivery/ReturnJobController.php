@@ -226,10 +226,10 @@ class ReturnJobController extends Controller
                 // mark job as completed (dropped the item at vendor side)
                 $job->update(['status' => 'completed']);
 
-                // update the order item's return status
+                // get the order item?
                 $orderItem = OrderItem::find($job->reference_id);
 
-                // if order item?
+                // if order item found..
                 if ($orderItem) {
                     // update the orderItem's return-status as recived as vendor recieved the item
                     $orderItem->update(['return_status' => 'received']);
@@ -251,6 +251,63 @@ class ReturnJobController extends Controller
                     // refund here (or ensure refund begins when vendor approves the return request)
                     // new: added refund part..
                     $this->refundAmountToCustomer($orderItem, $refundAmount);
+
+                    /*
+                    * return fee
+                    */
+                    $vendorId = $orderItem->vendor_id;
+                    $returnFee = 15.00;
+
+                    // get existing or make one wallet for delivery person
+                    $deliveryWallet = Wallet::firstOrCreate(
+                        ['user_id' => $deliveryPerson->id],
+                        ['balance' => 0.00]
+                    );
+
+                    // add amount to wallet
+                    $deliveryWallet->increment('balance', $returnFee);
+
+                    // record this transaction
+                    $deliveryWallet->transactions()->create([
+                        'type' => 'credit',
+                        'amount' => $returnFee,
+                        'description' => "Return Delivery Payout for Order #" . $orderItem->order->order_number,
+                        'reference_type' => get_class($job),
+                        'reference_id' => $job->id,
+                    ]);
+
+                    // get or create the vendor wallet
+                    $vendorWallet = Wallet::firstOrCreate(
+                        ['user_id' => $vendorId],
+                        ['balance' => 0.00]
+                    );
+
+                    // update the vendor's balance amount
+                    $vendorWallet->decrement('balance', $orderItem->vendor_earning);
+
+                    // record the transaction as well
+                    $vendorWallet->transactions()->create([
+                        'type' => 'debit',
+                        'amount' => $orderItem->vendor_earning,
+                        'description' => "Earnings Reversal (Refunded) for Item ID: {$orderItem->id}",
+                        'reference_type' => get_class($orderItem),
+                        'reference_id' => $orderItem->id,
+                    ]);
+
+                    // B. Charge the ₹15 Return Fee
+                    $vendorWallet->decrement('balance', $returnFee);
+
+                    // record this transaction
+                    $vendorWallet->transactions()->create([
+                        'type' => 'debit',
+                        'amount' => $returnFee,
+                        'description' => "Return Fee Deduction for Order #" . $orderItem->order->order_number,
+                        'reference_type' => get_class($job),
+                        'reference_id' => $job->id,
+                    ]);
+
+                    // Log the status
+                    logger()->info("[ReturnJobController@complete] Vendor {$vendorId} debited ₹{$orderItem->vendor_earning} (reversal) + ₹15 (return fee). Delivery person credited ₹15.");
                 }
 
                 // update the delivery person status as free

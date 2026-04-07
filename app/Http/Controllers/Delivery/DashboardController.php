@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 // Models Class paths
 use App\Models\Order;
 use App\Models\DeliveryJob;
+use App\Models\Wallet;
 
 // DB Facade class path
 use Illuminate\Support\Facades\DB;
@@ -302,19 +303,75 @@ class DashboardController extends Controller
 
                 // if order was Cash On Delivery,
                 if (strtolower($order->payment_mode) === 'cod') {
-
-                    // update the status as paid,
                     $order->payment_status = 'paid';
                     $paid  = $order->save();
-
-                    // log the status
                     logger()->info("Order: #{$order->order_number} is now paid", ["status" => (bool) $paid]);
                 }
+
+                /* ==========================================
+                    NEW: DELIVERY PAYOUT & VENDOR SPLIT LOGIC
+                 ========================================== */
+
+                //*** 1. Credit ₹25 to the Delivery Person's Wallet
+
+                // get or create a new wallet for delivery person
+                $deliveryWallet = Wallet::firstOrCreate(
+                    ['user_id' => $user->id],
+                    ['balance' => 0.00]
+                );
+
+                // (credit) add the fixed-amount to delivery person's wallet
+                $deliveryWallet->increment('balance', 25.00);
+
+                // record this as a transaction
+                $deliveryWallet->transactions()->create([
+                    'type' => 'credit',
+                    'amount' => 25.00,
+                    'description' => "Delivery Payout for Order #{$order->order_number}",
+                    'reference_type' => get_class($order),
+                    'reference_id' => $order->id,
+                ]);
+
+                // 2. Identify unique vendors in this specific order
+                $uniqueVendors = $order->items->pluck('vendor_id')->filter()->unique();
+                $vendorCount = $uniqueVendors->count();
+
+                // 3. Split and deduct the ₹25 among the vendors
+                if ($vendorCount > 0) {
+                    // calculate the amount according vendors
+                    $deductionPerVendor = 25.00 / $vendorCount;
+
+                    // iterate over each vendor
+                    foreach ($uniqueVendors as $vendorId) {
+
+                        // get or create the wallet for vendor
+                        $vendorWallet = Wallet::firstOrCreate(
+                            ['user_id' => $vendorId],
+                            ['balance' => 0.00]
+                        );
+
+                        // Deduct the split fee from vendor's earnings
+                        $vendorWallet->decrement('balance', $deductionPerVendor);
+
+                        // Record the deduction
+                        $vendorWallet->transactions()->create([
+                            'type' => 'debit',
+                            'amount' => $deductionPerVendor,
+                            'description' => "Delivery Fee Deduction (Split) for Order #{$order->order_number}",
+                            'reference_type' => get_class($order),
+                            'reference_id' => $order->id,
+                        ]);
+                    }
+
+                    // Log the math for debugging
+                    logger()->info("[app\Http\Controllers\DashboardController@processTransaction] Delivery fee of ₹25 split among {$vendorCount} vendor(s) (₹{$deductionPerVendor} each).");
+                }
+
+
 
                 // get the delivery profile
                 $profile = $user->deliveryProfile;
                 if ($profile) {
-
                     // make delivery person available
                     $profile->update(['is_available' => true]);
                 }

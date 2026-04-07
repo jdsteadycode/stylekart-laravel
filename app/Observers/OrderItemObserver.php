@@ -41,7 +41,7 @@ class OrderItemObserver
             $totalItemPrice = $orderItem->price * $orderItem->quantity;
             $adminCommission = $totalItemPrice * 0.10;
 
-            // Commission for vendor is difference from admin and total item's worth amount
+            // Commission (90%) for vendor is difference from admin and total item's worth amount
             // is vendor's commission (earning)
             $vendorEarning = $totalItemPrice - $adminCommission;
 
@@ -75,11 +75,11 @@ class OrderItemObserver
                 // add (increment or credit) the amount to admin's wallet as part of commission.
                 $adminWallet->increment('balance', $adminCommission);
 
-                // also, record this as a transaction
+                // also, record this as a transaction (10%) of commission
                 $adminWallet->transactions()->create([
                     'type' => 'credit',
                     'amount' => $adminCommission,
-                    'description' => "Commission (10%) for Order #{$orderItem->order->order_number} (Item ID: {$orderItem->id})",
+                    'description' => "Commission for Order #{$orderItem->order->order_number} (Item ID: {$orderItem->id})",
                     'reference_type' => get_class($orderItem),
                     'reference_id' => $orderItem->id,
                 ]);
@@ -104,11 +104,11 @@ class OrderItemObserver
                 // increment the earnings to the balance (credit)
                 $vendorWallet->increment('balance', $vendorEarning);
 
-                // record this transaction
+                // record this transaction (90%) of remaining amount
                 $vendorWallet->transactions()->create([
                     'type' => 'credit',
                     'amount' => $vendorEarning,
-                    'description' => "Earnings (90%) for Order #{$orderItem->order->order_number} (Item ID: {$orderItem->id})",
+                    'description' => "Earnings for Order #{$orderItem->order->order_number} (Item ID: {$orderItem->id})",
                     'reference_type' => get_class($orderItem),
                     'reference_id' => $orderItem->id,
                 ]);
