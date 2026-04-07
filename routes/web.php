@@ -684,6 +684,12 @@ Route::middleware(['auth', 'role:delivery_person'])
         });
 
         /**
+         * Delivery Person Earnings Wallet
+         */
+        Route::get('/wallet', [App\Http\Controllers\Delivery\WalletController::class, 'index'])
+            ->name('delivery.wallet.index');
+
+        /**
          * for return orders
          */
         Route::get('/returns', [ReturnJobController::class, 'index'])
