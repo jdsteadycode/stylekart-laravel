@@ -31,6 +31,7 @@ class CheckRole
             Log::info('un-authorized access', ['role' => $role]);
 
             // redirect to 403 page
+            abort(403, 'You do not have authority to access this page');
         }
 
         // otherwise move to controller or next middleware..
