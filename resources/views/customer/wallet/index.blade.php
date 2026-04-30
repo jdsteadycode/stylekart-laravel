@@ -5,8 +5,8 @@
 
     {{-- Page Header --}}
     <div class="mb-8">
-        <h1 class="text-3xl font-black text-slate-900">My Wallet</h1>
-        <p class="text-slate-500 font-medium mt-1">Manage your refunds and wallet balance.</p>
+        <h1 class="text-3xl font-black text-slate-900">{{ __('wallet.title') }}</h1>
+        <p class="text-slate-500 font-medium mt-1">{{ __('wallet.subtitle') }}</p>
     </div>
 
     {{-- ZONE 1: THE HERO BALANCE CARD (Calm & Secure Theme) --}}
@@ -17,7 +17,7 @@
 
             <div class="relative z-10 flex flex-col md:flex-row md:justify-between md:items-end gap-6">
                 <div>
-                    <p class="text-emerald-50 text-xs font-bold tracking-widest uppercase mb-2 drop-shadow-sm">Available Balance</p>
+                    <p class="text-emerald-50 text-xs font-bold tracking-widest uppercase mb-2 drop-shadow-sm">{{ __('wallet.available_balance') }}</p>
                     <h2 class="text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-md">
                         <span class="text-emerald-200 mr-1 opacity-80">₹</span>{{ number_format($wallet->balance, 2) }}
                     </h2>
@@ -25,7 +25,7 @@
 
                 <div class="flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 shadow-sm">
                     <div class="h-2 w-2 rounded-full bg-white animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]"></div>
-                    <span class="text-white text-xs font-bold tracking-wide">Active & Secure</span>
+                    <span class="text-white text-xs font-bold tracking-wide">{{ __('wallet.active_secure') }}</span>
                 </div>
             </div>
         </div>
@@ -33,8 +33,7 @@
     {{-- ZONE 2: TRANSACTION HISTORY (THE LEDGER) --}}
     <div>
         <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Transaction History
-        </h3>
+            <i class="fa-solid fa-clock-rotate-left text-slate-400"></i>{{ __('wallet.transaction_history') }}</h3>
 
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             @forelse ($transactions as $transaction)
@@ -77,8 +76,8 @@
                     <div class="h-24 w-24 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-4xl text-slate-300">
                         <i class="fa-solid fa-receipt border-2 border-slate-200 p-4 rounded-3xl"></i>
                     </div>
-                    <h4 class="text-lg font-bold text-slate-900">No transactions yet</h4>
-                    <p class="text-slate-500 text-sm mt-1 max-w-sm mx-auto">When you return items or receive refunds, they will securely appear right here.</p>
+                    <h4 class="text-lg font-bold text-slate-900">{{ __('wallet.no_transactions') }}</h4>
+                    <p class="text-slate-500 text-sm mt-1 max-w-sm mx-auto">{{ __('wallet.empty_state_desc') }}</p>
                 </div>
             @endforelse
         </div>
