@@ -4,8 +4,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// class path to CheckRole.
+// class path to CheckRole, SetLanguage middleware(s)
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\SetLanguage;
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -15,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // register the SetLanguage
+        $middleware->web(append: [
+            SetLanguage::class
+        ]);
+
+        // add alias name
         $middleware->alias(
             ['role' => CheckRole::class],
         );

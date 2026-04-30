@@ -48,14 +48,14 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">1</div>
-                                <h3 class="text-xl font-black text-gray-900">Shipping Details</h3>
+                                <h3 class="text-xl font-black text-gray-900">{{ __('checkout.shipping_details') }}</h3>
                             </div>
 
                             {{-- Address Choice Tab --}}
                             @if($addresses->isNotEmpty())
                             <div class="flex items-center gap-2 bg-rose-50 p-1 rounded-xl border border-rose-100">
-                                <button type="button" @click="mode = 'saved'" :class="mode === 'saved' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">Saved</button>
-                                <button type="button" @click="mode = 'new'" :class="mode === 'new' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">New</button>
+                                <button type="button" @click="mode = 'saved'" :class="mode === 'saved' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">{{ __('checkout.saved') }}</button>
+                                <button type="button" @click="mode = 'new'" :class="mode === 'new' ? 'bg-white text-rose-500 shadow-sm' : 'text-gray-400'" class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">{{ __('checkout.new') }}</button>
                             </div>
                             @endif
                         </div>
@@ -71,7 +71,7 @@
 
                                     <div class="flex justify-between items-start mb-2">
                                         <span class="text-sm font-black text-gray-900">{{ $addr->name }}</span>
-                                        <span x-show="selectedAddress == '{{ $addr->id }}'" class="text-[9px] font-black text-rose-500 uppercase">Selected</span>
+                                        <span x-show="selectedAddress == '{{ $addr->id }}'" class="text-[9px] font-black text-rose-500 uppercase">{{ __('checkout.selected') }}</span>
                                     </div>
                                     <p class="text-xs text-gray-500 leading-relaxed line-clamp-2">
                                         {{ $addr->address_line }}, {{ $addr->city }} - {{ $addr->pincode }}
@@ -85,42 +85,42 @@
                         <div x-show="mode === 'new'" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                                 <div>
-                                    <input type="text" name="name" :disabled="mode === 'saved'" placeholder="Full Name" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('name') }}">
+                                    <input type="text" name="name" :disabled="mode === 'saved'" placeholder="{{ __('checkout.full_name') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('name') }}">
                                     @error('name') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
-                                    <input type="text" name="phone" :disabled="mode === 'saved'" placeholder="Phone Number" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('phone') }}">
+                                    <input type="text" name="phone" :disabled="mode === 'saved'" placeholder="{{ __('checkout.phone') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('phone') }}">
                                     @error('phone') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div class="md:col-span-2">
-                                    <textarea name="address_line" :disabled="mode === 'saved'" rows="3" placeholder="Full Address" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none">{{ old('address_line') }}</textarea>
+                                    <textarea name="address_line" :disabled="mode === 'saved'" rows="3" placeholder="{{ __('checkout.address') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none">{{ old('address_line') }}</textarea>
                                     @error('address_line') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
-                                    <input type="text" name="city" :disabled="mode === 'saved'" placeholder="City" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('city') }}">
+                                    <input type="text" name="city" :disabled="mode === 'saved'" placeholder="{{ __('checkout.city') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('city') }}">
                                     @error('city') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
-                                    <input type="text" name="pincode" :disabled="mode === 'saved'" placeholder="Pincode" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('pincode') }}">
+                                    <input type="text" name="pincode" :disabled="mode === 'saved'" placeholder="{{ __('checkout.pincode') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('pincode') }}">
                                     @error('pincode') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
-                                    <input type="text" name="state" :disabled="mode === 'saved'" placeholder="State" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('state') }}">
+                                    <input type="text" name="state" :disabled="mode === 'saved'" placeholder="{{ __('checkout.state') }}" class="w-full bg-rose-50/30 border border-rose-50 rounded-xl px-5 py-3 text-sm focus:ring-2 focus:ring-rose-300 outline-none" value="{{ old('state') }}">
                                     @error('state') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block italic">Address Type</label>
+                                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-2 block italic">{{ __('checkout.address_type') }}</label>
                                     <select name="address_type" :disabled="mode === 'saved'" class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
-                                        <option value="Where to?" hidden>Where to?</option>
-                                        <option value="home" {{ old('address_type') === 'home' ? 'selected' : ''}}>🏠 Home (Delivery anytime)</option>
-                                        <option value="office" {{ old('address_type') === 'office' ? 'selected' : ''}}>🏢 Office (10 AM - 6 PM)</option>
-                                        <option value="other" {{ old('address_type') === 'other' ? 'selected' : ''}}>📍 Other</option>
+                                        <option value="Where to?" hidden>{{ __('checkout.where_to') }}</option>
+                                        <option value="home" {{ old('address_type') === 'home' ? 'selected' : ''}}>{{ __('checkout.home_delivery') }}</option>
+                                        <option value="office" {{ old('address_type') === 'office' ? 'selected' : ''}}>{{ __('checkout.office_delivery') }}</option>
+                                        <option value="other" {{ old('address_type') === 'other' ? 'selected' : ''}}>{{ __('checkout.other') }}</option>
                                     </select>
                                     @error('address_type') <p class="mt-2 text-[9px] font-bold text-rose-500 uppercase tracking-tight ml-1">{{ $message }}</p> @enderror
                                 </div>
@@ -130,14 +130,14 @@
 
                     <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-black text-gray-900">Stylekart Wallet</h3>
+                            <h3 class="font-black text-gray-900">{{ __('checkout.wallet_title') }}</h3>
                             <span class="text-emerald-600 font-bold">₹ {{ number_format($walletBalance, 2) }}</span>
                         </div>
 
                         @if($walletBalance > 0)
                         <label class="flex items-center gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 cursor-pointer">
                             <input type="checkbox" name="use_wallet" x-model="useWallet" class="w-5 h-5 accent-emerald-500">
-                            <span class="text-sm font-bold text-gray-700">Use wallet balance (Save ₹<span x-text="walletUsed"></span>)</span>
+                            <span class="text-sm font-bold text-gray-700">{{ __('checkout.use_wallet') }} ({{ __('checkout.save_text') }} ₹<span x-text="walletUsed"></span>)</span>
                         </label>
                         @endif
                     </div>
@@ -146,14 +146,14 @@
                     <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm">
                         <div class="flex items-center gap-3 mb-8">
                             <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white text-xs">2</div>
-                            <h3 class="text-xl font-black text-gray-900">Payment Mode</h3>
+                            <h3 class="text-xl font-black text-gray-900">{{ __('checkout.payment_mode') }}</h3>
                         </div>
 
                         <div class="flex flex-col md:flex-row gap-4">
                             <label class="flex-1 flex items-center justify-between p-4 cursor-pointer rounded-2xl border border-rose-100 bg-rose-50/20 group hover:bg-rose-50 transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:bg-white">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-credit-card text-rose-400"></i>
-                                    <span class="text-sm font-bold text-gray-700">Online Payment</span>
+                                    <span class="text-sm font-bold text-gray-700">{{ __('checkout.online') }}</span>
                                 </div>
                                 <input type="radio" name="pay"
                                     class="w-4 h-4 accent-rose-500 text-rose-500 focus:outline-none focus:ring-0"
@@ -165,7 +165,7 @@
                             <label class="flex-1 flex items-center justify-between p-4 cursor-pointer rounded-2xl border border-rose-100 bg-rose-50/20 group hover:bg-rose-50 transition-all has-[:checked]:ring-2 has-[:checked]:ring-rose-500 has-[:checked]:bg-white">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-hand-holding-dollar text-rose-400"></i>
-                                    <span class="text-sm font-bold text-gray-700">Cash on Delivery</span>
+                                    <span class="text-sm font-bold text-gray-700">{{ __('checkout.cod') }}</span>
                                 </div>
                                 <input type="radio" name="pay"
                                     class="w-4 h-4 accent-rose-500 text-rose-500 focus:outline-none focus:ring-0"
@@ -184,19 +184,19 @@
                 {{-- Final Summary for Checkout --}}
                 <div class="lg:col-span-1">
                     <div class="bg-white p-8 rounded-[32px] border border-rose-50 shadow-sm sticky top-28">
-                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-8">Order Summary</h3>
+                        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-8">{{ __('checkout.summary') }}</h3>
 
                         <div class="space-y-4 mb-8">
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600 font-medium">Subtotal ({{ count($bag); }} items)</span>
+                                <span class="text-sm text-gray-600 font-medium">{{ __('checkout.subtotal', ['count' => count($bag)]) }}</span>
                                 <span class="text-sm font-black text-gray-900">₹ {{ $subTotal }}</span>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600 font-medium">Delivery Fee</span>
+                            {{-- <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600 font-medium">{{ __('checkout.delivery') }}</span>
                                 <span class="text-[10px] font-black text-green-500 uppercase">Free</span>
-                            </div>
+                            </div> --}}
                             <div class="pt-4 border-t border-rose-50 flex justify-between items-center">
-                                <span class="font-black text-gray-900">Total Payable</span>
+                                <span class="font-black text-gray-900">{{ __('checkout.payable') }}</span>
                                 <span class="text-2xl font-black text-rose-500">₹ <span x-text="payable"></span></span>
                             </div>
                         </div>
@@ -207,14 +207,14 @@
                                    {{ count($bag) < 1 ? 'opacity-50 cursor-not-allowed' : '' }}"
                             {{ count($bag) < 1 ? 'disabled' : '' }}
                         >
-                            Place Order
+                            {{ __('checkout.place_order') }}
                         </button>
 
 
 
                         <div class="mt-6 flex justify-center gap-2">
                             <i class="fa-solid fa-shield-check text-rose-200 text-xs"></i>
-                            <p class="text-[9px] text-gray-300 font-bold uppercase tracking-widest">Secure Checkout</p>
+                            <p class="text-[9px] text-gray-300 font-bold uppercase tracking-widest">{{ __('checkout.secure') }}</p>
                         </div>
                     </div>
                 </div>

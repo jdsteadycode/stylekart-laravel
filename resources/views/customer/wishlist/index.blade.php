@@ -34,9 +34,9 @@
 
         {{-- Section Header --}}
         <div class="mb-12 text-center">
-            <span class="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em] mb-2 block italic">Your Collection</span>
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Saved for Later <span class="text-rose-500">🌸</span></h1>
-            <p class="text-gray-400 text-xs mt-2 font-medium">A curated list of the styles you've fallen for.</p>
+            <span class="text-[10px] font-black text-rose-400 uppercase tracking-[0.3em] mb-2 block italic">{{ __('wishlist.your_collection') }}</span>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">{{ __('wishlist.saved_for_later') }} <span class="text-rose-500">🌸</span></h1>
+            <p class="text-gray-400 text-xs mt-2 font-medium">{{ __('wishlist.subtitle') }}'</p>
         </div>
 
         @if($wishlistedItems->count() < 1)
@@ -45,11 +45,9 @@
                 <div class="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
                     <span class="text-3xl">🥀</span>
                 </div>
-                <h2 class="text-xl font-black text-gray-800 tracking-tight">Your wishlist is resting</h2>
-                <p class="text-gray-400 text-xs mt-2 mb-8 px-10 leading-relaxed font-medium uppercase tracking-tighter">It looks a bit lonely here. Let's find some pieces that speak to you.</p>
-                <a href="{{ route('customer.shop') }}" class="inline-block bg-rose-500 text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">
-                    Explore Shop
-                </a>
+                <h2 class="text-xl font-black text-gray-800 tracking-tight">{{ __('wishlist.resting_title') }}</h2>
+                <p class="text-gray-400 text-xs mt-2 mb-8 px-10 leading-relaxed font-medium uppercase tracking-tighter">{{ __('wishlist.resting_desc') }}</p>
+                <a href="{{ route('customer.shop') }}" class="inline-block bg-rose-500 text-white px-10 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">{{ __('wishlist.explore_shop') }}</a>
             </div>
         @else
             {{-- Wishlist Section --}}
@@ -78,7 +76,7 @@
                             @else
                                 <div class="text-center">
                                     <i class="fa-solid fa-shirt text-5xl text-rose-100 group-hover:scale-110 transition-transform duration-500"></i>
-                                    <p class="text-[8px] font-black text-rose-200 uppercase tracking-widest mt-3">No Preview</p>
+                                    <p class="text-[8px] font-black text-rose-200 uppercase tracking-widest mt-3">{{ __('wishlist.no_preview') }}</p>
                                 </div>
                             @endif
                         </div>
@@ -86,14 +84,12 @@
                         {{-- Product + Variant Details --}}
                         <div class="p-6 text-center">
                             <a href="{{ route('customer.product.show', ['product' => $item->product, 'variant' => $item->variant->id]) }}"
-                               class="font-black text-gray-800 truncate text-sm tracking-tight mb-1 group-hover:text-rose-500 transition-colors block">
-                                {{ $item->product?->name ?? 'Untitled Style' }}
-                            </a>
+                               class="font-black text-gray-800 truncate text-sm tracking-tight mb-1 group-hover:text-rose-500 transition-colors block">{{ $item->product?->name ?? __('wishlist.untitled_style') }}</a>
 
                             {{-- Variant info --}}
                             <div class="flex items-center justify-center gap-2 mb-3">
                                 {{-- Size --}}
-                                <span class="text-xs font-bold text-gray-500 uppercase">Size: {{ $item->variant->size }}</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase">{{ __('wishlist.size_label') }} {{ $item->variant->size }}</span>
 
                                 {{-- Color --}}
                                 @if($item->variant->color)
@@ -112,9 +108,7 @@
                                 @csrf
                                 <input type="hidden" name="variant_id" value="{{ $item->variant->id }}">
                                 <input type="hidden" name="qty" value="1">
-                                <button class="w-full py-4 bg-rose-50 text-rose-500 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm">
-                                    Move to Bag
-                                </button>
+                                <button class="w-full py-4 bg-rose-50 text-rose-500 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-rose-500 hover:text-white transition-all active:scale-95 shadow-sm">{{ __('wishlist.move_to_bag') }}</button>
                             </form>
                         </div>
                     </div>

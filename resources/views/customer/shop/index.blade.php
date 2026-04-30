@@ -36,8 +36,8 @@
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
             <div>
-                <h1 class="text-3xl font-black text-gray-900">Our Collection ✨</h1>
-                <p class="text-gray-500 text-sm mt-1">Discover your next favorite outfit.</p>
+                <h1 class="text-3xl font-black text-gray-900">{{ __('shop.title') }}</h1>
+                <p class="text-gray-500 text-sm mt-1">{{ __('shop.subtitle') }}</p>
             </div>
 
             {{-- search section --}}
@@ -91,7 +91,7 @@
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
-                        placeholder="Search product name..."
+                        placeholder="{{ __('shop.search_placeholder') ?? 'Search product name...' }}"
                         class="w-full bg-white border border-rose-100 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all shadow-sm"
                     >
                     <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400 hover:text-rose-500">
@@ -121,7 +121,7 @@
 
                         {{-- By Category --}}
                         <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            Filter By Category 📂
+                            {{ __('shop.filter_category') }}
                         </h3>
 
                         @foreach($allCategories as $category)
@@ -140,7 +140,7 @@
 
                         {{-- By Brand --}}
                         <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            Filter By Brand 🏷️
+                            {{ __('shop.filter_brand') }}
                         </h3>
 
                         <div class="space-y-2 mb-6">
@@ -162,7 +162,7 @@
 
                         {{-- By Vendor --}}
                         <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            Filter By Vendor 🏠
+                            {{ __('shop.filter_vendor') }}
                         </h3>
 
                         @foreach($allVendors as $vendor)
@@ -180,7 +180,7 @@
 
                         {{-- By Price --}}
                         <h3 class="font-bold text-gray-800 mb-4 mt-6 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            Filter By Price 💰
+                            {{ __('shop.filter_price') }}
                         </h3>
 
                         <div class="flex items-center gap-2">
@@ -210,14 +210,14 @@
                         </div>
 
                         <button type="submit" class="mt-4 w-full bg-rose-500 text-white py-2 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-rose-600 transition-all active:scale-95">
-                            Apply
+                            {{ __('shop.apply') }}
                         </button>
 
                     </form>
 
                     <div class="h-[1px] bg-rose-50 my-8"></div>
                     <a href="{{ route('customer.shop') }}" class="text-[10px] font-black text-gray-400 hover:text-rose-500 transition-colors uppercase tracking-[0.2em]">
-                        Reset Filters
+                        {{ __('shop.reset_filters') }}
                     </a>
 
                 </div>

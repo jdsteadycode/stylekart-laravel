@@ -14,11 +14,11 @@
             </div>
 
             <div class="hidden md:flex space-x-10 items-center">
-                <a href="{{ route('customer.home') }}" class="text-sm font-bold text-gray-600 hover:text-rose-500 transition-colors">Home</a>
+                <a href="{{ route('customer.home') }}" class="text-sm font-bold text-gray-600 hover:text-rose-500 transition-colors">{{ __('header.home') }}</a>
 
                 <div class="relative group">
                     <button class="text-sm font-bold text-gray-600 hover:text-rose-500 flex items-center gap-1">
-                        Categories <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        {{ __('header.categories') }} <i class="fa-solid fa-chevron-down text-[10px]"></i>
                     </button>
                     <div class="absolute top-full -left-4 w-48 bg-white shadow-xl rounded-2xl p-2 border border-rose-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all mt-2">
                         @php
@@ -39,7 +39,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('customer.shop') }}" class="text-sm font-bold text-gray-600 hover:text-rose-500 transition-colors">Shop</a>
+                <a href="{{ route('customer.shop') }}" class="text-sm font-bold text-gray-600 hover:text-rose-500 transition-colors">{{ __('header.shop') }}</a>
             </div>
 
             <div class="flex items-center space-x-3">
@@ -59,6 +59,25 @@
                         {{ count(session()->get('bag', [])) }}
                     </span>
                 </a>
+
+                <div class="h-6 w-[1px] bg-gray-200 mx-1 hidden md:block"></div>
+
+                {{-- NEW: Language Selector Dropdown --}}
+                <div class="relative group hidden md:block">
+                    <button class="flex items-center gap-1 p-2 text-sm font-bold text-gray-600 hover:text-rose-500 transition-colors">
+                        <i class="fa-solid fa-globe"></i>
+                        {{ strtoupper(Session::get('locale', 'en')) }}
+                    </button>
+                    <div
+                        class="absolute top-full right-0 w-24 bg-white shadow-xl rounded-xl p-2 border border-rose-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all mt-1">
+                        <a href="{{ route('customer.lang.switch', 'en') }}"
+                            class="block px-3 py-2 text-xs font-bold text-gray-700 hover:bg-rose-50 rounded-lg {{ Session::get('locale', 'en') === 'en' ? 'text-rose-500 bg-rose-50/50' : '' }}">English</a>
+                        <a href="{{ route('customer.lang.switch', 'gu') }}"
+                            class="block px-3 py-2 text-xs font-bold text-gray-700 hover:bg-rose-50 rounded-lg {{ Session::get('locale') === 'gu' ? 'text-rose-500 bg-rose-50/50' : '' }}">ગુજરાતી</a>
+                    </div>
+                </div>
+
+                <div class="h-6 w-[1px] bg-gray-200 mx-1"></div>
 
 
                 {{-- auth section & profile --}}

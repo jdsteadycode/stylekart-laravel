@@ -5,20 +5,20 @@
     <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <div class="md:w-2/3 lg:w-1/2">
             <span class="inline-block px-4 py-1.5 mb-4 text-xs font-bold tracking-widest text-rose-600 uppercase bg-rose-200 rounded-full">
-                New Season Arrived 🌸
+                {{ __('home.new_season') ?? 'New Season Arrived 🌸' }}
             </span>
             <h1 class="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-tight mb-6">
-                Discover Your <span class="text-rose-500">True Style</span>
+                {{ __('home.title_1') ?? 'Discover Your' }} <span class="text-rose-500">{{ __('home.title_2') ?? 'Your Style' }}</span>
             </h1>
             <p class="text-lg text-gray-600 mb-10 leading-relaxed">
-                Shop from hundreds of independent vendors and boutiques all in one place. Fresh, unique, and hand-picked just for you.
+                {{ __('home.subtitle') ?? 'Shop from hundreds of independent vendors and boutiques all in one place. Fresh, unique, and hand-picked just for you.' }}
             </p>
             <div class="flex flex-wrap gap-4">
                 <a href="{{ route('customer.shop') }}" class="bg-rose-500 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-rose-200 hover:bg-rose-600 hover:-translate-y-1 transition-all duration-300">
-                    Shop Now 🛍️
+                    {{ __('home.shop_now') ?? 'Shop Now 🛍️' }}
                 </a>
                 <a href=" {{ route('register', ['role' => 'vendor']) }} " class="bg-white text-rose-500 border-2 border-rose-100 px-8 py-4 rounded-2xl font-bold hover:bg-rose-50 transition-all duration-300">
-                    Become a Vendor 🏪
+                    {{ __('home.become_vendor') ?? 'Become a Vendor 🏪' }}
                 </a>
             </div>
         </div>
@@ -30,8 +30,8 @@
 <div class="bg-white py-20">
     <div class="max-w-7xl mx-auto px-6">
         <div class="text-center mb-16">
-            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tight">Our Local Labels 🏷️</h2>
-            <p class="text-gray-500 mt-2">Discover unique identities from independent vendors.</p>
+            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tight">{{ __('home.brands_title') ?? 'Our Local Labels 🏷️' }}</h2>
+            <p class="text-gray-500 mt-2">{{ __('home.brands_subtitle') ?? 'Discover unique identities from independent vendors.' }}</p>
         </div>
 
         <div class="flex flex-wrap justify-center gap-10 md:gap-20 items-center">
@@ -54,8 +54,8 @@
 <div class="max-w-7xl mx-auto py-20 px-6">
     <div class="flex flex-col md:flex-row justify-between items-end mb-12">
         <div>
-            <h2 class="text-4xl font-black text-gray-900">Choose Your Vibe 🌈</h2>
-            <p class="text-gray-500 mt-2">Curated collections for everyone.</p>
+            <h2 class="text-4xl font-black text-gray-900">{{ __('home.categories_title') ?? 'Choose Your Vibe 🌈' }}</h2>
+            <p class="text-gray-500 mt-2">{{ __('home.categories_subtitle') ?? 'Curated collections for everyone.' }}</p>
         </div>
     </div>
 
@@ -115,7 +115,7 @@
                 <div>
                     <h3 class="text-2xl font-bold {{ $ui['text'] }}">{{ $cat->name }}</h3>
                     <a href="{{ route('customer.shop' , ['category' => $cat->id]) }}"
-                       class="mt-1 font-medium {{ $ui['text'] }} opacity-80">Explore →</a>
+                       class="mt-1 font-medium {{ $ui['text'] }} opacity-80">{{ __('home.explore') ?? 'Explore →' }}</a>
                 </div>
             </div>
 
@@ -125,7 +125,7 @@
 
 {{-- trending products section --}}
 <div class="max-w-7xl mx-auto py-20 px-6 border-t border-rose-50">
-    <h2 class="text-3xl font-bold text-gray-900 mb-10">Trending Now 🔥</h2>
+    <h2 class="text-3xl font-bold text-gray-900 mb-10">{{ __('home.trending_title') ?? 'Trending Now 🔥' }}</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
         @foreach($products as $product)
         <div class="bg-white rounded-2xl p-3 border border-gray-100 hover:border-rose-200 transition-colors group">

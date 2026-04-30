@@ -44,7 +44,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-black text-gray-900 leading-tight">{{ $customer->name ??'N/A' }}</h2>
-                            <p class="text-rose-400 text-[10px] font-black uppercase tracking-[0.2em]">STYLEKART CUSTOMER</p>
+                            <p class="text-rose-400 text-[10px] font-black uppercase tracking-[0.2em]">{{ __('profile.customer_badge') }}</p>
                         </div>
                     </div>
 
@@ -55,9 +55,7 @@
                         </div>
                         <div class="flex items-center gap-3 text-gray-600">
                             <i class="fa-solid fa-calendar-days text-rose-300 text-xs"></i>
-                            <span class="text-sm font-medium">
-                                Since {{ $customer->created_at->format('d M, Y') ?? 'DD-MM-YYYY' }}
-                            </span>
+                            <span class="text-sm font-medium">{{ __('profile.since') }} {{ $customer->created_at->format('d M, Y') ?? 'DD-MM-YYYY' }}</span>
                         </div>
                     </div>
 
@@ -66,22 +64,20 @@
                         {{-- New Wallet Button --}}
                         <a href="{{ route('customer.wallet.index') }}"
                            class="w-full py-3 flex items-center justify-center gap-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-                            <i class="fa-solid fa-wallet text-emerald-400"></i> My Wallet
+                            <i class="fa-solid fa-wallet text-emerald-400"></i> {{ __('profile.my_wallet') }}
                         </a>
 
                         {{-- Existing Edit Profile Button --}}
                         <button
                             onclick="toggleModal('editProfileModal')"
-                            class="w-full py-3 bg-rose-50/50 text-rose-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-300">
-                            Edit Profile
-                        </button>
+                            class="w-full py-3 bg-rose-50/50 text-rose-500 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-300">{{ __('profile.edit_profile') }}</button>
                     </div>
                 </div>
 
                 <div class="bg-white p-8 rounded-3xl border border-rose-50 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-black text-gray-900 uppercase text-[10px] tracking-widest">My Addresses 🏠</h3>
-                        <a href="{{ route('customer.address.create') }}" class="text-rose-500 text-[10px] font-black uppercase">+ Add New</a>
+                        <h3 class="font-black text-gray-900 uppercase text-[10px] tracking-widest">{{ __('profile.my_addresses') }}</h3>
+                        <a href="{{ route('customer.address.create') }}" class="text-rose-500 text-[10px] font-black uppercase">{{ __('profile.add_new') }}</a>
                     </div>
 
                     <div class="space-y-4">
@@ -91,14 +87,11 @@
 
                                 {{-- Default badge --}}
                                 @if($address->is_default)
-                                    <span class="absolute top-3 right-3 text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full uppercase">
-                                        Default
-                                    </span>
+                                    <span class="absolute top-3 right-3 text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full uppercase">{{ __('profile.default_badge') }}</span>
                                 @endif
 
                                 {{-- Action buttons container --}}
-                                <div class="absolute top-3 right-3 flex items-center gap-3
-                                            opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute top-3 right-3 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
 
                                     {{-- Edit --}}
                                     <a href="{{ route('customer.address.edit', $address) }}"
@@ -109,7 +102,7 @@
                                     {{-- Delete --}}
                                     <form action="{{ route('customer.address.destroy', $address) }}"
                                           method="POST"
-                                          onsubmit="return confirm('Are you sure you want to delete this address?');">
+                                          onsubmit="return confirm('{{ __('profile.delete_address_confirm') }}');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -132,7 +125,7 @@
                             </div>
                             @endforeach
                         @else
-                            <span>No Addresses exist.</span>
+                            <span>{{ __('profile.no_addresses') }}</span>
                         @endif
                     </div>
                 </div>
@@ -142,8 +135,8 @@
             <div class="lg:col-span-2">
                 <div class="bg-white p-8 rounded-3xl border border-rose-50 shadow-sm min-h-full">
                     <div class="flex justify-between items-center mb-10 border-b border-rose-50 pb-6">
-                        <h3 class="text-2xl font-black text-gray-900">Recent Orders 📦</h3>
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total: {{ $recentOrdersCount ?? 'N/A' }} Orders</span>
+                        <h3 class="text-2xl font-black text-gray-900">{{ __('profile.recent_orders') }}</h3>
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ __('profile.total_orders', ['count' => $recentOrdersCount ?? 0]) }}</span>
                     </div>
 
                     <div class="space-y-4">
@@ -159,8 +152,8 @@
                                             <i class="fa-solid fa-receipt"></i>
                                         </div>
                                         <div>
-                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">ID: {{ $order->order_number ?? 'N/A' }}</p>
-                                            <p class="text-sm font-bold text-gray-800">Placed on {{ $order->created_at->format('d M, Y') ?? 'DD-MM-YYYY' }}</p>
+                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ __('profile.order_id') }} {{ $order->order_number ?? 'N/A' }}</p>
+                                            <p class="text-sm font-bold text-gray-800">{{ __('profile.placed_on') }} {{ $order->created_at->format('d M, Y') ?? 'DD-MM-YYYY' }}</p>
                                         </div>
                                     </div>
 
@@ -171,9 +164,7 @@
                                         </div>
                                         <a
                                             href="{{ route('customer.orders.show', ['order' => $order]) }}"
-                                            class="bg-rose-50 text-rose-500 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all">
-                                            Order Details
-                                        </a>
+                                            class="bg-rose-50 text-rose-500 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all">{{ __('profile.order_details') }}</a>
                                     </div>
 
                                 </div>
@@ -181,13 +172,11 @@
                             @endif
                             @endforeach
                         @else
-                            <span>{{ "Seems like " . $customer->name . "Hasn't placed any order yet!" }}</span>
+                            <span>{{ __('profile.no_orders_yet', ['name' => $customer->name]) }}</span>
                         @endif
                     </div>
 
-                    <p class="text-center text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mt-12">
-                        End of recent history
-                    </p>
+                    <p class="text-center text-[10px] font-bold text-gray-300 uppercase tracking-[0.3em] mt-12">{{ __('profile.end_of_history') }}</p>
                 </div>
             </div>
 
@@ -213,8 +202,8 @@
                 >
                     {{ $firstLetter ?? 'N/A' }}
                 </div>
-                <h3 class="text-2xl font-black text-gray-900">Update Profile</h3>
-                <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mt-1">Refine your identity</p>
+                <h3 class="text-2xl font-black text-gray-900">{{ __('profile.update_profile') }}</h3>
+                <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mt-1">{{ __('profile.refine_identity') }}</p>
             </div>
 
             <form id="editProfileForm" action="{{ route('customer.profile.update') }}" method="POST" class="p-10 pt-4 space-y-5">
@@ -222,26 +211,22 @@
                 @method('PATCH')
 
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">Display Name</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">{{ __('profile.display_name') }}</label>
                     <input type="text" name="name" id="profileName" value="{{ $customer->name ?? 'N/A' }}"
                         class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
                     <p id="nameError" class="text-red-500 text-xs mt-1 hidden"></p>
                 </div>
 
                 <div>
-                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">Email Contact</label>
+                    <label class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 mb-2 block italic">{{ __('profile.email_contact') }}</label>
                     <input type="email" name="email" id="profileEmail" value="{{ $customer->email }}"
                         class="w-full bg-rose-50/30 border border-rose-50 rounded-2xl px-5 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-300 transition-all">
                     <p id="emailError" class="text-red-500 text-xs mt-1 hidden"></p>
                 </div>
 
                 <div class="pt-6 flex flex-col gap-3">
-                    <button type="submit" class="w-full bg-rose-500 text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">
-                        Save Changes
-                    </button>
-                    <button type="button" onclick="toggleModal('editProfileModal')" class="w-full py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
-                        Keep current info
-                    </button>
+                    <button type="submit" class="w-full bg-rose-500 text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">{{ __('profile.save_changes') }}</button>
+                    <button type="button" onclick="toggleModal('editProfileModal')" class="w-full py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-rose-500 transition-colors">{{ __('profile.keep_current') }}</button>
                 </div>
             </form>
         </div>
@@ -271,7 +256,7 @@
 
         //  validate name
         if (name.length < 2) {
-            document.getElementById('nameError').textContent = "Name must be at least 2 characters";
+            document.getElementById('nameError').textContent = "{{ __('profile.error_name_length') }}";
             document.getElementById('nameError').classList.remove('hidden');
 
             // update the state..
@@ -281,7 +266,7 @@
         // validate email
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailPattern.test(email)) {
-            document.getElementById('emailError').textContent = "Enter a valid email address";
+            document.getElementById('emailError').textContent = "{{ __('profile.error_email_invalid') }}";
             document.getElementById('emailError').classList.remove('hidden');
 
             // update the state..
