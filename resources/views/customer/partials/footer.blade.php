@@ -9,9 +9,7 @@
                     </div>
                     <span class="text-2xl font-black tracking-tight text-gray-800">Stylekart</span>
                 </a>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                    Join our fashion community! A modern multi-vendor marketplace built for lovers of style and quality. 🌸
-                </p>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">{{ __('footer.description') }}</p>
                 {{-- <div class="flex space-x-4">
                     <a href="#" class="h-10 w-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="h-10 w-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all"><i class="fa-brands fa-tiktok"></i></a>
@@ -20,11 +18,11 @@
             </div>
 
             <div>
-                <h4 class="font-black text-gray-900 mb-6 uppercase text-xs tracking-[0.2em]">Shop Collection</h4>
+                <h4 class="font-black text-gray-900 mb-6 uppercase text-xs tracking-[0.2em]">{{ __('footer.shop_collection') }}</h4>
                 <ul class="space-y-4 text-gray-500 text-sm font-medium">
-                    <li><a href="#" class="hover:text-rose-500 transition-colors">Women's Fashion 💃</a></li>
-                    <li><a href="#" class="hover:text-rose-500 transition-colors">Men's Essentials 👔</a></li>
-                    <li><a href="#" class="hover:text-rose-500 transition-colors">Kids Wear 🧸</a></li>
+                    <li><a href="#" class="hover:text-rose-500 transition-colors">{{ __('footer.womens_fashion') }}</a></li>
+                    <li><a href="#" class="hover:text-rose-500 transition-colors">{{ __('footer.mens_essentials') }}</a></li>
+                    <li><a href="#" class="hover:text-rose-500 transition-colors">{{ __('footer.kids_wear') }}</a></li>
                 </ul>
             </div>
 
@@ -40,7 +38,7 @@
 
         <div class="pt-8 border-t border-rose-50 flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">
-                Copyright &copy; {{ date('Y') }} Stylekart Online Marketplace. All rights reserved.
+                {{ __('footer.copyright', ['year' => date('Y')]) }}
             </p>
             <div class="flex gap-6">
                 <i class="fa-brands fa-cc-visa text-gray-300 text-2xl"></i>
