@@ -6,12 +6,12 @@
 
     @php
         $statuses = [
-            'pending' => 'Placed',
-            'processing' => 'Packing',
-            'shipped' => 'Shipped',
-            'out_for_delivery' => 'On Way',
-            'delivered' => 'Delivered',
-            'cancelled' => 'Cancelled'
+            'pending' => __('order.status_placed'),
+            'processing' => __('order.status_packing'),
+            'shipped' => __('order.status_shipped'),
+            'out_for_delivery' => __('order.status_on_way'),
+            'delivered' => __('order.status_delivered'),
+            'cancelled' => __('order.status_cancelled')
         ];
     @endphp
 
@@ -21,7 +21,7 @@
             <div class="mb-8">
                 <a href="{{ route('customer.profile') }}"
                     class="text-xs font-black text-rose-400 uppercase tracking-widest flex items-center gap-2 hover:text-rose-600 transition-colors">
-                    <i class="fa-solid fa-arrow-left"></i> Back to Profile
+                    <i class="fa-solid fa-arrow-left"></i> {{ __('order.back_to_profile') }}
                 </a>
             </div>
 
@@ -52,11 +52,9 @@
                 <div class="p-8 border-b border-rose-50 bg-white">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-1">Receipt & Status
-                            </p>
-                            <h1 class="text-2xl font-black text-gray-900">Order # {{ $order->order_number ?? 'N/A' }}</h1>
-                            <p class="text-sm text-gray-500 font-medium">Placed on
-                                {{ $order->created_at->format('d M, Y \a\t h:i A') ?? 'N/A' }}</p>
+                            <p class="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-1">{{ __('order.receipt_status') }}</p>
+                            <h1 class="text-2xl font-black text-gray-900">{{ __('order.order_hash') }} {{ $order->order_number ?? 'N/A' }}</h1>
+                            <p class="text-sm text-gray-500 font-medium">{{ __('order.placed_on') }} {{ $order->created_at->format('d M, Y \a\t h:i A') ?? 'N/A' }}</p>
                         </div>
                         <div class="text-left md:text-right">
                             <p class="text-2xl font-black text-gray-900">₹
@@ -82,10 +80,10 @@
 
                             @if (strtolower($order->payment_status) === 'paid')
                                 <span
-                                    class="ml-2 text-[9px] text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-md font-black tracking-widest">PAID</span>
+                                    class="ml-2 text-[9px] text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-md font-black tracking-widest">{{ __('order.paid') }}</span>
                             @else
                                 <span
-                                    class="ml-2 text-[9px] text-yellow-600 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-md font-black tracking-widest">PENDING</span>
+                                    class="ml-2 text-[9px] text-yellow-600 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-md font-black tracking-widest">{{ __('order.pending') }}</span>
                             @endif
                         </p>
                     </div>
@@ -97,24 +95,14 @@
 
                         {{-- Cancelled UI --}}
                         <div class="p-10 bg-rose-50/20 border-t border-b border-rose-100 text-center">
-
                             <div
                                 class="inline-flex items-center justify-center w-16 h-16
                                     rounded-full bg-rose-100 text-rose-500
                                     shadow-lg shadow-rose-100 mb-6">
                                 <i class="fa-solid fa-xmark text-xl"></i>
                             </div>
-
-                            <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-500 mb-2">
-                                Order Cancelled
-                            </h3>
-
-                            <p class="text-xs text-gray-500 font-medium max-w-sm mx-auto leading-relaxed">
-                                This order has been successfully cancelled.
-                                If payment was completed, the refund will be processed
-                                according to our refund policy.
-                            </p>
-
+                            <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-500 mb-2">{{ __('order.order_cancelled') }}</h3>
+                            <p class="text-xs text-gray-500 font-medium max-w-sm mx-auto leading-relaxed">{{ __('order.order_cancelled_msg') }}</p>
                         </div>
                     @else
                         {{-- Normal Timeline UI --}}
@@ -161,18 +149,16 @@
 
                         {{-- Normal Timeline UI --}}
                         <div class="p-10 bg-white rounded-3xl border border-rose-50 shadow-sm mt-6">
-                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-10 text-center">
-                                Track Your Package 🚚
-                            </h3>
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-10 text-center">{{ __('order.track_package') }}</h3>
 
                             @php
                                 // Steps with Labels and Emojis
                                 $steps = [
-                                    'pending' => ['label' => 'Placed', 'emoji' => '📝'],
-                                    'processing' => ['label' => 'Packing', 'emoji' => '📦'],
-                                    'shipped' => ['label' => 'Shipped', 'emoji' => '🚛'],
-                                    'out_for_delivery' => ['label' => 'On Way', 'emoji' => '🛵'],
-                                    'delivered' => ['label' => 'Delivered', 'emoji' => '🎁'],
+                                'pending' => ['label' => __('order.status_placed'), 'emoji' => '📝'],
+                                'processing' => ['label' => __('order.status_packing'), 'emoji' => '📦'],
+                                'shipped' => ['label' => __('order.status_shipped'), 'emoji' => '🚛'],
+                                'out_for_delivery' => ['label' => __('order.status_on_way'), 'emoji' => '🛵'],
+                                'delivered' => ['label' => __('order.status_delivered'), 'emoji' => '🎁'],
                                 ];
 
                                 $stepKeys = array_keys($steps);
@@ -226,8 +212,7 @@
                 </div>
 
                 <div class="p-8 border-t border-rose-50 mt-4">
-                    <h3 class="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">Items Ordered
-                        ({{ $order->items->count() }})</h3>
+                    <h3 class="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">{{ __('order.items_ordered') }} ({{ $order->items->count() }})</h3>
                     <div class="space-y-4">
                         @foreach ($order->items as $item)
                             <div x-data="{ open: false }"
@@ -242,34 +227,33 @@
 
                                     <div class="flex-grow">
                                         <h4 class="font-bold text-gray-800">{{ $item->product->name ?? 'N/A' }}</h4>
-                                        <p class="text-xs text-gray-400 font-medium">Qty: {{ $item->quantity ?? 'N/A' }} |
-                                            Size: {{ $item->variant->size }}</p>
+                                        <p class="text-xs text-gray-400 font-medium">{{ __('order.qty_short') }} {{ $item->quantity ?? 'N/A' }} | {{ __('order.size_label') }} {{ $item->variant->size }}</p>
 
                                         {{-- Cancel Button Logic --}}
                                         @if (in_array($item->order_status, ['pending', 'processing']) && $order->order_status !== 'cancelled')
                                             <button @click="open = true"
-                                                class="text-xs font-bold text-rose-500 hover:underline mt-1">
-                                                Cancel Item
-                                            </button>
+                                                class="text-xs font-bold text-rose-500 hover:underline mt-1">{{ __('order.cancel_item') }}</button>
 
                                             {{-- Cancel Modal (Hidden) --}}
                                             <div x-cloak x-show="open"
                                                 class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                                                 <div @click.away="open = false" class="bg-white rounded-xl p-6 w-80">
-                                                    <h3 class="font-bold text-gray-900 text-sm mb-4">Cancel Item?</h3>
+                                                    <h3 class="font-bold text-gray-900 text-sm mb-4">{{ __('order.cancel_item_confirm') }}</h3>
                                                     <form
                                                         action="{{ route('customer.order-item.cancel', ['orderNumber' => $order->order_number, 'item' => $item]) }}"
                                                         method="POST">
                                                         @csrf
-                                                        <label class="block text-xs font-medium text-gray-600 mb-2">Reason
-                                                            (optional)</label>
-                                                        <input type="text" name="cancel_reason" placeholder="Reason..."
+                                                        <label class="block text-xs font-medium text-gray-600 mb-2">{{ __('order.reason_optional') }}</label>
+                                                        <input
+                                                            type="text"
+                                                            name="cancel_reason"
+                                                            placeholder="{{ __('order.reason_placeholder') }}"
                                                             class="w-full border border-gray-200 rounded-lg p-2 mb-4 text-xs">
                                                         <div class="flex justify-end gap-2">
                                                             <button type="button" @click="open = false"
-                                                                class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100">Close</button>
+                                                                class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100">{{ __('order.close') }}</button>
                                                             <button type="submit"
-                                                                class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600">Confirm</button>
+                                                                class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-lg hover:bg-rose-600">{{ __('order.confirm') }}</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -279,9 +263,7 @@
                                         @elseif($item->order_status === 'delivered' && $item->return_status === null)
                                             <div x-data="{ openReturn: false, reasonType: '' }" class="mt-1">
                                                 <button @click="openReturn = true"
-                                                    class="text-xs font-bold text-blue-500 hover:text-blue-700 hover:underline transition-all">
-                                                    Return Item
-                                                </button>
+                                                    class="text-xs font-bold text-blue-500 hover:text-blue-700 hover:underline transition-all">{{ __('order.return_item') }}</button>
 
                                                 {{-- Return Modal (Hidden) --}}
                                                 <div x-cloak x-show="openReturn"
@@ -293,38 +275,31 @@
                                                                 class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
                                                                 <i class="fa-solid fa-box-open"></i>
                                                             </div>
-                                                            <h3 class="font-black text-gray-900 text-sm">Return Item?</h3>
+                                                            <h3 class="font-black text-gray-900 text-sm">{{ __('order.return_item_confirm') }}</h3>
                                                         </div>
-                                                        <p class="text-[10px] text-gray-500 mb-4 leading-relaxed">Please
-                                                            tell us why you are returning this item so we can notify the
-                                                            vendor.</p>
+                                                        <p class="text-[10px] text-gray-500 mb-4 leading-relaxed">{{ __('order.return_reason_msg') }}</p>
                                                         <form action="{{ route('customer.order-items.return', $item) }}"
                                                             method="POST">
                                                             @csrf
-                                                            <label class="block text-xs font-bold text-gray-700 mb-2">Reason
-                                                                for Return <span class="text-rose-500">*</span></label>
+                                                            <label class="block text-xs font-bold text-gray-700 mb-2">{{ __('order.reason_for_return') }} <span class="text-rose-500">*</span></label>
                                                             <select x-model="reasonType"
                                                                 :name="reasonType === 'Other' ? '' : 'reason'" required
                                                                 class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer">
-                                                                <option value="" disabled selected>Select a reason...
-                                                                </option>
-                                                                <option value="Wrong size or fit">Wrong size or fit</option>
-                                                                <option value="Damaged or defective product">Damaged or
-                                                                    defective product</option>
-                                                                <option value="Item not as described">Item not as described
-                                                                </option>
-                                                                <option value="Other">Other (Please specify)</option>
-                                                            </select>
+                                                                <option value="" disabled selected>{{ __('order.select_reason') }}</option>
+                                                                <option value="Wrong size or fit">{{ __('order.reason_wrong_size') }}</option>
+                                                                <option value="Damaged or defective product">{{ __('order.reason_damaged') }}</option>
+                                                                <option value="Item not as described">{{ __('order.reason_not_described') }}</option>
+                                                                <option value="Other">{{ __('order.reason_other') }}</select>
                                                             <textarea x-show="reasonType === 'Other'" :name="reasonType === 'Other' ? 'reason' : ''"
-                                                                :required="reasonType === 'Other'" rows="3" placeholder="Please type your specific reason..."
+                                                                :required="reasonType === 'Other'"
+                                                                rows="3"
+                                                                placeholder="{{ __('order.type_specific_reason') }}"
                                                                 class="w-full border border-gray-200 rounded-lg p-3 mb-4 text-xs focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all"></textarea>
                                                             <div class="flex justify-end gap-2 mt-2">
                                                                 <button type="button" @click="openReturn = false"
-                                                                    class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors">Keep
-                                                                    Item</button>
+                                                                    class="px-4 py-2 text-gray-500 text-xs font-bold rounded-lg hover:bg-gray-100 transition-colors">{{ __('order.keep_item') }}</button>
                                                                 <button type="submit"
-                                                                    class="px-4 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">Submit
-                                                                    Return</button>
+                                                                    class="px-4 py-2 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">{{ __('order.submit_return') }}</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -351,10 +326,8 @@
                                                 </div>
                                                 <div>
                                                     <p
-                                                        class="text-[11px] font-black text-orange-600 uppercase tracking-widest leading-none mb-1">
-                                                        Return Requested</p>
-                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Awaiting
-                                                        vendor approval</p>
+                                                        class="text-[11px] font-black text-orange-600 uppercase tracking-widest leading-none mb-1">{{ __('order.return_requested') }}</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">{{ __('order.awaiting_approval') }}</p>
                                                 </div>
                                             @elseif($item->return_status === 'approved')
                                                 <div
@@ -363,10 +336,8 @@
                                                 </div>
                                                 <div>
                                                     <p
-                                                        class="text-[11px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">
-                                                        Return Approved</p>
-                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Driver
-                                                        will pick up soon</p>
+                                                        class="text-[11px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">{{ __('order.return_approved') }}</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">{{ __('order.driver_pickup') }}</p>
                                                 </div>
                                             @elseif($item->return_status === 'picked_up')
                                                 <div
@@ -375,10 +346,8 @@
                                                 </div>
                                                 <div>
                                                     <p
-                                                        class="text-[11px] font-black text-indigo-600 uppercase tracking-widest leading-none mb-1">
-                                                        Item Picked Up</p>
-                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Heading
-                                                        back to the store</p>
+                                                        class="text-[11px] font-black text-indigo-600 uppercase tracking-widest leading-none mb-1">{{ __('order.item_picked_up') }}</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">{{ __('order.heading_back') }}</p>
                                                 </div>
                                             @elseif($item->return_status === 'received')
                                                 <div
@@ -387,10 +356,8 @@
                                                 </div>
                                                 <div>
                                                     <p
-                                                        class="text-[11px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">
-                                                        Refund Processed</p>
-                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Securely
-                                                        added to your wallet</p>
+                                                        class="text-[11px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">{{ __('order.refund_processed') }}</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">{{ __('order.added_to_wallet') }}</p>
                                                 </div>
                                             @elseif($item->return_status === 'rejected')
                                                 <div
@@ -399,10 +366,8 @@
                                                 </div>
                                                 <div>
                                                     <p
-                                                        class="text-[11px] font-black text-red-600 uppercase tracking-widest leading-none mb-1">
-                                                        Return Declined</p>
-                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">Vendor
-                                                        rejected this request</p>
+                                                        class="text-[11px] font-black text-red-600 uppercase tracking-widest leading-none mb-1">{{ __('order.return_declined') }}</p>
+                                                    <p class="text-[10px] text-gray-500 font-medium leading-none">{{ __('order.vendor_rejected') }}</p>
                                                 </div>
                                             @endif
 
@@ -412,8 +377,7 @@
                                         @if ($item->return_status === 'received')
                                             <div class="text-right sm:border-l sm:border-gray-100 sm:pl-4">
                                                 <p
-                                                    class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
-                                                    Credited</p>
+                                                    class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">{{ __('order.credited') }}</p>
                                                 <p class="text-sm font-black text-emerald-600">+
                                                     ₹{{ number_format($item->price * $item->quantity, 2) }}</p>
                                             </div>
@@ -425,7 +389,7 @@
                                 @if ($item->order_status === 'cancelled')
                                     <div class="mt-2 p-3 bg-red-50 rounded-xl text-xs text-red-600 border border-red-100">
                                         {{-- <strong>Cancelled by Vendor</strong><br> --}}
-                                        Reason: {{ $item->cancel_reason ?? 'No reason provided.' }}
+                                        {{ __('order.reason_label') }} {{ $item->cancel_reason ?? __('order.no_reason') }}
                                     </div>
                                 @endif
 
@@ -444,7 +408,7 @@
                     <div class="flex items-center gap-4">
                         @if (in_array($order->order_status, ['pending', 'processing']))
                             <form action="{{ route('customer.orders.cancel', $order->order_number) }}" method="POST"
-                                onsubmit="return confirm('Are you sure you want to cancel this entire order?');">
+                                onsubmit="return confirm('{{ __('order.cancel_full_alert') }}');">
 
                                 @csrf
 
@@ -452,22 +416,16 @@
                                     class="px-6 py-3 bg-white border border-rose-100
                                        text-gray-400 rounded-2xl font-bold text-[10px]
                                        uppercase tracking-widest
-                                       hover:bg-rose-50 hover:text-rose-500 transition-all">
-                                    Cancel Full Order
-                                </button>
+                                       hover:bg-rose-50 hover:text-rose-500 transition-all">{{ __('order.cancel_full_order') }}</button>
 
                             </form>
                         @endif
 
                         <a href="{{ route('customer.orders.invoice', $order->id) }}" target="_blank"
-                            class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all">
-                            View / Print Invoice
-                        </a>
+                            class="px-4 py-2 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all">{{ __('order.view_invoice') }}</a>
 
 
-                        <p class="text-[9px] text-gray-300 italic max-w-[120px] leading-tight">
-                            Cancellations are only available during 'Processing'.
-                        </p>
+                        <p class="text-[9px] text-gray-300 italic max-w-[120px] leading-tight">{{ __('order.cancel_disclaimer') }}</p>
                     </div>
                 </div>
 
