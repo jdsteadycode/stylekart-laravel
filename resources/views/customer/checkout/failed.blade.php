@@ -13,27 +13,23 @@
             <div class="absolute -top-2 -right-2 text-2xl">🥀</div>
         </div>
 
-        <h1 class="text-3xl font-black text-gray-900 mb-4">Transaction Failed</h1>
+        <h1 class="text-3xl font-black text-gray-900 mb-4">{{ __('checkout.txn_failed') }}</h1>
         <p class="text-gray-500 font-medium mb-10 leading-relaxed">
-            Oops! Something went wrong with the payment. Don't worry, no money was deducted from your account.
+            {{ __('checkout.failed_msg') }}
         </p>
 
         <div class="bg-white p-6 rounded-[32px] border border-rose-50 shadow-sm mb-10 text-left">
-            <h4 class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">What happened?</h4>
+            <h4 class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">{{ __('checkout.what_happened') }}</h4>
             <ul class="text-xs text-gray-500 space-y-2 font-medium">
-                <li>• Payment gateway timeout</li>
-                <li>• Insufficient funds or card decline</li>
-                <li>• Incorrect OTP entered</li>
+                <li>{{ __('checkout.reason_timeout') }}</li>
+                <li>{{ __('checkout.reason_funds') }}</li>
+                <li>{{ __('checkout.reason_otp') }}</li>
             </ul>
         </div>
 
         <div class="flex flex-col gap-4">
-            <a href="{{ route('customer.checkout') }}" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">
-                Checkout again
-            </a>
-            <a href="{{ route('customer.cart.index') }}" class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors">
-                Return to Cart
-            </a>
+            <a href="{{ route('customer.checkout') }}" class="w-full bg-rose-500 text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-rose-100 hover:bg-rose-600 transition-all active:scale-95">{{ __('checkout.try_again') }}</a>
+            <a href="{{ route('customer.cart.index') }}" class="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors">{{ __('checkout.return_cart') }}</a>
         </div>
 
     </div>
