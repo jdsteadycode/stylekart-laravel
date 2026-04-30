@@ -43,7 +43,7 @@
 
         <nav class="mb-8">
             <a href="{{ route('customer.shop') }}" class="text-[10px] font-black text-rose-400 uppercase tracking-widest flex items-center gap-2 hover:text-rose-600 transition-colors">
-                <i class="fa-solid fa-chevron-left text-[8px]"></i> Back to Collection
+                <i class="fa-solid fa-chevron-left text-[8px]"></i> {{ __('product.back_to_collection') }}
             </a>
         </nav>
 
@@ -93,7 +93,7 @@
 
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] bg-rose-50 px-3 py-1 rounded-full">
-                        By {{ $product->vendor?->name . "'s STORE" ?? 'N/A' }} 🏠
+                        {{ __('product.by') }} {{ $product->vendor?->name }} {{ __('product.store') }} 🏠
                     </span>
                 </div>
 
@@ -143,7 +143,7 @@
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                         </span>
                         <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest">
-                            Only {{ $selectedVariant->stock }} Left
+                            {{ __('product.only_left', ['count' => $selectedVariant->stock]) }}
                         </span>
                     </div>
                     @else
@@ -152,7 +152,7 @@
                                 <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
                             </span>
                             <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                Out of Stock
+                                {{ __('product.out_of_stock') }}
                             </span>
                         </div>
                     @endif
@@ -161,7 +161,7 @@
                         <div class="flex items-center gap-2 px-3 py-1 bg-rose-50 rounded-lg border border-rose-100 mt-2 w-fit">
                             <i class="fa-solid fa-clock-rotate-left text-rose-400 text-[10px]"></i>
                             <span class="text-[10px] font-black text-rose-600 uppercase tracking-widest">
-                                Deal ends at {{ $discount->ends_at->format('h:i A') }}
+                                {{ __('product.deal_ends', ['time' => $discount->ends_at->format('h:i A')]) }}
                             </span>
                         </div>
                     @endif
@@ -170,7 +170,7 @@
                 <div class="space-y-10 mb-10">
                     <div>
                         <span class="text-xs font-black text-gray-900 uppercase tracking-widest block mb-4">
-                            Select Color: <span class="text-rose-500 italic">
+                            {{ __('product.select_color') }} <span class="text-rose-500 italic">
                                 {{ $selectedVariant->color->name }}
                             </span></span>
 
@@ -230,7 +230,7 @@
                     {{-- Product Description --}}
                     @if($product->description)
                         <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100">
-                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">Product Description</h2>
+                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">{{ __('product.description_title') }}</h2>
                             <p class="text-gray-700 leading-relaxed">
                                 {!! nl2br(e($product->description)) !!}
                             </p>
@@ -246,12 +246,12 @@
                                 </div>
                             @endif
                             <div>
-                                <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Authentic Label</h3>
+                                <h3 class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">{{ __('product.authentic_label') }}</h3>
                                 <p class="text-xl font-black text-gray-900 uppercase tracking-tight">{{ $product->brand->name }}</p>
 
                                 <a href="{{ route('customer.shop', ['brand[]' => $product->brand->slug]) }}"
                                    class="inline-block mt-4 px-4 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] border border-slate-200 rounded-full hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300">
-                                    Explore Full Collection →
+                                    {{ __('product.explore_collection') }}
                                 </a>
                             </div>
                         </div>
@@ -260,7 +260,7 @@
                     {{-- Vendor Details --}}
                     @if($product->vendor)
                         <div class="bg-rose-50 p-6 rounded-2xl border border-rose-100">
-                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">Seller Information</h2>
+                            <h2 class="text-lg font-black text-gray-900 mb-4 uppercase tracking-wide">{{ __('product.seller_info') }}</h2>
                             <div class="flex flex-col gap-2 text-gray-700 text-sm">
                                 <div class="flex items-center gap-2">
                                     <i class="fa-solid fa-shop text-rose-400"></i>
@@ -321,7 +321,7 @@
                             {{ $selectedVariant->stock < 1 ? 'disabled' : '' }}
                         >
                             <i class="fa-solid fa-bag-shopping"></i>
-                            {{ $selectedVariant->stock < 1 ? 'Out of Stock' : 'Add to Bag'}}
+                            {{ $selectedVariant->stock < 1 ? __('product.out_of_stock') : __('product.add_to_bag') }}
                         </button>
 
                     </form>
@@ -355,11 +355,11 @@
                 <div class="mt-8 grid grid-cols-2 gap-4">
                     <div class="flex items-center gap-3 p-4 bg-rose-50/30 rounded-2xl">
                         <i class="fa-solid fa-truck-fast text-rose-400 text-xs"></i>
-                        <span class="text-[10px] font-black text-gray-800 uppercase tracking-tighter">Fast Delivery</span>
+                        <span class="text-[10px] font-black text-gray-800 uppercase tracking-tighter">{{ __('product.fast_delivery') }}</span>
                     </div>
                     <div class="flex items-center gap-3 p-4 bg-rose-50/30 rounded-2xl">
                         <i class="fa-solid fa-rotate-left text-rose-400 text-xs"></i>
-                        <span class="text-[10px] font-black text-gray-800 uppercase tracking-tighter">Easy Returns</span>
+                        <span class="text-[10px] font-black text-gray-800 uppercase tracking-tighter">{{ __('product.easy_returns') }}</span>
                     </div>
                 </div>
             </div>
