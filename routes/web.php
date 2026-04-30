@@ -272,7 +272,7 @@ Route::middleware(["auth", "role:vendor"])
         /**
          * notifications
          */
-        Route::prefix('vendor/notifications')->name('vendor.notifications.')->group(function () {
+        Route::prefix('notifications')->name('vendor.notifications.')->group(function () {
             Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::post('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('markAllRead');
         });
@@ -336,7 +336,7 @@ Route::middleware(["auth", "role:vendor"])
              * Brands Module
              */
 
-            Route::prefix('/vendor/brands')->group(function () {
+            Route::prefix('/brands')->group(function () {
 
                 // List all brands
                 Route::get('/', [BrandController::class, 'index'])
@@ -559,6 +559,10 @@ Route::prefix("/stylekart-store")->group(function () {
 
     // '/shop' - shop page..
     Route::get("/shop", [ShopController::class, 'index'])->name("customer.shop");
+
+    // '/lang/{locale}' - switch the preferred language
+    Route::get('/lang/{locale}', [\App\Http\Controllers\Customer\LanguageController::class, 'switchLang'])
+        ->name('customer.lang.switch');
 
     // '/product/2' - single product page..
     Route::get("/product/{product}", [ProductDetailController::class, 'show'])->name("customer.product.show");
