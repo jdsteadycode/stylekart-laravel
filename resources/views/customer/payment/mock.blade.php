@@ -26,10 +26,10 @@
         <div class="max-w-[480px] w-full bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden">
 
             <div class="px-8 pt-10 pb-6 text-center border-b border-dashed border-gray-100">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Payable Amount</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{{ __('payment.total_payable') }}</p>
                 <h2 class="text-4xl font-extrabold text-slate-900">₹ {{ $order->payable_amount ?? 0 }}<span class="text-xl text-gray-400 font-medium">.00</span></h2>
                 <div class="mt-4 inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider">
-                    ORDER NUMBER: {{ $order->order_number ?? 'N/A' }}
+                    {{ __('payment.order_number') }}: {{ $order->order_number ?? 'N/A' }}
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
 
                     <div>
                         <div class="flex justify-between items-end mb-2">
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Card Number</label>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{{ __('payment.card_number') }}</label>
                             {{-- <div class="flex space-x-1 opacity-60">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-3" alt="Visa">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-4" alt="Mastercard">
@@ -53,26 +53,26 @@
 
                     <div class="grid grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Expiry Date</label>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('payment.expiry_date') }}</label>
                             <input type="text" name="expiry" placeholder="MM / YY" required
                                 class="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-600 focus:bg-white outline-none transition-all duration-200 font-medium placeholder:text-gray-300">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">CVV Code</label>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('payment.cvv') }}</label>
                             <input type="password" name="cvv" maxlength="3" placeholder="•••" required
                                 class="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-600 focus:bg-white outline-none transition-all duration-200 font-medium placeholder:text-gray-300 text-center tracking-widest">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Cardholder Name</label>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('payment.cardholder_name') }}</label>
                         <input type="text" name="card_name" placeholder="John Doe" required
                             class="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-indigo-600 focus:bg-white outline-none transition-all duration-200 font-medium placeholder:text-gray-300">
                     </div>
 
                     <button type="submit"
                         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-5 rounded-2xl shadow-[0_10px_20px_rgba(79,70,229,0.3)] hover:shadow-[0_15px_25px_rgba(79,70,229,0.4)] transition-all duration-300 transform active:scale-95 text-lg">
-                        Make Payment
+                        {{ __('payment.make_payment') }}
                     </button>
                 </form>
 
@@ -85,14 +85,14 @@
                         <svg class="w-3 h-3 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
                         </svg>
-                        Encrypted by 256-bit SSL
+                        {{ __('payment.encrypted') }}
                     </div>
                 </div>
             </div>
         </div>
 
         <a href="{{ route('customer.checkout') }}" class="mt-8 text-sm font-semibold text-gray-400 hover:text-indigo-600 transition-colors">
-            &larr; Cancel and return to Merchant
+            &larr; {{ __('payment.cancel_return') }}
         </a>
 
     </div>
