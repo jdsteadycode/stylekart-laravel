@@ -12,7 +12,7 @@
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div class="mb-10 text-center md:text-left">
-            <h1 class="text-3xl font-black text-gray-900">Shopping Bag <span class="text-rose-500">({{count($bag)}} Items)</span></h1>
+            <h1 class="text-3xl font-black text-gray-900">{{ __('cart.title') }} <span class="text-rose-500">{{ __('cart.items_count', ['count' => count($bag)]) }}</span></h1>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -52,13 +52,13 @@
 
                                 <!-- Variant Details -->
                                 <div class="mt-1 flex flex-wrap gap-2 text-xs text-gray-500 font-medium">
-                                    <span>Size: <span class="font-bold text-gray-700">{{ $item['size'] ?? 'N/A' }}</span></span>
-                                    <span>Color:
+                                    <span>{{ __('cart.size') }} <span class="font-bold text-gray-700">{{ $item['size'] ?? 'N/A' }}</span></span>
+                                    <span>{{ __('cart.color') }}
                                         <span class="inline-block w-3 h-3 rounded-full border border-gray-200"
                                               style="background-color: {{ $item['color'] ?? '#ccc' }}"></span>
                                         <span class="ml-1 font-bold text-gray-700">{{ $item['color'] ?? 'N/A' }}</span>
                                     </span>
-                                    <span>Stock left: <span class="font-bold text-rose-500">{{ $item['stock'] ?? 0 }}</span></span>
+                                    <span>{{ __('cart.stock_left') }} <span class="font-bold text-rose-500">{{ $item['stock'] ?? 0 }}</span></span>
                                 </div>
 
                                 <!-- Quantity & Price -->
@@ -78,12 +78,12 @@
 
                    @endforeach
                 @else
-                    <p class="text-gray-500 text-center">Your bag is empty 🛍️</p>
+                    <p class="text-gray-500 text-center">{{ __('cart.empty_bag') }}</p>
                 @endif
 
                 <div class="pt-4">
                     <a href="{{ route('customer.shop') }}" class="text-sm font-bold text-rose-400 hover:text-rose-600 transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-left text-xs"></i> Continue Shopping
+                        <i class="fa-solid fa-arrow-left text-xs"></i> {{ __('cart.continue_shopping') }}
                     </a>
                 </div>
             </div>
@@ -92,20 +92,20 @@
             <div class="lg:col-span-1">
 
                 <div class="bg-white p-8 rounded-3xl border border-rose-50 shadow-sm sticky top-28">
-                    <h3 class="text-lg font-bold text-gray-800 mb-6">Order Summary</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-6">{{ __('cart.summary_title') }}</h3>
 
                     <div class="space-y-4 text-sm">
                         <div class="flex justify-between text-gray-500 font-medium">
-                            <span>Subtotal</span>
+                            <span>{{ __('cart.subtotal') }}</span>
                             <span class="text-gray-900">₹ {{ $subTotal }}</span>
                         </div>
                         <div class="flex justify-between text-gray-500 font-medium">
-                            <span>Shipping</span>
-                            <span class="text-green-500 font-bold italic">Free</span>
+                            <span>{{ __('cart.shipping') }}</span>
+                            <span class="text-green-500 font-bold italic">{{ __('cart.free') }}</span>
                         </div>
 
                         <div class="border-t border-rose-50 pt-4 mt-4 flex justify-between">
-                            <span class="text-base font-bold text-gray-900">Total Amount</span>
+                            <span class="text-base font-bold text-gray-900">{{ __('cart.total_amount') }}</span>
                             <span class="text-xl font-black text-rose-500">₹ {{ $subTotal }}</span>
                         </div>
                     </div>
@@ -114,12 +114,12 @@
                     @if(count($bag) > 0)
                     <a href="{{ route('customer.checkout') }}"
                            class="block w-full text-center bg-rose-500 text-white py-4 rounded-2xl font-bold mt-8 shadow-lg shadow-rose-100 hover:bg-rose-600 active:scale-95 transition-all">
-                            Checkout Now
+                            {{ __('cart.checkout_now') }}
                         </a>
                     @else
                         <button disabled
                             class="w-full bg-gray-300 text-white py-4 rounded-2xl font-bold mt-8 cursor-not-allowed">
-                            Checkout Now
+                            {{ __('cart.checkout_now') }}
                         </button>
                     @endif
 
